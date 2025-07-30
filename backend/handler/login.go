@@ -1,0 +1,130 @@
+package handler
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"log"
+	"net"
+	"net/http"
+	"strings"
+
+	"backend/config"
+	"backend/repository"
+
+	"github.com/gorilla/sessions"
+)
+
+var store = sessions.NewCookieStore([]byte("super-secret-key"))
+
+type Credentials struct {
+	ID     string `json:"id"`
+	Passwd string `json:"passwd"`
+}
+
+type LoginResponse struct {
+	ID        string `json:"id"`
+	EmpName   string `json:"emp_name"`
+	DeptName  string `json:"dept_name"`
+	OfficeTel string `json:"office_tel"`
+	MobileTel string `json:"mobile_tel"`
+}
+
+func hashPassword(password string) string {
+	hash := sha256.Sum256([]byte(password))
+	return hex.EncodeToString(hash[:])
+}
+
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+
+	// CORS 설정
+	err := r.ParseForm()
+	if err != nil {
+		log.Printf("폼 파싱 실패: %v", err)
+		http.Error(w, "잘못된 요청입니다", http.StatusBadRequest)
+		return
+	}
+
+	// JSON 디코딩
+	var creds Credentials
+	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
+		log.Printf("JSON 디코딩 실패: %v", err)
+		http.Error(w, "잘못된 요청입니다.", http.StatusBadRequest)
+		return
+	}
+
+	// 사용자 조회
+	user, err := repository.GetUserByID(creds.ID)
+	if err != nil {
+		if err == repository.ErrUserNotFound {
+			log.Printf("사용자 없음: %s", creds.ID)
+			http.Error(w, "인증 실패", http.StatusUnauthorized)
+			return
+		}
+		log.Printf("DB 오류: %v", err)
+		http.Error(w, "서버 오류", http.StatusInternalServerError)
+		return
+	}
+
+	// 비밀번호 해시 비교
+	inputHashed := hashPassword(creds.Passwd)
+	if inputHashed != user.Passwd {
+		log.Printf("비밀번호 불일치 ID: %s", creds.ID)
+		http.Error(w, "인증 실패", http.StatusUnauthorized)
+		return
+	}
+
+	// 클라이언트 IP 주소 가져오기
+	host := getClientIP(r)
+	log.Printf("로그인 시도: ID=%s IP=%s", creds.ID, host)
+
+	// 세션 생성
+	session, _ := store.Get(r, "session-id")
+	session.Values["id"] = creds.ID
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   1200,
+		HttpOnly: true,
+	}
+	session.Save(r, w)
+	repository.InsertLoginInfo(creds.ID, host, config.Cfg.IP)
+
+	// 응답 설정
+	w.WriteHeader(http.StatusOK)
+	resp := LoginResponse{
+		ID:        user.ID,
+		EmpName:   user.EmpName,
+		DeptName:  user.DeptName,
+		OfficeTel: user.OfficeTel,
+		MobileTel: user.MobileTel,
+	}
+	json.NewEncoder(w).Encode(resp)
+}
+
+func getClientIP(r *http.Request) string {
+	// 1. 프록시나 로드밸런서를 거칠 경우, X-Forwarded-For 헤더 확인
+	ip := r.Header.Get("X-Forwarded-For")
+	log.Printf("X-Forwarded-For: %s", ip)
+	if ip != "" {
+		// 여러 IP가 있을 경우 첫 번째가 원본 클라이언트 IP임
+		ips := strings.Split(ip, ",")
+		if len(ips) > 0 {
+			return strings.TrimSpace(ips[0])
+		}
+	}
+
+	// 2. X-Real-IP 헤더가 있으면 사용
+	ip = r.Header.Get("X-Real-IP")
+	log.Printf("X-Real-IP: %s", ip)
+	if ip != "" {
+		return ip
+	}
+
+	// 3. 위 헤더 없으면, 직접 연결 IP 사용
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	log.Printf("RemoteAddr: %s", r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return ip
+}

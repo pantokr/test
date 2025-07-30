@@ -1,43 +1,39 @@
-package webserver
+package web
 
 import (
-	"backend/handler"
-	"fmt"
+	"log"
 	"net/http"
+	"time"
+
+	"backend/config"
+	"backend/handler"
+	"backend/middleware"
 )
 
-func Run(addr string) error {
-	// React build 경로 (운영 환경에 맞게 조정하세요)
-	buildDir := "C:\\workplaces\\mcirni\\frontend\\build"
+func Run() {
+	go func() {
+		for {
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						log.Printf("웹 서버 패닉 발생: %v. 3초 후 재시작합니다.", r)
+						time.Sleep(3 * time.Second)
+					}
+				}()
 
-	// /loans API 라우팅 + CORS 적용
-	http.Handle("/loans", withCORS(http.HandlerFunc(handler.NewLoanReviewHandler)))
+				port := config.Cfg.WebPort
+				addr := "0.0.0.0" + ":" + port
 
-	// 정적 파일 서빙
-	fs := http.FileServer(http.Dir(buildDir))
-	http.Handle("/static/", fs)
+				http.Handle("/api/login", middleware.CORS(http.HandlerFunc(handler.LoginHandler)))
+				http.Handle("/api/logout", middleware.CORS(http.HandlerFunc(handler.LogoutHandler)))
 
-	// SPA 대응: 모든 요청을 index.html로
-	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	indexPath := filepath.Join(buildDir, "index.html")
-	// 	http.ServeFile(w, r, indexPath)
-	// })
+				log.Printf("웹 서버 시작: %s", addr)
 
-	fmt.Println("🚀 서버 실행되고 있습니다.:", addr)
-	return http.ListenAndServe(addr, nil)
-}
-
-// CORS 미들웨어
-func withCORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000") // React 개발서버 주소
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
-			return
+				if err := http.ListenAndServe(addr, nil); err != nil {
+					log.Printf("웹 서버 오류 발생: %v", err)
+					time.Sleep(3 * time.Second)
+				}
+			}()
 		}
-		next.ServeHTTP(w, r)
-	})
+	}()
 }

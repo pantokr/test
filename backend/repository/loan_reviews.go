@@ -4,6 +4,8 @@ import (
 	"backend/db"
 )
 
+var database = db.GetDatabase()
+
 type Loan struct {
 	ID              int    `json:"id"`
 	Debtor          string `json:"debtor"`
@@ -14,10 +16,9 @@ type Loan struct {
 }
 
 func GetLoans() ([]Loan, error) {
-	rows, err := db.DB.Query(`
-		SELECT id, debtor, loan_amount, property_address, application_date, status
-		FROM loan_reviews
-	`)
+	var query = `SELECT id, debtor, loan_amount, property_address, application_date, status FROM loan_reviews`
+	// loan_reviews 테이블에서 모든 대출 정보를 가져옵니다.
+	rows, err := database.Query(query)
 	if err != nil {
 		return nil, err
 	}

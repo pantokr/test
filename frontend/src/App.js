@@ -1,4 +1,19 @@
-import { useState, useEffect } from "react";
+/**
+=========================================================
+* Material Dashboard 2 React - v2.2.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/material-dashboard-react
+* Copyright 2023 Creative Tim (https://www.creative-tim.com)
+
+Coded by www.creative-tim.com
+
+ =========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+*/
+
+import { useState, useEffect, useMemo } from "react";
 
 // react-router components
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
@@ -11,26 +26,32 @@ import Icon from "@mui/material/Icon";
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 
-// example components
-import Sidenav from "examples/Sidenav";
-import Configurator from "examples/Configurator";
+// Material Dashboard 2 React example components
+import Sidenav from "frames/Sidenav";
+import Configurator from "frames/Configurator";
 
-// themes (LTR only)
+// Material Dashboard 2 React themes
 import theme from "assets/theme";
+
+// Material Dashboard 2 React Dark Mode themes
 import themeDark from "assets/theme-dark";
 
-// routes
+// Material Dashboard 2 React routes
 import routes from "routes";
+import ProtectedRoute from "routes/ProtectedRoute";
 
-// contexts
+// Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
-// images
+// Images
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
+import { useAuth } from "context/auth";
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
+  const { userId } = useAuth(); // 로그인된 사용자 ID 등 인증 상태 가져오기
+
   const {
     miniSidenav,
     layout,
@@ -43,7 +64,7 @@ export default function App() {
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const { pathname } = useLocation();
 
-  // Sidenav mouse behavior
+  // Open sidenav when mouse enter on mini sidenav
   const handleOnMouseEnter = () => {
     if (miniSidenav && !onMouseEnter) {
       setMiniSidenav(dispatch, false);
@@ -51,6 +72,7 @@ export default function App() {
     }
   };
 
+  // Close sidenav when mouse leave mini sidenav
   const handleOnMouseLeave = () => {
     if (onMouseEnter) {
       setMiniSidenav(dispatch, true);
@@ -58,11 +80,14 @@ export default function App() {
     }
   };
 
+  // Change the openConfigurator state
   const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
 
+  // Setting page scroll to 0 when changing the route
   useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
+    // window.history.replaceState(null, "", "/");
   }, [pathname]);
 
   const getRoutes = (allRoutes) =>
@@ -72,6 +97,27 @@ export default function App() {
       }
 
       if (route.route) {
+        const isProtected = ![
+          "/authentication/sign-in",
+          "/authentication/sign-up",
+          "/authentication/reset-password",
+        ].includes(route.route);
+
+        const isAuthenticated = userId === null ? false : true; // 인증 상태 확인
+        if (isProtected) {
+          return (
+            <Route
+              exact
+              path={route.route}
+              key={route.key}
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>{route.component}</ProtectedRoute>
+              }
+            />
+          );
+        }
+
+        // 로그인 불필요한 페이지는 그냥 출력
         return <Route exact path={route.route} element={route.component} key={route.key} />;
       }
 
@@ -110,7 +156,7 @@ export default function App() {
           <Sidenav
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-            brandName="가교"
+            brandName={userId || ""}
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
