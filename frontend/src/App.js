@@ -16,7 +16,7 @@ Coded by www.creative-tim.com
 import { useState, useEffect, useMemo } from "react";
 
 // react-router components
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 // @mui material components
 import { ThemeProvider } from "@mui/material/styles";
@@ -47,10 +47,12 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "co
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
 import { useAuth } from "context/auth";
+import { fetchUser } from "api/auth";
+import Loading from "pages/loading";
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
-  const { userId } = useAuth(); // 로그인된 사용자 ID 등 인증 상태 가져오기
+  const { user, setUser } = useAuth(); // 로그인된 사용자 ID 등 인증 상태 가져오기
 
   const {
     miniSidenav,
@@ -61,8 +63,10 @@ export default function App() {
     whiteSidenav,
     darkMode,
   } = controller;
+
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const { pathname } = useLocation();
+  const [loading, setLoading] = useState(true);
 
   // Open sidenav when mouse enter on mini sidenav
   const handleOnMouseEnter = () => {
@@ -85,9 +89,24 @@ export default function App() {
 
   // Setting page scroll to 0 when changing the route
   useEffect(() => {
-    document.documentElement.scrollTop = 0;
-    document.scrollingElement.scrollTop = 0;
-    // window.history.replaceState(null, "", "/");
+    const handleFetchUser = async () => {
+      try {
+        const data = await fetchUser();
+        setUser({
+          id: data.id,
+          empName: data.empName,
+          deptName: data.deptName,
+          officeTel: data.officeTel,
+          mobileTel: data.mobileTel,
+        });
+      } catch (err) {
+        setUser({ id: null, empName: "", deptName: "", officeTel: "", mobileTel: "" });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    handleFetchUser();
   }, [pathname]);
 
   const getRoutes = (allRoutes) =>
@@ -103,7 +122,7 @@ export default function App() {
           "/authentication/reset-password",
         ].includes(route.route);
 
-        const isAuthenticated = userId === null ? false : true; // 인증 상태 확인
+        const isAuthenticated = user?.id ? true : false;
         if (isProtected) {
           return (
             <Route
@@ -148,6 +167,14 @@ export default function App() {
     </MDBox>
   );
 
+  if (loading) {
+    return (
+      <ThemeProvider theme={darkMode ? themeDark : theme}>
+        <Loading />;
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
       <CssBaseline />
@@ -156,7 +183,7 @@ export default function App() {
           <Sidenav
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-            brandName={userId || ""}
+            brandName={user.id || ""}
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}

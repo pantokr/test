@@ -34,7 +34,11 @@ func Init() {
 	log.Printf("IPv4 주소: %s\n", addr)
 
 	if err := godotenv.Load(); err != nil {
-		log.Println(".env 파일 로드 실패 (Docker):", err)
+		if strings.HasPrefix(addr, os.Getenv("PROP_IP")) {
+			log.Println(".env 파일 로드 생략")
+		} else {
+			log.Println(".env 파일 로드 실패 (Docker):", err)
+		}
 	} else {
 		log.Println(".env 파일 로드 성공")
 	}

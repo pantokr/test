@@ -152,6 +152,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           }
         />
       );
+    } else {
+      returnValue = null;
     }
 
     return returnValue;

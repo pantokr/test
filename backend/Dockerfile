@@ -8,5 +8,5 @@ RUN go build -o app .
 FROM debian:bookworm-slim
 WORKDIR /app
 COPY --from=build /app/app .
-EXPOSE 8080
+EXPOSE 8180
 CMD ["./app"]

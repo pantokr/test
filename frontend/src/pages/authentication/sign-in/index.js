@@ -17,7 +17,7 @@ import { useAuth } from "context/auth";
 import { Line } from "react-chartjs-2";
 
 function SignIn() {
-  const { setUserId } = useAuth();
+  const { user, setUser } = useAuth();
 
   const navigate = useNavigate();
   const [id, setId] = useState("");
@@ -31,7 +31,13 @@ function SignIn() {
 
       const data = await login({ id, passwd });
       console.log("로그인된 ID:", data.id);
-      setUserId(data.id);
+      setUser({
+        id: data.id,
+        empName: data.empName,
+        deptName: data.deptName,
+        officeTel: data.officeTel,
+        mobileTel: data.mobileTel,
+      });
       // 로그인 성공 시 대시보드로 이동
       navigate("/dashboard");
     } catch (err) {

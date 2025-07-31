@@ -4,7 +4,62 @@ import (
 	"backend/db"
 	"database/sql"
 	"errors"
+	"time"
 )
+
+// LoginInfo 구조체 정의 (조회 결과를 담기 위한 구조체)
+type LoginInfo struct {
+	ID         int        `json:"id"`
+	LoginID    string     `json:"login_id"`
+	EmpName    string     `json:"emp_name"`
+	LoginTime  *time.Time `json:"login_time"`
+	LogoutTime *time.Time `json:"logout_time"`
+	IsExternal string     `json:"is_external"`
+	UserIP     string     `json:"user_ip"`
+	ServerIP   string     `json:"server_ip"`
+}
+
+// SelectLoginInfoAll : login_info 테이블의 모든 로그인 기록 조회
+func SelectLoginInfoAll() ([]LoginInfo, error) {
+	database := db.GetDatabase()
+
+	query := `SELECT login_id, emp_name, login_time, logout_time, is_external, user_ip, server_ip FROM login_info ORDER BY login_time DESC`
+
+	rows, err := database.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var loginInfos []LoginInfo
+
+	for rows.Next() {
+		var li LoginInfo
+		err := rows.Scan(
+			&li.LoginID,
+			&li.EmpName,
+			&li.LoginTime,
+			&li.LogoutTime,
+			&li.IsExternal,
+			&li.UserIP,
+			&li.ServerIP,
+		)
+		if err != nil {
+			return nil, err
+		}
+		loginInfos = append(loginInfos, li)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if len(loginInfos) == 0 {
+		return nil, errors.New("login_info 테이블에 데이터가 없습니다")
+	}
+
+	return loginInfos, nil
+}
 
 // InsertLoginInfo : 로그인 시 기록 추가
 func InsertLoginInfo(loginID string, userIP string, serverIP string) error {

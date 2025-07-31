@@ -6,11 +6,13 @@ import (
 	"time"
 
 	"backend/config"
-	"backend/handler"
-	"backend/middleware"
 )
 
 func Run() {
+
+	RegisterAuthRoutes()
+	RegisterLogsRoutes()
+
 	go func() {
 		for {
 			func() {
@@ -23,9 +25,6 @@ func Run() {
 
 				port := config.Cfg.WebPort
 				addr := "0.0.0.0" + ":" + port
-
-				http.Handle("/api/login", middleware.CORS(http.HandlerFunc(handler.LoginHandler)))
-				http.Handle("/api/logout", middleware.CORS(http.HandlerFunc(handler.LogoutHandler)))
 
 				log.Printf("웹 서버 시작: %s", addr)
 
