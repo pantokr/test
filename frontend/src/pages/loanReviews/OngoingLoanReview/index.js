@@ -24,8 +24,6 @@ import MDTypography from "components/MDTypography";
 // Material Dashboard 2 React example components
 import DashboardLayout from "frames/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "frames/Navbars/DashboardNavbar";
-import Footer from "frames/Footer";
-import DataTable from "frames/Tables/DataTable";
 
 // Data
 import authorsTableData from "pages/tables/data/authorsTableData";
@@ -56,15 +54,7 @@ function OngoingLoanReview() {
                   Authors Table
                 </MDTypography>
               </MDBox>
-              <MDBox pt={3}>
-                <DataTable
-                  table={{ columns, rows }}
-                  isSorted={false}
-                  entriesPerPage={false}
-                  showTotalEntries={false}
-                  noEndBorder
-                />
-              </MDBox>
+              <MDBox pt={3}></MDBox>
             </Card>
           </Grid>
           <Grid item xs={12}>
@@ -83,20 +73,11 @@ function OngoingLoanReview() {
                   Projects Table
                 </MDTypography>
               </MDBox>
-              <MDBox pt={3}>
-                <DataTable
-                  table={{ columns: pColumns, rows: pRows }}
-                  isSorted={false}
-                  entriesPerPage={false}
-                  showTotalEntries={false}
-                  noEndBorder
-                />
-              </MDBox>
+              <MDBox pt={3}></MDBox>
             </Card>
           </Grid>
         </Grid>
       </MDBox>
-      <Footer />
     </DashboardLayout>
   );
 }

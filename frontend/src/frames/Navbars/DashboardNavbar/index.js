@@ -46,12 +46,7 @@ import {
 } from "frames/Navbars/DashboardNavbar/styles";
 
 // Material Dashboard 2 React context
-import {
-  useMaterialUIController,
-  setTransparentNavbar,
-  setMiniSidenav,
-  setOpenConfigurator,
-} from "context";
+import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 import MDTypography from "components/MDTypography";
 
 function DashboardNavbar({ absolute, light, isMini, navbarTitle }) {
@@ -61,25 +56,6 @@ function DashboardNavbar({ absolute, light, isMini, navbarTitle }) {
   const route = useLocation().pathname.split("/").slice(1);
 
   const navbarType = fixedNavbar ? "sticky" : "static";
-
-  useEffect(() => {
-    // A function that sets the transparent state of the navbar.
-    function handleTransparentNavbar() {
-      setTransparentNavbar(dispatch, (fixedNavbar && window.scrollY === 0) || !fixedNavbar);
-    }
-
-    /** 
-     The event listener that's calling the handleTransparentNavbar function when 
-     scrolling the window.
-    */
-    window.addEventListener("scroll", handleTransparentNavbar);
-
-    // Call the handleTransparentNavbar function to set the state with the initial value.
-    handleTransparentNavbar();
-
-    // Remove event listener on cleanup
-    return () => window.removeEventListener("scroll", handleTransparentNavbar);
-  }, [dispatch, fixedNavbar]);
 
   const handleMiniSidenav = () => setMiniSidenav(dispatch, !miniSidenav);
   const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
@@ -133,11 +109,6 @@ function DashboardNavbar({ absolute, light, isMini, navbarTitle }) {
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
             <MDBox color={light ? "white" : "inherit"}>
-              <Link to="/authentication/sign-in/basic">
-                <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <Icon sx={iconsStyle}>account_circle</Icon>
-                </IconButton>
-              </Link>
               <IconButton
                 size="small"
                 disableRipple
@@ -149,6 +120,12 @@ function DashboardNavbar({ absolute, light, isMini, navbarTitle }) {
                   {miniSidenav ? "menu_open" : "menu"}
                 </Icon>
               </IconButton>
+              <Link to="/authentication/sign-in/basic">
+                <IconButton sx={navbarIconButton} size="small" disableRipple>
+                  <Icon sx={iconsStyle}>account_circle</Icon>
+                </IconButton>
+              </Link>
+
               <IconButton
                 size="small"
                 disableRipple

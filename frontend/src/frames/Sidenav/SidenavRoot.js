@@ -88,5 +88,9 @@ export default styled(Drawer)(({ theme, ownerState }) => {
 
       ...(miniSidenav ? drawerCloseStyles() : drawerOpenStyles()),
     },
+
+    "@media print": {
+      display: "none !important",
+    },
   };
 });

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardContent } from "@mui/material";
+import { Box, Card, CardContent } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
 import { AgGridReact } from "ag-grid-react";
@@ -8,8 +8,7 @@ import { ModuleRegistry, AllCommunityModule } from "ag-grid-community"; // ← �
 import MDBox from "components/MDBox";
 import DashboardLayout from "frames/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "frames/Navbars/DashboardNavbar";
-import AgGridTable from "frames/DataGrid/AgGridTable";
-
+import AgGridPagingTable from "frames/DataGrid/AgGridPagingTable";
 import { rowData, columnDefs } from "pages/logs/LoginReset/data/loginResetData";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -17,13 +16,13 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 function LoginReset() {
   return (
     <DashboardLayout>
-      <MDBox sx={{ display: "flex", flexDirection: "column", height: "100vh", p: 3 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", p: 3 }}>
         <DashboardNavbar navbarTitle="로그인 초기화 조회" />
 
         {/* 이 영역만 남은 높이를 채움 */}
         <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
           <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-            <MDBox
+            <Box
               sx={{
                 flexGrow: 1,
                 height: "100%", // Card 내부 꽉 채우기
@@ -32,12 +31,16 @@ function LoginReset() {
               }}
               className="ag-theme-alpine"
             >
-              <AgGridTable rows={rowData} columns={columnDefs} />
+              <AgGridPagingTable
+                rows={rowData}
+                columns={columnDefs}
+                pageName="로그인 초기화 조회"
+              />
               {/* <MuiGridTable rows={rowData} columns={columnDefs}></MuiGridTable> */}
-            </MDBox>
+            </Box>
           </CardContent>
         </Card>
-      </MDBox>
+      </Box>
     </DashboardLayout>
   );
 }

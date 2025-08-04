@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardContent } from "@mui/material";
+import { Box, Card, CardContent } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 
 import { AgGridReact } from "ag-grid-react";
@@ -8,7 +8,7 @@ import { ModuleRegistry, AllCommunityModule } from "ag-grid-community"; // ← �
 import MDBox from "components/MDBox";
 import DashboardLayout from "frames/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "frames/Navbars/DashboardNavbar";
-import AgGridTable from "frames/DataGrid/AgGridTable";
+import AgGridPagingTable from "frames/DataGrid/AgGridPagingTable";
 
 import { rowData, columnDefs } from "pages/logs/LoginInfo/data/loginInfoData";
 
@@ -17,7 +17,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 function LoginInfo() {
   return (
     <DashboardLayout>
-      <MDBox sx={{ display: "flex", flexDirection: "column", height: "100vh", p: 3 }}>
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", p: 3 }}>
         <DashboardNavbar navbarTitle="로그인 정보 조회" />
         {/* 이 영역만 남은 높이를 채움 */}
         <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -31,12 +31,12 @@ function LoginInfo() {
               }}
               className="ag-theme-alpine"
             >
-              <AgGridTable rows={rowData} columns={columnDefs} />
+              <AgGridPagingTable rows={rowData} columns={columnDefs} pageName="로그인 정보 조회" />
               {/* <MuiGridTable rows={rowData} columns={columnDefs}></MuiGridTable> */}
             </MDBox>
           </CardContent>
         </Card>
-      </MDBox>
+      </Box>
     </DashboardLayout>
   );
 }

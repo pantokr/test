@@ -44,25 +44,16 @@ import ProtectedRoute from "routes/ProtectedRoute";
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
 // Images
-import brandWhite from "assets/images/logo-ct.png";
-import brandDark from "assets/images/logo-ct-dark.png";
 import { useAuth } from "context/auth";
 import { fetchUserSession } from "api/auth";
 import Loading from "pages/loading";
+import { GlobalStyles } from "@mui/material";
 
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
   const { user, setUser } = useAuth(); // 로그인된 사용자 ID 등 인증 상태 가져오기
 
-  const {
-    miniSidenav,
-    layout,
-    openConfigurator,
-    sidenavColor,
-    transparentSidenav,
-    whiteSidenav,
-    darkMode,
-  } = controller;
+  const { miniSidenav, layout, openConfigurator, sidenavColor, darkMode } = controller;
 
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const { pathname } = useLocation();
@@ -108,6 +99,16 @@ export default function App() {
 
     handleFetchUserSession();
   }, [pathname]);
+
+  // 우클릭 방지
+  useEffect(() => {
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener("contextmenu", handleContextMenu);
+    return () => document.removeEventListener("contextmenu", handleContextMenu);
+  }, []);
 
   const getRoutes = (allRoutes) =>
     allRoutes.map((route) => {
@@ -178,6 +179,21 @@ export default function App() {
   return (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
       <CssBaseline />
+      <GlobalStyles
+        styles={{
+          "@media print": {
+            "*": {
+              colorAdjust: "exact",
+              WebkitPrintColorAdjust: "exact",
+              printColorAdjust: "exact",
+            },
+            ".MuiIcon-root": {
+              fontSize: "inherit !important",
+              color: "black !important",
+            },
+          },
+        }}
+      />
       {layout === "dashboard" && (
         <>
           <Sidenav

@@ -29,7 +29,6 @@ import MDTypography from "components/MDTypography";
 // Material Dashboard 2 React example components
 import DashboardLayout from "frames/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "frames/Navbars/DashboardNavbar";
-import Footer from "frames/Footer";
 import ProfileInfoCard from "frames/Cards/InfoCards/ProfileInfoCard";
 import ProfilesList from "frames/Lists/ProfilesList";
 import DefaultProjectCard from "frames/Cards/ProjectCards/DefaultProjectCard";
@@ -195,7 +194,6 @@ function Overview() {
           </Grid>
         </MDBox>
       </Header>
-      <Footer />
     </DashboardLayout>
   );
 }

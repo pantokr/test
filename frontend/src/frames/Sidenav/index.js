@@ -1,19 +1,4 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // react-router-dom components
 import { useLocation, NavLink, useNavigate } from "react-router-dom";
@@ -26,6 +11,7 @@ import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
 import Link from "@mui/material/Link";
 import Icon from "@mui/material/Icon";
+import Collapse from "@mui/material/Collapse";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -40,19 +26,20 @@ import SidenavRoot from "frames/Sidenav/SidenavRoot";
 import sidenavLogoLabel from "frames/Sidenav/styles/sidenav";
 
 // Material Dashboard 2 React context
-import {
-  useMaterialUIController,
-  setMiniSidenav,
-  setTransparentSidenav,
-  setWhiteSidenav,
-} from "context";
+import { useMaterialUIController, setMiniSidenav, setWhiteSidenav } from "context";
 import { logout } from "api/auth";
+import { Box, ListItemIcon } from "@mui/material";
+import { collapseIcon, collapseIconBox } from "./styles/sidenavCollapse";
+import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
+
+  // 각 섹션의 접기/펼치기 상태 관리
+  const [collapsedSections, setCollapsedSections] = useState({});
 
   let textColor = "white";
 
@@ -61,16 +48,17 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   } else if (whiteSidenav && darkMode) {
     textColor = "inherit";
   }
+
   const navigate = useNavigate();
 
   const handleLogout = async (e) => {
-    e.preventDefault(); // 혹시 a 태그 등에서 쓰면 기본 이벤트 방지
+    e.preventDefault();
     try {
       const confirmed = window.confirm("정말 로그아웃 하시겠습니까?");
       if (!confirmed) {
         return;
       }
-      const data = await logout(); // api 호출
+      const data = await logout();
       navigate("/authentication/sign-in");
       console.log("로그아웃된 ID:", data.id);
     } catch (error) {
@@ -80,32 +68,155 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
 
   const closeSidenav = () => setMiniSidenav(dispatch, true);
 
+  // 섹션 토글 함수
+  const toggleSection = (sectionKey) => {
+    setCollapsedSections((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey],
+    }));
+  };
+
+  // 초기 섹션 상태 설정 (모든 섹션을 펼친 상태로 시작)
   useEffect(() => {
-    // A function that sets the mini state of the sidenav.
+    const initialSections = {};
+    routes.forEach((route) => {
+      if (route.type === "title") {
+        initialSections[route.key] = false; // false = 펼친 상태
+      }
+    });
+    setCollapsedSections(initialSections);
+  }, [routes]);
+
+  useEffect(() => {
     function handleMiniSidenav() {
       setMiniSidenav(dispatch, window.innerWidth < 1200);
-      setTransparentSidenav(dispatch, window.innerWidth < 1200 ? false : transparentSidenav);
       setWhiteSidenav(dispatch, window.innerWidth < 1200 ? false : whiteSidenav);
     }
 
-    /** 
-     The event listener that's calling the handleMiniSidenav function when resizing the window.
-    */
     window.addEventListener("resize", handleMiniSidenav);
-
-    // Call the handleMiniSidenav function to set the state with the initial value.
     handleMiniSidenav();
 
-    // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
 
-  // Render all the routes from the routes.js (All the visible items on the Sidenav)
-  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, href, route }) => {
-    let returnValue;
+  // routes를 섹션별로 그룹화하는 함수
+  const groupRoutesBySection = (routes) => {
+    const groups = [];
+    let currentGroup = null;
 
+    routes.forEach((route) => {
+      if (route.type === "title") {
+        // 새로운 섹션 시작
+        currentGroup = {
+          title: route,
+          items: [],
+        };
+        groups.push(currentGroup);
+      } else if (currentGroup && route.type === "collapse") {
+        // 현재 섹션에 아이템 추가
+        currentGroup.items.push(route);
+      } else {
+        // 섹션에 속하지 않는 아이템들 (대시보드, 인증 등)
+        groups.push({
+          title: null,
+          items: [route],
+        });
+      }
+    });
+
+    return groups;
+  };
+
+  // 그룹화된 routes 렌더링
+  const renderGroupedRoutes = () => {
+    const groups = groupRoutesBySection(routes);
+
+    return groups.map((group, groupIndex) => {
+      if (!group.title) {
+        // 섹션이 없는 단독 아이템들
+        return group.items.map((route) => renderSingleRoute(route));
+      }
+
+      const isCollapsed = collapsedSections[group.title.key];
+
+      return (
+        <Box key={group.title.key}>
+          {/* 섹션 타이틀 (클릭 가능) */}
+          <MDBox
+            onClick={() => toggleSection(group.title.key)}
+            sx={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: 3,
+              py: 1,
+              borderRadius: 1,
+              "&:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              },
+            }}
+          >
+            <MDBox display="flex" alignItems="center" gap={1}>
+              {/* 섹션 아이콘 */}
+              <ListItemIcon
+                sx={(theme) => ({
+                  ...collapseIconBox?.(theme, {
+                    transparentSidenav,
+                    whiteSidenav,
+                    darkMode,
+                    active: false,
+                  }),
+                  minWidth: "auto",
+                  marginRight: 1,
+                })}
+              >
+                {isCollapsed ? (
+                  <KeyboardArrowDown
+                    sx={{
+                      fontSize: "1.2rem",
+                      color: textColor,
+                      opacity: 0.8,
+                      transition: "transform 0.3s ease",
+                    }}
+                  />
+                ) : (
+                  <KeyboardArrowUp
+                    sx={{
+                      fontSize: "1.2rem",
+                      color: textColor,
+                      opacity: 0.8,
+                      transition: "transform 0.3s ease",
+                    }}
+                  />
+                )}
+              </ListItemIcon>
+
+              <MDTypography
+                color={textColor}
+                display="block"
+                variant="caption"
+                fontWeight="bold"
+                textTransform="uppercase"
+              >
+                {group.title.title}
+              </MDTypography>
+            </MDBox>
+          </MDBox>
+
+          {/* 섹션 아이템들 (접기/펼치기) */}
+          <Collapse in={!isCollapsed} timeout="auto" unmountOnExit>
+            <MDBox pl={2}>{group.items.map((route) => renderSingleRoute(route))}</MDBox>
+          </Collapse>
+        </Box>
+      );
+    });
+  };
+
+  // 개별 route 렌더링 함수
+  const renderSingleRoute = ({ type, name, icon, title, noCollapse, key, href, route }) => {
     if (type === "collapse") {
-      returnValue = href ? (
+      return href ? (
         <Link
           href={href}
           key={key}
@@ -125,25 +236,8 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           <SidenavCollapse name={name} icon={icon} active={key === collapseName} />
         </NavLink>
       );
-    } else if (type === "title") {
-      returnValue = (
-        <MDTypography
-          key={key}
-          color={textColor}
-          display="block"
-          variant="caption"
-          fontWeight="bold"
-          textTransform="uppercase"
-          pl={3}
-          mt={2}
-          mb={1}
-          ml={1}
-        >
-          {title}
-        </MDTypography>
-      );
     } else if (type === "divider") {
-      returnValue = (
+      return (
         <Divider
           key={key}
           light={
@@ -152,12 +246,9 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           }
         />
       );
-    } else {
-      returnValue = null;
     }
-
-    return returnValue;
-  });
+    return null;
+  };
 
   return (
     <SidenavRoot
@@ -197,7 +288,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           (darkMode && !transparentSidenav && whiteSidenav)
         }
       />
-      <List>{renderRoutes}</List>
+      <List>{renderGroupedRoutes()}</List>
       <MDBox p={2} mt="auto">
         <MDButton
           component="button"
@@ -215,7 +306,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
 
 // Setting default values for the props of Sidenav
 Sidenav.defaultProps = {
-  color: "info",
+  color: "primary",
   brand: "",
 };
 
