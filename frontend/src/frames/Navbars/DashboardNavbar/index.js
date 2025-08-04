@@ -55,20 +55,14 @@ import {
 import MDTypography from "components/MDTypography";
 
 function DashboardNavbar({ absolute, light, isMini, navbarTitle }) {
-  const [navbarType, setNavbarType] = useState();
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
 
-  useEffect(() => {
-    // Setting the navbar type
-    if (fixedNavbar) {
-      setNavbarType("sticky");
-    } else {
-      setNavbarType("static");
-    }
+  const navbarType = fixedNavbar ? "sticky" : "static";
 
+  useEffect(() => {
     // A function that sets the transparent state of the navbar.
     function handleTransparentNavbar() {
       setTransparentNavbar(dispatch, (fixedNavbar && window.scrollY === 0) || !fixedNavbar);

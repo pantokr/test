@@ -27,19 +27,19 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 
 // Material Dashboard 2 React example components
-import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
-import ProfileInfoCard from "examples/Cards/InfoCards/ProfileInfoCard";
-import ProfilesList from "examples/Lists/ProfilesList";
-import DefaultProjectCard from "examples/Cards/ProjectCards/DefaultProjectCard";
+import DashboardLayout from "frames/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "frames/Navbars/DashboardNavbar";
+import Footer from "frames/Footer";
+import ProfileInfoCard from "frames/Cards/InfoCards/ProfileInfoCard";
+import ProfilesList from "frames/Lists/ProfilesList";
+import DefaultProjectCard from "frames/Cards/ProjectCards/DefaultProjectCard";
 
 // Overview page components
-import Header from "layouts/profile/components/Header";
-import PlatformSettings from "layouts/profile/components/PlatformSettings";
+import Header from "pages/profile/components/Header";
+import PlatformSettings from "pages/profile/components/PlatformSettings";
 
 // Data
-import profilesListData from "layouts/profile/data/profilesListData";
+import profilesListData from "pages/profile/data/profilesListData";
 
 // Images
 import homeDecor1 from "assets/images/home-decor-1.jpg";

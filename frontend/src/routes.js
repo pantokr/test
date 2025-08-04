@@ -15,6 +15,7 @@ import LoginReset from "pages/logs/LoginReset";
 // @mui icons
 import Icon from "@mui/material/Icon";
 import SignIn from "pages/authentication/sign-in";
+import Overview from "pages/profile";
 
 const routes = [
   {
@@ -92,6 +93,14 @@ const routes = [
     icon: <Icon fontSize="small">login</Icon>,
     route: "/authentication/sign-in",
     component: <SignIn />,
+  },
+  {
+    type: "",
+    name: "Sign In",
+    key: "profile",
+    icon: <Icon fontSize="small">login</Icon>,
+    route: "/profile",
+    component: <Overview />,
   },
 ];
 

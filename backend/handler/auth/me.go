@@ -27,7 +27,7 @@ func MeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := repository.GetUserByID(id)
+	userAccount, err := repository.GetUserByID(id)
 	if err != nil {
 		if err == repository.ErrUserNotFound {
 			log.Printf("DB 조회 실패: 사용자 없음 (id=%s)", id)
@@ -41,11 +41,11 @@ func MeHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	resp := LoginResponse{
-		ID:        user.ID,
-		EmpName:   user.EmpName,
-		DeptName:  user.DeptName,
-		OfficeTel: user.OfficeTel,
-		MobileTel: user.MobileTel,
+		ID:        userAccount.ID,
+		EmpName:   userAccount.EmpName,
+		DeptName:  userAccount.DeptName,
+		OfficeTel: userAccount.OfficeTel,
+		MobileTel: userAccount.MobileTel,
 	}
 	json.NewEncoder(w).Encode(resp)
 }

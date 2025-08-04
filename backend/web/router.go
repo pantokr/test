@@ -16,5 +16,7 @@ func RegisterAuthRoutes() {
 
 func RegisterLogsRoutes() {
 	http.Handle("/api/login-info", middleware.CORS(http.HandlerFunc(logs.LoginInfoHandler)))
+	http.Handle("/api/login-fail", middleware.CORS(http.HandlerFunc(logs.LoginFailHandler)))
+	http.Handle("/api/login-reset", middleware.CORS(http.HandlerFunc(logs.LoginResetHandler)))
 	// 추가 라우트 등록 가능
 }

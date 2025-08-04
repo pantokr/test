@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"backend/config"
 	"backend/repository"
@@ -36,7 +37,6 @@ func hashPassword(password string) string {
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-
 	// CORS 설정
 	err := r.ParseForm()
 	if err != nil {
@@ -53,12 +53,17 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 클라이언트 IP 주소 가져오기
+	host := getClientIP(r)
+	log.Printf("로그인 시도: ID=%s IP=%s", creds.ID, host)
+
 	// 사용자 조회
-	user, err := repository.GetUserByID(creds.ID)
+	userAccount, err := repository.GetUserByID(creds.ID)
 	if err != nil {
 		if err == repository.ErrUserNotFound {
 			log.Printf("사용자 없음: %s", creds.ID)
 			http.Error(w, "인증 실패", http.StatusUnauthorized)
+			repository.InsertLoginFail("7", creds.ID, host, config.Cfg.IP)
 			return
 		}
 		log.Printf("DB 오류: %v", err)
@@ -68,16 +73,15 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 비밀번호 해시 비교
 	inputHashed := hashPassword(creds.Passwd)
-	if inputHashed != user.Passwd {
+	if inputHashed != userAccount.Passwd {
 		log.Printf("비밀번호 불일치 ID: %s", creds.ID)
 		http.Error(w, "인증 실패", http.StatusUnauthorized)
+		repository.InsertLoginFail("1", creds.ID, host, config.Cfg.IP)
+
 		return
 	}
 
-	// 클라이언트 IP 주소 가져오기
-	host := getClientIP(r)
-	log.Printf("로그인 시도: ID=%s IP=%s", creds.ID, host)
-
+	// 사용자 로그인 문제
 	// 세션 생성
 	session, _ := store.Get(r, "session-id")
 	session.Values["id"] = creds.ID
@@ -86,7 +90,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   1200, // 20분
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode, // or None (CORS시)
-		Secure:   true,                 // HTTPS에서만 사용 시
+		Secure:   false,                // HTTPS에서만 사용 시
 	}
 	session.Save(r, w)
 	repository.InsertLoginInfo(creds.ID, host, config.Cfg.IP)
@@ -94,11 +98,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// 응답 설정
 	w.WriteHeader(http.StatusOK)
 	resp := LoginResponse{
-		ID:        user.ID,
-		EmpName:   user.EmpName,
-		DeptName:  user.DeptName,
-		OfficeTel: user.OfficeTel,
-		MobileTel: user.MobileTel,
+		ID:        userAccount.ID,
+		EmpName:   userAccount.EmpName,
+		DeptName:  userAccount.DeptName,
+		OfficeTel: userAccount.OfficeTel,
+		MobileTel: userAccount.MobileTel,
 	}
 	json.NewEncoder(w).Encode(resp)
 }
@@ -129,4 +133,29 @@ func getClientIP(r *http.Request) string {
 		return r.RemoteAddr
 	}
 	return ip
+}
+
+func isUserLoginRestricted(w http.ResponseWriter, userAccount repository.UserAccount, loginID string, clientIP string) {
+	// 비밀번호 변경 30일 경과 체크
+	passwdUpdateDate, err := time.Parse("2006-01-02", userAccount.PasswdUpdateDate.String())
+	if err != nil {
+		log.Printf("비밀번호 변경일 파싱 오류 ID: %s, err: %v", loginID, err)
+		http.Error(w, "서버 오류", http.StatusInternalServerError)
+		return
+	}
+	if time.Since(passwdUpdateDate) > 30*24*time.Hour {
+		log.Printf("비밀번호 변경 30일 초과 ID: %s", loginID)
+		http.Error(w, "비밀번호 변경이 필요합니다", http.StatusUnauthorized)
+		repository.InsertLoginFail("2", loginID, clientIP, config.Cfg.IP)
+		return
+	}
+
+	// 15일 미접속 체크
+	// DB 필드 is_long_unused가 'Y'면 15일 이상 미접속으로 판단 가능
+	if strings.ToUpper(userAccount.IsLongUnused) == "Y" {
+		log.Printf("15일 미접속으로 인한 로그인 제한 ID: %s", loginID)
+		http.Error(w, "오랜 기간 미접속으로 인증 불가", http.StatusUnauthorized)
+		repository.InsertLoginFail("3", loginID, clientIP, config.Cfg.IP)
+		return
+	}
 }

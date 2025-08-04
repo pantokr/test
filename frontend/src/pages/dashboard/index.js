@@ -22,7 +22,6 @@ import MDBox from "components/MDBox";
 // Material Dashboard 2 React example components
 import DashboardLayout from "frames/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "frames/Navbars/DashboardNavbar";
-import Footer from "frames/Footer";
 import ReportsBarChart from "frames/Charts/BarCharts/ReportsBarChart";
 import ReportsLineChart from "frames/Charts/LineCharts/ReportsLineChart";
 import ComplexStatisticsCard from "frames/Cards/StatisticsCards/ComplexStatisticsCard";
@@ -32,15 +31,16 @@ import reportsBarChartData from "pages/dashboard/data/reportsBarChartData";
 import reportsLineChartData from "pages/dashboard/data/reportsLineChartData";
 
 // Dashboard components
-import Projects from "pages/dashboard/components/Projects";
-import OrdersOverview from "pages/dashboard/components/OrdersOverview";
+import { useAuth } from "context/auth";
 
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
+  const { user, setUser } = useAuth(); // 로그인된 사용자 ID 등 인증 상태 가져오기
 
   return (
     <DashboardLayout>
-      <MDBox py={3}>
+      <MDBox sx={{ display: "flex", flexDirection: "column", height: "100vh", p: 3 }}>
+        <DashboardNavbar navbarTitle={user.id} />
         <Grid container spacing={3}>
           <Grid item xs={12} md={6} lg={4}>
             <MDBox mb={1.5}>

@@ -1,0 +1,22 @@
+services:
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "8180:8180" # ✅ 외부 8180 → 컨테이너 8180
+    env_file:
+      - ./backend/.env
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3100:3100" # ✅ 외부 3100 → 컨테이너 80
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

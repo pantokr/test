@@ -47,7 +47,7 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "co
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
 import { useAuth } from "context/auth";
-import { fetchUser } from "api/auth";
+import { fetchUserSession } from "api/auth";
 import Loading from "pages/loading";
 
 export default function App() {
@@ -89,9 +89,9 @@ export default function App() {
 
   // Setting page scroll to 0 when changing the route
   useEffect(() => {
-    const handleFetchUser = async () => {
+    const handleFetchUserSession = async () => {
       try {
-        const data = await fetchUser();
+        const data = await fetchUserSession();
         setUser({
           id: data.id,
           empName: data.empName,
@@ -106,7 +106,7 @@ export default function App() {
       }
     };
 
-    handleFetchUser();
+    handleFetchUserSession();
   }, [pathname]);
 
   const getRoutes = (allRoutes) =>
@@ -182,8 +182,9 @@ export default function App() {
         <>
           <Sidenav
             color={sidenavColor}
-            brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-            brandName={user.id || ""}
+            // brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
+            brand={""}
+            brandName={"LMS"}
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}

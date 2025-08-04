@@ -1,5 +1,6 @@
 import React from "react";
 import { AgGridReact } from "ag-grid-react";
+
 import { themeQuartz, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import PropTypes from "prop-types";
 import MDBox from "components/MDBox";
@@ -19,7 +20,7 @@ function AgGridTable({ rows, columns, pagination = true, pageSize = 50 }) {
   const defaultColDef = {
     resizable: true,
     flex: 1,
-    minWidth: 100,
+    minWidth: 50,
     sortable: true,
     filter: true,
   };
@@ -37,13 +38,16 @@ function AgGridTable({ rows, columns, pagination = true, pageSize = 50 }) {
       className="ag-theme-alpine"
     >
       <AgGridReact
-        rowData={rows}
+        rowData={rows ?? []}
         columnDefs={columns}
         defaultColDef={defaultColDef}
         pagination={pagination}
         paginationPageSize={pageSize}
         paginationPageSizeSelector={[25, 50, 100, 500]}
-        theme={myTheme} // ✅ 커스텀 테마 적용
+        theme={myTheme}
+        overlayNoRowsTemplate={
+          '<span aria-live="polite" aria-atomic="true";pos>데이터가 없습니다.</span>'
+        }
       />
     </MDBox>
   );
@@ -51,7 +55,7 @@ function AgGridTable({ rows, columns, pagination = true, pageSize = 50 }) {
 
 AgGridTable.propTypes = {
   /** row 데이터 (ag-grid는 key가 id일 필요 없음) */
-  rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+  rows: PropTypes.arrayOf(PropTypes.object),
 
   /** 컬럼 정의 (field, headerName 등) */
   columns: PropTypes.arrayOf(

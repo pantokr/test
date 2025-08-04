@@ -9,13 +9,12 @@ import (
 
 // LoginInfo 구조체 정의 (조회 결과를 담기 위한 구조체)
 type LoginInfo struct {
-	ID         int        `json:"id"`
 	LoginID    string     `json:"login_id"`
 	EmpName    string     `json:"emp_name"`
 	LoginTime  *time.Time `json:"login_time"`
 	LogoutTime *time.Time `json:"logout_time"`
 	IsExternal string     `json:"is_external"`
-	UserIP     string     `json:"user_ip"`
+	ClientIP   string     `json:"client_ip"`
 	ServerIP   string     `json:"server_ip"`
 }
 
@@ -23,7 +22,7 @@ type LoginInfo struct {
 func SelectLoginInfoAll() ([]LoginInfo, error) {
 	database := db.GetDatabase()
 
-	query := `SELECT login_id, emp_name, login_time, logout_time, is_external, user_ip, server_ip FROM login_info ORDER BY login_time DESC`
+	query := `SELECT login_id, emp_name, login_time, logout_time, is_external, client_ip, server_ip FROM login_info ORDER BY login_time DESC`
 
 	rows, err := database.Query(query)
 	if err != nil {
@@ -41,7 +40,7 @@ func SelectLoginInfoAll() ([]LoginInfo, error) {
 			&li.LoginTime,
 			&li.LogoutTime,
 			&li.IsExternal,
-			&li.UserIP,
+			&li.ClientIP,
 			&li.ServerIP,
 		)
 		if err != nil {
@@ -54,15 +53,11 @@ func SelectLoginInfoAll() ([]LoginInfo, error) {
 		return nil, err
 	}
 
-	if len(loginInfos) == 0 {
-		return nil, errors.New("login_info 테이블에 데이터가 없습니다")
-	}
-
 	return loginInfos, nil
 }
 
 // InsertLoginInfo : 로그인 시 기록 추가
-func InsertLoginInfo(loginID string, userIP string, serverIP string) error {
+func InsertLoginInfo(loginID string, clientIP string, serverIP string) error {
 	database := db.GetDatabase()
 
 	// emp_name 가져오기
@@ -76,10 +71,10 @@ func InsertLoginInfo(loginID string, userIP string, serverIP string) error {
 		return err
 	}
 
-	query = `INSERT INTO login_info (login_id, emp_name, login_time, is_external, user_ip, server_ip)
+	query = `INSERT INTO login_info (login_id, emp_name, login_time, is_external, client_ip, server_ip)
 			  VALUES (?, ?, NOW(), ?, ?, ?)`
 	// login_info insert (login_time은 DB NOW()로 처리)
-	_, err = database.Exec(query, loginID, empName, "0", userIP, serverIP)
+	_, err = database.Exec(query, loginID, empName, "0", clientIP, serverIP)
 
 	return err
 }
