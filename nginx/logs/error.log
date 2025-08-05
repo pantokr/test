@@ -158,3 +158,9 @@
 2025/08/04 09:48:04 [error] 75348#22360: *10 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 192.168.0.1, server: , request: "POST /api/login HTTP/1.1", upstream: "http://127.0.0.1:8190/api/login", host: "1.223.211.4", referrer: "http://1.223.211.4/authentication/sign-in"
 2025/08/04 09:48:04 [error] 75348#22360: *9 connect() failed (10061: No connection could be made because the target machine actively refused it) while connecting to upstream, client: 192.168.0.1, server: , request: "POST /api/login HTTP/1.1", upstream: "http://127.0.0.1:8190/api/login", host: "1.223.211.4", referrer: "http://1.223.211.4/authentication/sign-in"
 2025/08/04 09:48:13 [notice] 31244#68720: signal process started
+2025/08/05 19:12:34 [emerg] 12984#16092: CreateDirectory() "C:\workplaces\projects\mirae\test\nginx/temp/client_body_temp" failed (3: The system cannot find the path specified)
+2025/08/05 20:26:40 [emerg] 10964#11892: CreateDirectory() "C:\workplaces\projects\mirae\test\nginx/temp/client_body_temp" failed (3: The system cannot find the path specified)
+2025/08/05 20:27:00 [emerg] 8256#5832: CreateDirectory() "C:\workplaces\projects\mirae\test\nginx/temp/client_body_temp" failed (3: The system cannot find the path specified)
+2025/08/05 20:27:25 [emerg] 16340#9828: CreateDirectory() "C:\workplaces\projects\mirae\test\nginx/temp/client_body_temp" failed (3: The system cannot find the path specified)
+2025/08/05 20:27:39 [notice] 1824#4948: signal process started
+2025/08/05 20:27:39 [error] 1824#4948: OpenEvent("Global\ngx_reload_73556") failed (2: The system cannot find the file specified)

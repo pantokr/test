@@ -59,10 +59,11 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         return;
       }
       const data = await logout();
-      navigate("/authentication/sign-in");
       console.log("로그아웃된 ID:", data.id);
     } catch (error) {
-      alert(error.message || "로그아웃 중 오류가 발생했습니다.");
+      // 로그아웃 실패 시 에러 처리 생략
+    } finally {
+      navigate("/authentication/sign-in");
     }
   };
 

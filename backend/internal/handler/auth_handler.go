@@ -34,7 +34,7 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	clientIP := util.GetClientIP(r)
 	serverIP := config.GetConfig().LocalIP
 
-	loginReq := request.Login{
+	loginReq := request.LoginRequest{
 		Credentials: creds,
 		ClientIP:    clientIP,
 		ServerIP:    serverIP,
@@ -43,22 +43,27 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// 로그인 시도
 	userAccount, err := h.authService.Login(loginReq)
 	if err != nil {
+		log.Printf("로그인 실패: %v", err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
+	// 세션 생성
 	session, _ := store.Get(r, "lms-session")
 	session.Values["id"] = *userAccount.ID
+
+	session.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   20 * 60, // 20분(초 단위)
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   true, // HTTPS 환경에서는 true로 설정
+	}
 	session.Save(r, w)
 
 	// 로그인 성공 응답
-	resp := response.LoginResponse{
-		ID:        *userAccount.ID,
-		EmpName:   *userAccount.EmpName,
-		DeptName:  *userAccount.DeptName,
-		OfficeTel: *userAccount.OfficeTel,
-		MobileTel: *userAccount.MobileTel,
-	}
+	resp := new(response.LoginResponse)
+	resp.FromModel(*userAccount)
 	util.RespondWithJSON(w, http.StatusOK, resp)
 }
 
@@ -72,14 +77,13 @@ func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	idRaw, exists := session.Values["id"]
 	if !exists {
 		// 로그인 안 된 상태 -> 그냥 OK 응답
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(struct{}{})
+		http.Error(w, "종료된 세션입니다.", http.StatusUnauthorized)
 		return
 	}
 
 	id, ok := idRaw.(string)
 	if !ok || id == "" {
-		http.Error(w, "유효하지 않은 세션 id", http.StatusUnauthorized)
+		http.Error(w, "유효하지 않은 세션 ID입니다.", http.StatusUnauthorized)
 		return
 	}
 
@@ -95,9 +99,11 @@ func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("세션 저장 실패: %v", err)
 	}
 
+	resp := response.LogoutResponse{
+		ID: id,
+	}
 	// 응답
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"id": id})
+	util.RespondWithJSON(w, http.StatusOK, resp)
 }
 
 func (h *AuthHandler) LoginInfoHandler(w http.ResponseWriter, r *http.Request) {
@@ -110,47 +116,33 @@ func (h *AuthHandler) LoginInfoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 성공 시 200과 JSON 반환
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(loginInfos); err != nil {
-		log.Printf("JSON 인코딩 실패: %v", err)
-	}
+	util.RespondWithJSON(w, http.StatusOK, loginInfos)
 }
 
 func (h *AuthHandler) LoginFailHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	loginInfos, err := h.authService.GetLoginFailAll()
+	loginFails, err := h.authService.GetLoginFailAll()
 	if err != nil {
-		log.Printf("로그인 실패 조회 실패: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "로그인 실패 조회에 실패했습니다."})
+		util.RespondWithJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	// 성공 시 200과 JSON 반환
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(loginInfos); err != nil {
-		log.Printf("JSON 인코딩 실패: %v", err)
-	}
+	util.RespondWithJSON(w, http.StatusOK, loginFails)
 }
 
 func (h *AuthHandler) LoginResetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	loginInfos, err := h.authService.GetLoginResetAll()
+	loginResets, err := h.authService.GetLoginResetAll()
 	if err != nil {
-		log.Printf("로그인 초기화 조회 실패: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "로그인 초기화 조회에 실패했습니다."})
+		util.RespondWithJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	// 성공 시 200과 JSON 반환
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(loginInfos); err != nil {
-		log.Printf("JSON 인코딩 실패: %v", err)
-	}
+	util.RespondWithJSON(w, http.StatusOK, loginResets)
 }
 
 func (h *AuthHandler) MeHandler(w http.ResponseWriter, r *http.Request) {
@@ -174,13 +166,8 @@ func (h *AuthHandler) MeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := response.LoginResponse{
-		ID:        util.SafeString(userAccount.ID),
-		EmpName:   util.SafeString(userAccount.EmpName),
-		DeptName:  util.SafeString(userAccount.DeptName),
-		OfficeTel: util.SafeString(userAccount.OfficeTel),
-		MobileTel: util.SafeString(userAccount.MobileTel),
-	}
+	resp := response.LoginResponse{}
+	resp.FromModel(*userAccount)
 
 	util.RespondWithJSON(w, http.StatusOK, resp)
 }

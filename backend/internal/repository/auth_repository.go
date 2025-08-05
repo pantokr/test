@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"lms/internal/model"
+	"lms/internal/model/response"
 	"lms/pkg/database"
 )
 
@@ -113,18 +114,18 @@ func (r *AuthRepository) InsertLoginInfo(loginID string, clientIP string, server
 	return err
 }
 
-func (r *AuthRepository) SelectLoginInfoAll() ([]model.LoginInfo, error) {
+func (r *AuthRepository) SelectLoginInfoAll() ([]response.LoginInfoResponse, error) {
 
 	query := `
 		SELECT 
 			login_id, 
-			emp_name, 
-			login_time,
-			logout_time,
-			is_external, 
-			client_ip, 
-			server_ip 
-		FROM login_info 
+			IFNULL(emp_name, '') AS emp_name, 
+			IFNULL(DATE_FORMAT(login_time, '%Y-%m-%d %H:%i:%s'), '') AS login_time,
+    		IFNULL(DATE_FORMAT(logout_time, '%Y-%m-%d %H:%i:%s'), '') AS logout_time,
+			IFNULL(is_external, '') AS is_external,
+			IFNULL(client_ip, '') AS client_ip,
+			IFNULL(server_ip, '') AS server_ip
+		FROM login_info
 		ORDER BY login_time DESC`
 
 	rows, err := r.db.Query(query)
@@ -133,10 +134,10 @@ func (r *AuthRepository) SelectLoginInfoAll() ([]model.LoginInfo, error) {
 	}
 	defer rows.Close()
 
-	var loginInfo []model.LoginInfo
+	var loginInfo []response.LoginInfoResponse
 
 	for rows.Next() {
-		var li model.LoginInfo
+		var li response.LoginInfoResponse
 		err := rows.Scan(
 			&li.LoginID,
 			&li.EmpName,
@@ -157,6 +158,17 @@ func (r *AuthRepository) SelectLoginInfoAll() ([]model.LoginInfo, error) {
 	}
 
 	return loginInfo, nil
+}
+
+// UpdateIsLongUnused : 오랜 기간 사용하지 않은 사용자 업데이트
+func (r *AuthRepository) UpdateIsLongUnused(loginID string) error {
+	_, err := r.db.Exec(`
+		UPDATE user_account
+		SET is_long_unused = 1,
+			recent_conn_date = NOW()
+		WHERE login_id = ?`, loginID)
+
+	return err
 }
 
 // UpdateLoginFailCount : 로그인 실패 횟수 업데이트
@@ -186,15 +198,15 @@ func (r *AuthRepository) InsertLoginFail(failCode, loginID, clientIP, serverIP s
 	)
 	return err
 }
-func (r *AuthRepository) SelectLoginFailAll() ([]model.LoginFail, error) {
+func (r *AuthRepository) SelectLoginFailAll() ([]response.LoginFailResponse, error) {
 
 	query := `
 		SELECT 
 			login_id, 
-			login_time,
-			fail_code, 
-			client_ip, 
-			server_ip 
+			IFNULL(DATE_FORMAT(login_time, '%Y-%m-%d %H:%i:%s'), '') AS login_time,
+			IFNULL(fail_code, '') AS fail_code, 
+			IFNULL(client_ip, '') AS client_ip, 
+			IFNULL(server_ip, '') AS server_ip 
 		FROM login_fail 
 		ORDER BY login_time DESC`
 
@@ -204,10 +216,10 @@ func (r *AuthRepository) SelectLoginFailAll() ([]model.LoginFail, error) {
 	}
 	defer rows.Close()
 
-	var loginFails []model.LoginFail
+	var loginFails []response.LoginFailResponse
 
 	for rows.Next() {
-		var lf model.LoginFail
+		var lf response.LoginFailResponse
 		err := rows.Scan(
 			&lf.LoginID,
 			&lf.LoginTime,
@@ -237,15 +249,15 @@ func (r *AuthRepository) InsertLoginReset(resetCode, loginID, resetID, resetReas
 	)
 	return err
 }
-func (r *AuthRepository) SelectLoginResetAll() ([]model.LoginReset, error) {
+func (r *AuthRepository) SelectLoginResetAll() ([]response.LoginResetResponse, error) {
 	query := `
 		SELECT 
-			reset_time, 
-			reset_code, 
-			login_id, 
-			reset_id, 
-			reset_reason, 
-			prev_login_ip 
+			IFNULL(DATE_FORMAT(reset_time, '%Y-%m-%d %H:%i:%s'), '') AS reset_time, 
+			IFNULL(reset_code, '') AS reset_code, 
+			IFNULL(login_id, '') AS login_id, 
+			IFNULL(reset_id, '') AS reset_id, 
+			IFNULL(reset_reason, '') AS reset_reason, 
+			IFNULL(prev_login_ip, '') AS prev_login_ip 
 		FROM login_reset 
 		ORDER BY reset_time DESC`
 
@@ -255,10 +267,10 @@ func (r *AuthRepository) SelectLoginResetAll() ([]model.LoginReset, error) {
 	}
 	defer rows.Close()
 
-	var loginResets []model.LoginReset
+	var loginResets []response.LoginResetResponse
 
 	for rows.Next() {
-		var lr model.LoginReset
+		var lr response.LoginResetResponse
 		err := rows.Scan(
 			&lr.ResetTime,
 			&lr.ResetCode,

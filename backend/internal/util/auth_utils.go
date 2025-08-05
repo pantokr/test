@@ -56,7 +56,8 @@ func SafeString(s *string) string {
 
 func HashPassword(password string) string {
 	hash := sha256.Sum256([]byte(password))
-	return hex.EncodeToString(hash[:])
+	pw := hex.EncodeToString(hash[:])
+	return pw
 }
 
 func FormatDate(t time.Time) string {
