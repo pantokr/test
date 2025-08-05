@@ -1,8 +1,8 @@
-const ROUTE = process.env.REACT_APP_ROUTE;
+const AUTH_ROUTE = process.env.REACT_APP_AUTH_ROUTE;
 
 export async function fetchLoginInfoHistory() {
   try {
-    const response = await fetch(`${ROUTE}/login-info`);
+    const response = await fetch(`${AUTH_ROUTE}/login-info`);
     if (!response.ok) {
       throw new Error("데이터 불러오기 실패");
     }
@@ -16,7 +16,7 @@ export async function fetchLoginInfoHistory() {
 
 export async function fetchLoginFailHistory() {
   try {
-    const response = await fetch(`${ROUTE}/login-fail`);
+    const response = await fetch(`${AUTH_ROUTE}/login-fail`);
     if (!response.ok) {
       throw new Error("데이터 불러오기 실패");
     }
@@ -30,7 +30,7 @@ export async function fetchLoginFailHistory() {
 
 export async function fetchLoginResetHistory() {
   try {
-    const response = await fetch(`${ROUTE}/login-reset`);
+    const response = await fetch(`${AUTH_ROUTE}/login-reset`);
     if (!response.ok) {
       throw new Error("데이터 불러오기 실패");
     }

@@ -6,7 +6,7 @@ import { Box, Typography } from "@mui/material";
 import { useMaterialUIController } from "context";
 import lightColors from "assets/theme/base/colors";
 import darkColors from "assets/theme-dark/base/colors";
-import agGridTheme from "../AgGridTheme";
+import agGridTheme from "../AgGridThemeBalham";
 
 const AgGridSimpleTable = ({ title, colCount, rowCount, colDef, rowData }) => {
   const columns = colDef.slice(0, colCount);

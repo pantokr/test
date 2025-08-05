@@ -17,28 +17,19 @@ import pxToRem from "assets/theme/functions/pxToRem";
 
 function navbar(theme, ownerState) {
   const { palette, boxShadows, functions, transitions, breakpoints, borders } = theme;
-  const { transparentNavbar, absolute, light, darkMode } = ownerState;
+  const { absolute, light } = ownerState;
 
-  const { dark, white, text, transparent, background } = palette;
-  const { navbarBoxShadow } = boxShadows;
+  const { dark, white, transparent } = palette;
   const { rgba, pxToRem } = functions;
   const { borderRadius } = borders;
 
   return {
-    boxShadow: transparentNavbar || absolute ? "none" : navbarBoxShadow,
-    backdropFilter: transparentNavbar || absolute ? "none" : `saturate(200%) blur(${pxToRem(30)})`,
-    backgroundColor:
-      transparentNavbar || absolute
-        ? `${transparent.main} !important`
-        : rgba(darkMode ? background.default : white.main, 0.8),
-
+    backgroundColor: `${transparent.main} !important`,
     color: () => {
       let color;
 
       if (light) {
         color = white.main;
-      } else if (transparentNavbar) {
-        color = text.main;
       } else {
         color = dark.main;
       }

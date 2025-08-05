@@ -41,8 +41,8 @@ function LoanReviewBriefDialog({ open, title, onClose }) {
       maxWidth="md"
       PaperProps={{
         sx: {
-          backgroundColor: colors.background.card,
-          color: theme.palette.text.primary,
+          backgroundColor: colors.background.default,
+          color: colors.text.primary,
         },
       }}
     >
@@ -56,7 +56,7 @@ function LoanReviewBriefDialog({ open, title, onClose }) {
         }}
       >
         {title}
-        <IconButton aria-label="close" onClick={onClose} edge="end" color="default" sx={{ ml: 2 }}>
+        <IconButton aria-label="close" onClick={onClose} edge="end" color="inherit" sx={{ ml: 2 }}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
+import { ModuleRegistry, AllCommunityModule, themeBalham } from "ag-grid-community";
 import PropTypes from "prop-types";
 import MDBox from "components/MDBox";
 import { IconButton, Tooltip } from "@mui/material";
@@ -9,7 +9,7 @@ import { FileDownload } from "@mui/icons-material";
 import { useMaterialUIController } from "context";
 import lightColors from "assets/theme/base/colors";
 import darkColors from "assets/theme-dark/base/colors";
-import agGridTheme from "../AgGridTheme";
+import agGridTheme from "../AgGridThemeBalham";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -37,7 +37,6 @@ function AgGridTable({ rows, columns, pageName, pagination = true, pageSize = 50
   const defaultColDef = useMemo(
     () => ({
       resizable: true,
-      flex: 1,
       minWidth: 50,
       sortable: true,
       filter: true,
@@ -53,7 +52,7 @@ function AgGridTable({ rows, columns, pageName, pagination = true, pageSize = 50
     pagination: isMobile ? false : pagination,
     paginationPageSize: pageSize,
     paginationPageSizeSelector: [25, 50, 100, 500],
-    theme: agTheme, // ✅ 올바른 테마 적용
+    theme: agTheme,
     overlayNoRowsTemplate: '<span aria-live="polite" aria-atomic="true">데이터가 없습니다.</span>',
   };
 
@@ -73,7 +72,6 @@ function AgGridTable({ rows, columns, pageName, pagination = true, pageSize = 50
         display: "flex",
         flexDirection: "column",
       }}
-      className="ag-theme-quartz"
     >
       {/* 엑셀 다운로드 버튼 */}
       <MDBox

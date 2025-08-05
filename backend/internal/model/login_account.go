@@ -1,0 +1,24 @@
+package model
+
+import "time"
+
+type UserAccount struct {
+	ID               *string
+	Passwd           *string
+	EmpName          *string
+	DeptName         *string
+	OfficeTel        *string
+	MobileTel        *string
+	RecentConnDate   *time.Time
+	DeleteDate       *time.Time
+	PasswdUpdateDate *time.Time
+	PwFailCount      *int
+	IsLongUnused     *string
+	IsExternal       *string
+	ClientIP         *string
+	PwRef            *string
+	RegEmpID         *string
+	RegDate          *time.Time
+	UpdEmpID         *string
+	UpdDate          *time.Time
+}

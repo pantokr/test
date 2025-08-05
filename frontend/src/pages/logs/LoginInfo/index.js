@@ -29,7 +29,6 @@ function LoginInfo() {
                 width: "100%",
                 overflow: "auto", // 필요 시 내부 스크롤만
               }}
-              className="ag-theme-alpine"
             >
               <AgGridPagingTable rows={rowData} columns={columnDefs} pageName="로그인 정보 조회" />
               {/* <MuiGridTable rows={rowData} columns={columnDefs}></MuiGridTable> */}

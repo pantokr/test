@@ -51,7 +51,7 @@ import MDTypography from "components/MDTypography";
 
 function DashboardNavbar({ absolute, light, isMini, navbarTitle }) {
   const [controller, dispatch] = useMaterialUIController();
-  const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
+  const { miniSidenav, fixedNavbar, openConfigurator, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
 
@@ -86,7 +86,7 @@ function DashboardNavbar({ absolute, light, isMini, navbarTitle }) {
     color: () => {
       let colorValue = light || darkMode ? white.main : dark.main;
 
-      if (transparentNavbar && !light) {
+      if (!light) {
         colorValue = darkMode ? rgba(text.main, 0.6) : text.main;
       }
 
@@ -98,7 +98,7 @@ function DashboardNavbar({ absolute, light, isMini, navbarTitle }) {
     <AppBar
       position={absolute ? "absolute" : navbarType}
       color="inherit"
-      sx={(theme) => navbar(theme, { transparentNavbar, absolute, light, darkMode })}
+      sx={(theme) => navbar(theme, { absolute, light, darkMode })}
     >
       <Toolbar sx={(theme) => navbarContainer(theme)}>
         <MDBox color="inherit" mb={{ xs: 1, md: 0 }} sx={(theme) => navbarRow(theme, { isMini })}>

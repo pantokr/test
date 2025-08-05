@@ -27,8 +27,6 @@ function SignIn() {
   const handleLogin = async (e) => {
     e.preventDefault(); // 폼 제출 시 페이지 리로드 방지
     try {
-      // console.log("id:", id, "passwd:", passwd);
-
       const data = await login({ id, passwd });
       console.log("로그인된 ID:", data.id);
       setUser({

@@ -1,8 +1,8 @@
 // src/api/auth.js
-const ROUTE = process.env.REACT_APP_ROUTE;
+const AUTH_ROUTE = process.env.REACT_APP_AUTH_ROUTE;
 
 export async function login({ id, passwd }) {
-  const response = await fetch(`${ROUTE}/login`, {
+  const response = await fetch(`${AUTH_ROUTE}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id, passwd }),
@@ -25,7 +25,7 @@ export async function login({ id, passwd }) {
 }
 
 export async function logout() {
-  const response = await fetch(`${ROUTE}/logout`, {
+  const response = await fetch(`${AUTH_ROUTE}/logout`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -49,7 +49,7 @@ export async function logout() {
 
 // 새로고침 쿠키 재설정
 export async function fetchUserSession() {
-  const response = await fetch(`${ROUTE}/me`, {
+  const response = await fetch(`${AUTH_ROUTE}/me`, {
     credentials: "include",
   });
   if (!response.ok) {
@@ -61,10 +61,3 @@ export async function fetchUserSession() {
 
   return response.json();
 }
-// export async function resetpasswd(email) {
-//   return await fetch("/api/reset-passwd", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ email }),
-//   });
-// }
