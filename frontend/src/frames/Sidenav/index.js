@@ -26,15 +26,15 @@ import SidenavRoot from "frames/Sidenav/SidenavRoot";
 import sidenavLogoLabel from "frames/Sidenav/styles/sidenav";
 
 // Material Dashboard 2 React context
-import { useMaterialUIController, setMiniSidenav, setWhiteSidenav } from "context";
+import { useMaterialUIController, setMiniSidenav } from "context";
 import { logout } from "api/auth";
 import { Box, ListItemIcon } from "@mui/material";
-import { collapseIcon, collapseIconBox } from "./styles/sidenavCollapse";
+import { collapseIconBox } from "./styles/sidenavCollapse";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
-  const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
+  const { miniSidenav, darkMode } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
 
@@ -42,12 +42,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [collapsedSections, setCollapsedSections] = useState({});
 
   let textColor = "white";
-
-  if (transparentSidenav || (whiteSidenav && !darkMode)) {
-    textColor = "dark";
-  } else if (whiteSidenav && darkMode) {
-    textColor = "inherit";
-  }
 
   const navigate = useNavigate();
 
@@ -91,7 +85,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   useEffect(() => {
     function handleMiniSidenav() {
       setMiniSidenav(dispatch, window.innerWidth < 1200);
-      setWhiteSidenav(dispatch, window.innerWidth < 1200 ? false : whiteSidenav);
     }
 
     window.addEventListener("resize", handleMiniSidenav);
@@ -163,8 +156,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
               <ListItemIcon
                 sx={(theme) => ({
                   ...collapseIconBox?.(theme, {
-                    transparentSidenav,
-                    whiteSidenav,
                     darkMode,
                     active: false,
                   }),
@@ -238,25 +229,13 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         </NavLink>
       );
     } else if (type === "divider") {
-      return (
-        <Divider
-          key={key}
-          light={
-            (!darkMode && !whiteSidenav && !transparentSidenav) ||
-            (darkMode && !transparentSidenav && whiteSidenav)
-          }
-        />
-      );
+      return <Divider key={key} light={!darkMode} />;
     }
     return null;
   };
 
   return (
-    <SidenavRoot
-      {...rest}
-      variant="permanent"
-      ownerState={{ transparentSidenav, whiteSidenav, miniSidenav, darkMode }}
-    >
+    <SidenavRoot {...rest} variant="permanent" ownerState={{ miniSidenav, darkMode }}>
       <MDBox pt={3} pb={1} px={4} textAlign="center">
         <MDBox
           display={{ xs: "block", xl: "none" }}
@@ -283,18 +262,13 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           </MDBox>
         </MDBox>
       </MDBox>
-      <Divider
-        light={
-          (!darkMode && !whiteSidenav && !transparentSidenav) ||
-          (darkMode && !transparentSidenav && whiteSidenav)
-        }
-      />
+      <Divider light={!darkMode} />
       <List>{renderGroupedRoutes()}</List>
       <MDBox p={2} mt="auto">
         <MDButton
           component="button"
           variant="gradient"
-          color={sidenavColor}
+          color={"primary"}
           fullWidth
           onClick={handleLogout}
         >

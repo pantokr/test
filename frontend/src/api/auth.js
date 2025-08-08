@@ -39,11 +39,51 @@ export async function fetchUserSession() {
     credentials: "include",
   });
   if (!response.ok) {
+    const errorMsg = await response.text();
+
     switch (response.status) {
       default:
-        throw new Error("세션: 알 수 없는 오류가 발생했습니다.");
+        throw new Error(errorMsg);
     }
   }
 
+  return response.json();
+}
+
+export async function isExistUser(id) {
+  const response = await fetch(`${AUTH_ROUTE}/id-exists`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const errorMsg = await response.text();
+    switch (response.status) {
+      case 404:
+        return false; // 사용자 없음
+      default:
+        throw new Error(errorMsg);
+    }
+  }
+  return true; // 사용자 존재
+}
+
+export async function registerUser(userData) {
+  const response = await fetch(`${AUTH_ROUTE}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData),
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const errorMsg = await response.text();
+    switch (response.status) {
+      default:
+        throw new Error(errorMsg);
+    }
+  }
   return response.json();
 }

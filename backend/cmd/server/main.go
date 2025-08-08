@@ -50,10 +50,12 @@ func main() {
 	api := r.PathPrefix("/api/auth").Subrouter()
 	api.HandleFunc("/login", handler.LoginHandler).Methods("POST", "OPTIONS")
 	api.HandleFunc("/logout", handler.LogoutHandler).Methods("POST", "OPTIONS")
-	api.HandleFunc("/me", handler.MeHandler).Methods("GET", "OPTIONS")
+	api.HandleFunc("/user-session", handler.SessionHandler).Methods("GET", "OPTIONS")
 	api.HandleFunc("/login-info", handler.LoginInfoHandler).Methods("GET", "OPTIONS")
 	api.HandleFunc("/login-fail", handler.LoginFailHandler).Methods("GET", "OPTIONS")
 	api.HandleFunc("/login-reset", handler.LoginResetHandler).Methods("GET", "OPTIONS")
+	api.HandleFunc("/id-exists", handler.IdExistsHandler).Methods("POST", "OPTIONS")
+	api.HandleFunc("/register", handler.UserRegisterHandler).Methods("POST", "OPTIONS")
 
 	//api.HandleFunc("/me", handler.MeHandler).Methods("GET")
 

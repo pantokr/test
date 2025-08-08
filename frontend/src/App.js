@@ -28,7 +28,6 @@ import MDBox from "components/MDBox";
 
 // Material Dashboard 2 React example components
 import Sidenav from "frames/Sidenav";
-import Configurator from "frames/Configurator";
 
 // Material Dashboard 2 React themes
 import theme from "assets/theme";
@@ -41,7 +40,7 @@ import routes from "routes";
 import ProtectedRoute from "routes/ProtectedRoute";
 
 // Material Dashboard 2 React contexts
-import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
+import { useMaterialUIController, setMiniSidenav, setDarkMode } from "context";
 
 // Images
 import { useAuth } from "context/auth";
@@ -53,7 +52,7 @@ export default function App() {
   const [controller, dispatch] = useMaterialUIController();
   const { user, setUser } = useAuth(); // 로그인된 사용자 ID 등 인증 상태 가져오기
 
-  const { miniSidenav, layout, openConfigurator, sidenavColor, darkMode } = controller;
+  const { miniSidenav, layout, sidenavColor, darkMode } = controller;
 
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const { pathname } = useLocation();
@@ -76,8 +75,9 @@ export default function App() {
   };
 
   // Change the openConfigurator state
-  const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
-
+  const handleDarkModeToggle = () => {
+    setDarkMode(dispatch, !darkMode);
+  };
   // Setting page scroll to 0 when changing the route
   useEffect(() => {
     const handleFetchUserSession = async () => {
@@ -144,30 +144,30 @@ export default function App() {
       return null;
     });
 
-  const configsButton = (
+  const darkModeToggleButton = (
     <MDBox
       display="flex"
       justifyContent="center"
       alignItems="center"
       width="3.25rem"
       height="3.25rem"
-      bgColor="white"
+      bgColor={darkMode ? "grey.800" : "grey.100"}
       shadow="sm"
       borderRadius="50%"
       position="fixed"
       right="2rem"
       bottom="2rem"
       zIndex={99}
-      color="dark"
-      sx={{ cursor: "pointer" }}
-      onClick={handleConfiguratorOpen}
+      color={darkMode ? "white" : "dark"}
+      sx={{ cursor: "pointer", userSelect: "none" }}
+      onClick={handleDarkModeToggle}
+      title="Toggle Dark Mode"
     >
       <Icon fontSize="small" color="inherit">
-        settings
+        {darkMode ? "dark_mode" : "light_mode"}
       </Icon>
     </MDBox>
   );
-
   if (loading) {
     return (
       <ThemeProvider theme={darkMode ? themeDark : theme}>
@@ -205,11 +205,11 @@ export default function App() {
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
           />
-          <Configurator />
-          {configsButton}
+          {/* <Configurator /> */}
+          {darkModeToggleButton}
         </>
       )}
-      {layout === "vr" && <Configurator />}
+      {layout === "vr"}
       <Routes>
         {getRoutes(routes)}
         <Route path="*" element={<Navigate to="/dashboard" />} />

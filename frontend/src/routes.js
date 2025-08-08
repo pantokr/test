@@ -6,9 +6,9 @@ import Dashboard from "pages/dashboard";
 import NewLoanReview from "pages/loanReviews/NewLoanReview";
 import OngoingLoanReview from "pages/loanReviews/OngoingLoanReview";
 import CompletedLoanReview from "pages/loanReviews/CompletedLoanReview";
-import LoginInfo from "pages/logs/LoginInfo";
-import LoginFail from "pages/logs/LoginFail";
-import LoginReset from "pages/logs/LoginReset";
+import LoginInfo from "pages/log/LoginInfo";
+import LoginFail from "pages/log/LoginFail";
+import LoginReset from "pages/log/LoginReset";
 import SignIn from "pages/authentication/sign-in";
 import Overview from "pages/profile";
 
@@ -21,6 +21,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import ErrorIcon from "@mui/icons-material/Error";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import PersonIcon from "@mui/icons-material/Person";
+import UserRegister from "pages/userManagement/UserRegister";
 
 // 아이콘 매핑 객체 (SVG 컴포넌트)
 const iconComponents = {
@@ -107,7 +108,19 @@ const menuItems = [
     route: "/log/login-reset",
     component: LoginReset,
   },
-
+  {
+    type: "title",
+    title: "사용자 관리",
+    key: "user-management-title",
+  },
+  {
+    type: "collapse",
+    name: "사용자 신규 등록",
+    key: "user-management/register",
+    icon: "login",
+    route: "/user-management/register",
+    component: UserRegister,
+  },
   // 인증 및 프로필
   {
     type: "auth",

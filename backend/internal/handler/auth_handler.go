@@ -3,8 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"lms/internal/config"
-	"lms/internal/model/request"
-	"lms/internal/model/response"
+	"lms/internal/handler/dto/request"
+	"lms/internal/handler/dto/response"
 	"lms/internal/service"
 	"lms/internal/util"
 	"log"
@@ -23,6 +23,7 @@ func InitAuthHandler(authService *service.AuthService) *AuthHandler {
 
 var store = sessions.NewCookieStore([]byte("secret-key"))
 
+// 로그인 핸들러
 func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// JSON 디코딩
 	var creds request.Credentials
@@ -50,20 +51,29 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 세션 생성
 	session, _ := store.Get(r, "lms-session")
-	session.Values["id"] = *userAccount.ID
+	session.Values["id"] = *userAccount.LoginID
 
 	session.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   20 * 60, // 20분(초 단위)
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   true, // HTTPS 환경에서는 true로 설정
+		SameSite: http.SameSiteStrictMode,
+		Secure:   false, // HTTPS 환경에서는 true로 설정
 	}
-	session.Save(r, w)
-
+	// 세션 저장 (반드시 JSON 응답 전에!)
+	if err := session.Save(r, w); err != nil {
+		http.Error(w, "세션 저장 실패", http.StatusInternalServerError)
+		return
+	}
 	// 로그인 성공 응답
-	resp := new(response.LoginResponse)
-	resp.FromModel(*userAccount)
+	data := new(response.LoginResponse)
+	data.LoginResponseFromModel(*userAccount)
+	resp := response.APIResponse{
+		Success: true,
+		Message: "로그인 성공",
+		Data:    data,
+	}
+
 	util.RespondWithJSON(w, http.StatusOK, resp)
 }
 
@@ -99,17 +109,14 @@ func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("세션 저장 실패: %v", err)
 	}
 
-	resp := response.LogoutResponse{
-		ID: id,
-	}
 	// 응답
-	util.RespondWithJSON(w, http.StatusOK, resp)
+	util.RespondWithJSON(w, http.StatusOK, struct{}{})
 }
 
 func (h *AuthHandler) LoginInfoHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	loginInfos, err := h.authService.GetLoginInfoAll()
+	loginInfos, err := h.authService.GetLoginHistoryAll()
 	if err != nil {
 		log.Printf("로그인 정보 조회 실패: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -145,29 +152,71 @@ func (h *AuthHandler) LoginResetHandler(w http.ResponseWriter, r *http.Request) 
 	util.RespondWithJSON(w, http.StatusOK, loginResets)
 }
 
-func (h *AuthHandler) MeHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, "lms-session")
-	if err != nil {
+func (h *AuthHandler) SessionHandler(w http.ResponseWriter, r *http.Request) {
+	sessionName := "lms-session"
+
+	// 세션 가져오기
+	session, err := store.Get(r, sessionName)
+	if err != nil || session == nil {
+		http.Error(w, "세션이 존재하지 않습니다.", http.StatusUnauthorized)
 		return
 	}
 
-	idRaw, exists := session.Values["id"]
-	if !exists {
-		return
-	}
-
-	id, ok := idRaw.(string)
+	// 세션에서 사용자 ID 추출
+	id, ok := session.Values["id"].(string)
 	if !ok || id == "" {
+		http.Error(w, "세션 ID가 유효하지 않습니다.", http.StatusUnauthorized)
 		return
 	}
 
+	// 사용자 정보 조회
 	userAccount, err := h.authService.GetUserInfo(id)
-	if err != nil {
+	if userAccount == nil || err != nil {
+		http.Error(w, "사용자 정보를 찾을 수 없습니다.", http.StatusUnauthorized)
 		return
 	}
 
-	resp := response.LoginResponse{}
-	resp.FromModel(*userAccount)
+	// 응답 생성
+	// resp := response.UserSessionResponse{
+	// 	LastLoginDate: userAccount.RecentConnDate.String(),
+	// 	// Permissions:   []string{"user"}, // 예시로 "user" 권한만 설정
+	// }
 
+	resp := response.NewResponse[any](true, "", nil)
 	util.RespondWithJSON(w, http.StatusOK, resp)
+}
+
+func (h *AuthHandler) IdExistsHandler(w http.ResponseWriter, r *http.Request) {
+	var req request.IdExistsRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "잘못된 요청입니다.", http.StatusBadRequest)
+		return
+	}
+
+	exists, err := h.authService.IsIdExists(req.ID)
+	if err != nil {
+		log.Printf("ID 존재 여부 조회 실패: %v", err)
+		http.Error(w, "서버 오류", http.StatusInternalServerError)
+		return
+	}
+
+	util.RespondWithJSON(w, http.StatusOK, response.IdExistsResponse{Exists: exists})
+}
+
+// 사용자관리 핸들러
+func (h *AuthHandler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
+	var userReq *request.UserRegisterRequest
+	if err := json.NewDecoder(r.Body).Decode(userReq); err != nil {
+		http.Error(w, "잘못된 요청입니다.", http.StatusBadRequest)
+		return
+	}
+
+	err := h.authService.RegisterUser(userReq)
+	if err != nil {
+		log.Printf("사용자 등록 실패: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	util.RespondWithJSON(w, http.StatusOK, struct{}{})
 }

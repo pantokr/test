@@ -14,31 +14,29 @@ Coded by www.creative-tim.com
 */
 function collapseItem(theme, ownerState) {
   const { palette, transitions, breakpoints, boxShadows, borders, functions } = theme;
-  const { active, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = ownerState;
+  const { active, darkMode } = ownerState;
 
-  const { white, transparent, dark, grey, gradients } = palette;
+  const { white, gradients } = palette;
+  const { info } = gradients;
   const { md } = boxShadows;
   const { borderRadius } = borders;
   const { pxToRem, rgba, linearGradient } = functions;
 
+  const colors = palette.colors;
   return {
-    background: active
-      ? linearGradient(gradients[sidenavColor].main, gradients[sidenavColor].state)
-      : transparent.main,
-    color:
-      (transparentSidenav && !darkMode && !active) || (whiteSidenav && !active)
-        ? dark.main
-        : white.main,
+    background: active ? linearGradient(info.main, info.state) : "transparent",
+    color: white.main, // ✅ 다크모드 → 흰색, 화이트모드 → 검정
     display: "flex",
     alignItems: "center",
     width: "100%",
-    padding: `${pxToRem(8)} ${pxToRem(10)}`,
-    margin: `${pxToRem(1.5)} ${pxToRem(16)}`,
+    padding: `${pxToRem(4)} ${pxToRem(10)}`,
+    margin: `${pxToRem(2)} ${pxToRem(16)}`,
     borderRadius: borderRadius.md,
     cursor: "pointer",
     userSelect: "none",
     whiteSpace: "nowrap",
-    boxShadow: active && !whiteSidenav && !darkMode && !transparentSidenav ? md : "none",
+    boxShadow: active && !darkMode ? md : "none",
+
     [breakpoints.up("xl")]: {
       transition: transitions.create(["box-shadow", "background-color"], {
         easing: transitions.easing.easeInOut,
@@ -48,16 +46,11 @@ function collapseItem(theme, ownerState) {
 
     "&:hover, &:focus": {
       backgroundColor: () => {
-        let backgroundValue;
-
         if (!active) {
-          backgroundValue =
-            transparentSidenav && !darkMode
-              ? grey[300]
-              : rgba(whiteSidenav ? grey[400] : white.main, 0.2);
+          return rgba(white.main);
+          // ✅ hover 색상도 모드에 따라
         }
-
-        return backgroundValue;
+        return undefined;
       },
     },
   };
@@ -65,7 +58,7 @@ function collapseItem(theme, ownerState) {
 
 function collapseIconBox(theme, ownerState) {
   const { palette, transitions, borders, functions } = theme;
-  const { transparentSidenav, whiteSidenav, darkMode, active } = ownerState;
+  const { darkMode, active } = ownerState;
 
   const { white, dark } = palette;
   const { borderRadius } = borders;
@@ -73,11 +66,8 @@ function collapseIconBox(theme, ownerState) {
 
   return {
     minWidth: pxToRem(32),
-    minHeight: pxToRem(32),
-    color:
-      (transparentSidenav && !darkMode && !active) || (whiteSidenav && !active)
-        ? dark.main
-        : white.main,
+    minHeight: pxToRem(16),
+    color: white.main, // ✅ active면 무조건 흰색
     borderRadius: borderRadius.md,
     display: "grid",
     placeItems: "center",
@@ -87,18 +77,18 @@ function collapseIconBox(theme, ownerState) {
     }),
 
     "& svg, svg g": {
-      color: transparentSidenav || whiteSidenav ? dark.main : white.main,
+      color: white.main, // ✅ 아이콘도 모드별
     },
   };
 }
 
-const collapseIcon = ({ palette: { white, gradients } }, { active }) => ({
-  color: active ? white.main : gradients.dark.state,
+const collapseIcon = ({ palette: { white, dark } }, { active, darkMode }) => ({
+  color: white.main,
 });
 
 function collapseText(theme, ownerState) {
   const { typography, transitions, breakpoints, functions } = theme;
-  const { miniSidenav, transparentSidenav, active } = ownerState;
+  const { miniSidenav, active } = ownerState;
 
   const { size, fontWeightRegular, fontWeightLight } = typography;
   const { pxToRem } = functions;
@@ -107,9 +97,9 @@ function collapseText(theme, ownerState) {
     marginLeft: pxToRem(10),
 
     [breakpoints.up("xl")]: {
-      opacity: miniSidenav || (miniSidenav && transparentSidenav) ? 0 : 1,
-      maxWidth: miniSidenav || (miniSidenav && transparentSidenav) ? 0 : "100%",
-      marginLeft: miniSidenav || (miniSidenav && transparentSidenav) ? 0 : pxToRem(10),
+      opacity: miniSidenav ? 0 : 1,
+      maxWidth: miniSidenav ? 0 : "100%",
+      marginLeft: miniSidenav ? 0 : pxToRem(10),
       transition: transitions.create(["opacity", "margin"], {
         easing: transitions.easing.easeInOut,
         duration: transitions.duration.standard,
