@@ -48,7 +48,7 @@ export interface SidenavRoute {
 /**
  * 사이드바 컬랩스 아이템 Props (내부용)
  */
-export interface SidenavCollapseInternalProps {
+export interface SidenavItemInternalProps {
   route: SidenavRoute;
   color: SidenavColor;
   darkMode: boolean;
@@ -92,13 +92,12 @@ export interface SidenavStyleProps {
 /**
  * 사이드바 컬랩스 스타일 Props
  */
-export interface SidenavCollapseStyleProps {
+export interface SidenavItemStyleProps {
   theme: any;
   ownerState: {
     active: boolean;
     noCollapse: boolean;
     open: boolean;
-    color: SidenavColor;
     darkMode: boolean;
   };
 }

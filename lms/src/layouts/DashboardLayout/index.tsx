@@ -1,3 +1,5 @@
+// src/layouts/DashboardLayout.tsx
+
 import React, { useEffect } from "react";
 import { useMediaQuery, useTheme } from "@mui/material";
 
@@ -5,7 +7,8 @@ import type { DashboardLayoutProps } from "@/types/layout";
 import { useMaterialUIController, setLayout } from "@/context";
 import { useSidenav } from "@/hooks";
 import Sidenav from "@/components/Layout/Sidenav";
-import routes from "@/routes";
+import ThemeToggle from "@/components/Layout/ThemeToggle";
+import sidenavRoute from "@/config/routes";
 
 import { LayoutContainer, MainArea, SidenavArea } from "./styles";
 import MainContent from "@/components/Layout/MainContent";
@@ -14,6 +17,7 @@ import Footer from "@/components/Layout/Footer"; // 하단 푸터
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   showSidenav = true,
+  showThemeToggle = true, // 테마 토글 버튼 표시 옵션
   children,
 }) => {
   const [controller, dispatch] = useMaterialUIController();
@@ -25,14 +29,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     setLayout(dispatch, "dashboard");
   }, [dispatch]);
 
-  console.log({ children, showSidenav, isMobile, sidenavOpen });
   return (
     <LayoutContainer>
       <SidenavArea show={showSidenav && !isMobile}>
+        {}
         <Sidenav
           brand=""
           brandName="LMS"
-          routes={routes}
+          routes={sidenavRoute}
           open={sidenavOpen}
           onClose={closeSidenav}
         />
@@ -43,6 +47,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <MainContent>{children}</MainContent>
         <Footer />
       </MainArea>
+
+      {/* 테마 토글 플로팅 버튼 */}
+      {showThemeToggle && <ThemeToggle />}
     </LayoutContainer>
   );
 };

@@ -29,4 +29,8 @@ export const MainArea = styled("div")({
   display: "flex",
   flexDirection: "column",
   overflow: "auto",
+  alignItems: "center", // 수평 중앙 정렬
+  justifyContent: "center", // 수직 중앙 정렬 (필요한 경우)
+  maxWidth: "100%", // 최대 너비 제한
+  margin: "0 auto", // 추가적인 중앙 정렬 보장
 });

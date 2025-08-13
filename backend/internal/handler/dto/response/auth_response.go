@@ -7,10 +7,10 @@ import (
 
 type LoginResponse struct {
 	LoginID   string `json:"loginID"`
-	EmpName   string `json:"emp_name"`
-	DeptName  string `json:"dept_name"`
-	OfficeTel string `json:"office_tel"`
-	MobileTel string `json:"mobile_tel"`
+	EmpName   string `json:"empName"`
+	DeptName  string `json:"deptName"`
+	OfficeTel string `json:"officeTel"`
+	MobileTel string `json:"mobileTel"`
 }
 
 func (r *LoginResponse) LoginResponseFromModel(userAccount model.UserAccount) {

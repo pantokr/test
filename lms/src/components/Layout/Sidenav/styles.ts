@@ -9,10 +9,7 @@ import {
   Collapse,
 } from "@mui/material";
 
-import type {
-  SidenavStyleProps,
-  SidenavCollapseStyleProps,
-} from "@/types/sidenav";
+import type { SidenavStyleProps, SidenavItemStyleProps } from "@/types/sidenav";
 import { SIDENAV_WIDTH } from "@/constants";
 
 export const SidenavRoot = styled(Drawer, {
@@ -80,9 +77,9 @@ export const SidenavList = styled(List)(({ theme }) => ({
   },
 }));
 
-export const SidenavCollapseRoot = styled(ListItem, {
+export const SidenavItemRoot = styled(ListItem, {
   shouldForwardProp: (prop) => prop !== "ownerState",
-})<{ ownerState: SidenavCollapseStyleProps["ownerState"] }>(
+})<{ ownerState: SidenavItemStyleProps["ownerState"] }>(
   ({ theme, ownerState }) => ({
     margin: theme.spacing(0.25, 0),
     borderRadius: theme.spacing(1),
@@ -101,9 +98,9 @@ export const SidenavCollapseRoot = styled(ListItem, {
   })
 );
 
-export const SidenavCollapseButton = styled(ListItemButton, {
+export const SidenavItemButton = styled(ListItemButton, {
   shouldForwardProp: (prop) => prop !== "ownerState",
-})<{ ownerState: SidenavCollapseStyleProps["ownerState"] }>(
+})<{ ownerState: SidenavItemStyleProps["ownerState"] }>(
   ({ theme, ownerState }) => ({
     padding: theme.spacing(0.75, 2),
     borderRadius: theme.spacing(1),
@@ -130,7 +127,7 @@ export const SidenavCollapseButton = styled(ListItemButton, {
   })
 );
 
-export const SidenavSubCollapse = styled(Collapse)(({ theme }) => ({
+export const SidenavSubItem = styled(Collapse)(({ theme }) => ({
   "& .MuiList-root": {
     paddingLeft: theme.spacing(2.5),
     paddingTop: theme.spacing(0.25),

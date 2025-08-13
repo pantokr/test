@@ -1,4 +1,4 @@
-// src/components/Sidenav/index.tsx
+// src/components/Sidenav/index.tsx (컴포넌트 분리 버전)
 
 import React, { useEffect } from "react";
 import type { ReactNode } from "react";
@@ -8,7 +8,8 @@ import { Close } from "@mui/icons-material";
 
 import type { SidenavProps, SidenavRoute } from "@/types/sidenav";
 import { useMaterialUIController, setLayout } from "@/context";
-import SidenavCollapse from "./SidenavCollapse";
+import SidenavItem from "./SidenavItem";
+import LogoutSection from "./LogoutSection";
 import {
   SidenavRoot,
   SidenavContent,
@@ -19,6 +20,7 @@ import {
   SidenavDivider,
   SidenavTitle,
 } from "./styles";
+import { isPublicRoute } from "@/utils/route";
 
 const Sidenav: React.FC<Omit<SidenavProps, "color">> = ({
   brand,
@@ -61,6 +63,38 @@ const Sidenav: React.FC<Omit<SidenavProps, "color">> = ({
 
   const renderRoutes = (routes: SidenavRoute[]): ReactNode =>
     routes.map((route) => {
+      // Public route는 렌더링하지 않음
+      if (route.route && isPublicRoute(route.route)) {
+        return null;
+      }
+
+      // collapse가 있는 경우 하위 라우트들도 체크
+      if (route.collapse) {
+        const filteredCollapse = route.collapse.filter((subRoute) => {
+          // 하위 라우트가 public route가 아닌 경우만 포함
+          return !(subRoute.route && isPublicRoute(subRoute.route));
+        });
+
+        // 필터링 후 남은 하위 라우트가 없으면 전체 메뉴 숨김
+        if (filteredCollapse.length === 0) {
+          return null;
+        }
+
+        // 필터링된 하위 라우트로 업데이트
+        const filteredRoute = {
+          ...route,
+          collapse: filteredCollapse,
+        };
+
+        return (
+          <SidenavItem
+            key={route.key}
+            route={filteredRoute}
+            darkMode={darkMode}
+          />
+        );
+      }
+
       if (route.divider) return <SidenavDivider key={`divider-${route.key}`} />;
       if (route.title)
         return (
@@ -70,7 +104,7 @@ const Sidenav: React.FC<Omit<SidenavProps, "color">> = ({
         );
       if (route.name)
         return (
-          <SidenavCollapse key={route.key} route={route} darkMode={darkMode} />
+          <SidenavItem key={route.key} route={route} darkMode={darkMode} />
         );
       return null;
     });
@@ -83,9 +117,22 @@ const Sidenav: React.FC<Omit<SidenavProps, "color">> = ({
       ownerState={{ darkMode }}
       ModalProps={{ keepMounted: true }}
     >
-      <SidenavContent>
+      <SidenavContent
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+        }}
+      >
         {renderBrand()}
-        <SidenavList>{renderRoutes(routes)}</SidenavList>
+        <SidenavList sx={{ flex: 1, overflow: "auto" }}>
+          {renderRoutes(routes)}
+        </SidenavList>
+        <LogoutSection
+          darkMode={darkMode}
+          isMobile={isMobile}
+          onClose={onClose}
+        />
       </SidenavContent>
     </SidenavRoot>
   );

@@ -11,6 +11,7 @@ export interface DashboardLayoutProps {
   showSidenav?: boolean;
   showNavbar?: boolean;
   showFooter?: boolean;
+  showThemeToggle?: boolean; // 테마 토글 버튼 표시 옵션 추가
 }
 
 /**

@@ -7,7 +7,6 @@ interface MainContentProps {
 }
 
 const MainContent: React.FC<MainContentProps> = ({ children }) => {
-  console.log("MainContent rendered with children:", children);
   return <ContentWrapper>{children}</ContentWrapper>;
 };
 

@@ -5,7 +5,7 @@ import (
 	"lms/internal/config"
 	"lms/internal/handler/dto/request"
 	"lms/internal/handler/dto/response"
-	"lms/internal/service"
+	"lms/internal/service/interfaces"
 	"lms/internal/util"
 	"log"
 	"net/http"
@@ -14,17 +14,21 @@ import (
 )
 
 type AuthHandler struct {
-	authService *service.AuthService
-}
-
-func InitAuthHandler(authService *service.AuthService) *AuthHandler {
-	return &AuthHandler{authService: authService}
+	authService interfaces.AuthServiceInterface
 }
 
 var store = sessions.NewCookieStore([]byte("secret-key"))
 
+// InitAuthHandler - AuthHandler 초기화
+func InitAuthHandler(authService interfaces.AuthServiceInterface) *AuthHandler {
+	return &AuthHandler{
+		authService: authService,
+	}
+}
+
 // 로그인 핸들러
 func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("로그인 요청 처리")
 	// JSON 디코딩
 	var creds request.Credentials
 	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
@@ -110,46 +114,11 @@ func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 응답
-	util.RespondWithJSON(w, http.StatusOK, struct{}{})
-}
-
-func (h *AuthHandler) LoginInfoHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	loginInfos, err := h.authService.GetLoginHistoryAll()
-	if err != nil {
-		log.Printf("로그인 정보 조회 실패: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	resp := response.APIResponse{
+		Success: true,
+		Message: "로그아웃 성공",
 	}
-
-	util.RespondWithJSON(w, http.StatusOK, loginInfos)
-}
-
-func (h *AuthHandler) LoginFailHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	loginFails, err := h.authService.GetLoginFailAll()
-	if err != nil {
-		util.RespondWithJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	// 성공 시 200과 JSON 반환
-	util.RespondWithJSON(w, http.StatusOK, loginFails)
-}
-
-func (h *AuthHandler) LoginResetHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	loginResets, err := h.authService.GetLoginResetAll()
-	if err != nil {
-		util.RespondWithJSON(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	// 성공 시 200과 JSON 반환
-	util.RespondWithJSON(w, http.StatusOK, loginResets)
+	util.RespondWithJSON(w, http.StatusOK, resp)
 }
 
 func (h *AuthHandler) SessionHandler(w http.ResponseWriter, r *http.Request) {
