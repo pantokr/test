@@ -2,22 +2,20 @@
 
 import { AUDIT_ROUTE } from "@/constants";
 import { AuthApiError } from "@/errors/AuthApiError";
-import { ApiResponse, LoginCredentials, LoginHistoryResponse } from "@/types";
+import { ApiResponse, LoginHistoryItem } from "@/types";
 import {
   createApiUrl,
   createRequestOptions,
   handleResponse,
 } from "@/utils/api";
 
-export const loginApi = async (
-  credentials: LoginCredentials
-): Promise<ApiResponse> => {
+export const loginHistoryApi = async (): Promise<ApiResponse> => {
   try {
     const response = await fetch(
-      createApiUrl(AUDIT_ROUTE, "/login"),
-      createRequestOptions("POST", credentials)
+      createApiUrl(AUDIT_ROUTE, "/login-history"),
+      createRequestOptions("GET")
     );
-    return handleResponse<ApiResponse<LoginHistoryResponse>>(response);
+    return handleResponse<ApiResponse<LoginHistoryItem[]>>(response);
   } catch (error) {
     if (error instanceof AuthApiError) {
       throw error;

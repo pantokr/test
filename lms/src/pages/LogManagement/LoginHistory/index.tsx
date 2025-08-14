@@ -1,16 +1,51 @@
-// pages/LogManagement/LoginHistory
+// pages/LogManagement/LoginHistory.tsx
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import { loginHistoryApi } from "@/api/audit";
+import MuiDataGrid from "@/components/Grid/MuiDatagrid";
+import { LoginHistoryItem } from "@/types";
+import ColumnDefs from "./columnDefs";
 
 const LoginHistoryPage: React.FC = () => {
+  const [loginHistory, setLoginHistory] = useState<LoginHistoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // 데이터를 그리드에 맞게 변환 (id 필드 추가)
+  const transformedData = loginHistory.map((item, index) => ({
+    id: `${item.login_id}_${item.login_time}_${index}`,
+    ...item,
+  }));
+
+  const fetchLoginHistory = async () => {
+    try {
+      setLoading(true);
+      const response = await loginHistoryApi();
+
+      if (response && response.data) {
+        setLoginHistory(response.data);
+      } else {
+        throw new Error("로그인 기록을 가져오는 데 실패했습니다.");
+      }
+    } catch (err) {
+      console.error("로그인 기록 조회 오류:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLoginHistory();
+  }, []);
+
   return (
     <DashboardLayout title="로그인 기록">
-      {/* 여기에 로그인 기록 페이지의 컨텐츠를 넣으세요 */}
-      <div style={{ padding: 24, minHeight: "80vh" }}>
-        <h1>로그인 기록</h1>
-        <p>여기에 로그인 기록 관련 컴포넌트나 위젯들을 추가하세요.</p>
-      </div>
+      <MuiDataGrid
+        columnDefs={ColumnDefs}
+        data={transformedData}
+        title="로그인 기록"
+        loading={loading}
+      />
     </DashboardLayout>
   );
 };

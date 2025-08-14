@@ -10,8 +10,3 @@ export interface LoginHistoryItem {
   client_ip: string | null; // 사용자 IP
   server_ip: string | null; // 서버 IP
 }
-
-// 로그인 히스토리 응답
-export interface LoginHistoryResponse {
-  items: LoginHistoryItem[];
-}

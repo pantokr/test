@@ -6,7 +6,7 @@ import { useLocation } from "react-router-dom";
 import { IconButton, useMediaQuery, useTheme } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
-import type { SidenavProps, SidenavRoute } from "@/types/sidenav";
+import type { SidenavProps, RouteItem } from "@/types";
 import { useMaterialUIController, setLayout } from "@/context";
 import SidenavItem from "./SidenavItem";
 import LogoutSection from "./LogoutSection";
@@ -61,7 +61,7 @@ const Sidenav: React.FC<Omit<SidenavProps, "color">> = ({
     </SidenavBrand>
   );
 
-  const renderRoutes = (routes: SidenavRoute[]): ReactNode =>
+  const renderRoutes = (routes: RouteItem[]): ReactNode =>
     routes.map((route) => {
       // Public route는 렌더링하지 않음
       if (route.route && isPublicRoute(route.route)) {

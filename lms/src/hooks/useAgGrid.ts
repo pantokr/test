@@ -1,121 +1,73 @@
-// src/hooks/useAgGrid.ts
+// hooks/useAgGrid.ts
+import { useMemo } from "react";
+import { ColDef, GridOptions, GridReadyEvent } from "ag-grid-community";
 
-import { useState, useEffect, useMemo, useRef } from "react";
-import type { GridApi, ColDef } from "ag-grid-community";
-import { useMediaQuery, useTheme } from "@mui/material";
+interface UseAgGridConfigProps {
+  enablePagination: boolean;
+  pageSize: number;
+  enableCheckbox: boolean;
+  gridOptions?: GridOptions;
+}
 
-import { useMaterialUIController } from "@/context";
-import type { UseAgGridThemeReturn } from "@/types/agGrid";
+export const useAgGridConfig = ({
+  enablePagination,
+  pageSize,
+  enableCheckbox,
+  gridOptions = {},
+}: UseAgGridConfigProps) => {
+  return useMemo(
+    (): GridOptions => ({
+      // 기본 설정
+      defaultColDef: {
+        flex: 1,
+        minWidth: 100,
+        resizable: true,
+        sortable: true,
+        filter: true,
+        ...gridOptions.defaultColDef,
+      },
 
-/**
- * AG-Grid 테마 관리 훅
- */
-export const useAgGridTheme = (): UseAgGridThemeReturn => {
-  const [controller] = useMaterialUIController();
-  const { darkMode } = controller;
+      // 페이지네이션 설정
+      pagination: enablePagination,
+      paginationPageSize: pageSize,
+      paginationPageSizeSelector: enablePagination ? [10, 25, 50, 100] : false,
 
-  useEffect(() => {
-    document.body.dataset.agThemeMode = darkMode ? "dark-mode" : "light-mode";
-  }, [darkMode]);
+      // 체크박스 선택 설정
+      rowSelection: enableCheckbox ? "multiple" : undefined,
 
-  return {
-    theme: darkMode ? "ag-theme-balham-dark" : "ag-theme-balham",
-    className: darkMode ? "ag-theme-balham-dark" : "ag-theme-balham",
-  };
-};
+      // 행 높이 설정
+      rowHeight: 36,
+      headerHeight: 40,
 
-/**
- * AG-Grid 반응형 관리 훅
- */
-export const useAgGridResponsive = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
-  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+      // 그리드 동작
+      suppressCellFocus: true,
+      suppressRowClickSelection: true,
+      animateRows: true,
+      suppressPaginationPanel: false,
 
-  return {
-    isMobile,
-    isTablet,
-    // 모바일에서는 페이지네이션 비활성화
-    shouldUsePagination: !isMobile,
-    // 반응형 컬럼 너비
-    getResponsiveMinWidth: (baseWidth: number) => {
-      if (isMobile) return Math.min(baseWidth, 120);
-      if (isTablet) return Math.min(baseWidth, 150);
-      return baseWidth;
-    },
-  };
-};
-
-/**
- * AG-Grid API 관리 훅
- */
-export const useAgGridApi = () => {
-  const gridRef = useRef<{ api: GridApi | null }>({ api: null });
-
-  const exportToCsv = (fileName: string = "export") => {
-    if (gridRef.current?.api) {
-      gridRef.current.api.exportDataAsCsv({
-        fileName: `${fileName}_${new Date().toISOString().split("T")[0]}.csv`,
-      });
-    }
-  };
-
-  const exportToExcel = (fileName: string = "export") => {
-    if (gridRef.current?.api) {
-      // Excel export는 Enterprise 버전에서만 가능
-      console.warn("Excel export requires AG-Grid Enterprise license");
-      // CSV로 대체
-      exportToCsv(fileName);
-    }
-  };
-
-  const refreshGrid = () => {
-    if (gridRef.current?.api) {
-      gridRef.current.api.refreshCells();
-    }
-  };
-
-  const getSelectedRows = () => {
-    if (gridRef.current?.api) {
-      return gridRef.current.api.getSelectedRows();
-    }
-    return [];
-  };
-
-  const setGridRef = (ref: any) => {
-    gridRef.current = ref;
-  };
-
-  return {
-    gridRef,
-    setGridRef,
-    exportToCsv,
-    exportToExcel,
-    refreshGrid,
-    getSelectedRows,
-  };
-};
-
-/**
- * AG-Grid 기본 설정 훅
- */
-export const useAgGridDefaults = () => {
-  const defaultColDef = useMemo(
-    (): ColDef => ({
-      resizable: true,
-      sortable: true,
-      filter: true,
-      minWidth: 100,
-      flex: 1,
+      // 사용자 커스텀 옵션
+      ...gridOptions,
     }),
-    []
+    [enablePagination, pageSize, enableCheckbox, gridOptions]
   );
+};
 
-  const overlayNoRowsTemplate =
-    '<div class="ag-overlay-panel"><div class="ag-overlay-wrapper ag-overlay-no-rows-wrapper"><span class="ag-overlay-no-rows-center">데이터가 없습니다.</span></div></div>';
+export const useProcessedColumnDefs = (columnDefs: ColDef[]) => {
+  return useMemo(() => {
+    return columnDefs.map((col) => ({
+      ...col,
+      checkboxSelection:
+        col.checkboxSelection !== undefined ? col.checkboxSelection : false,
+    }));
+  }, [columnDefs]);
+};
+
+export const useGridEventHandlers = () => {
+  const onGridReady = (params: GridReadyEvent) => {
+    params.api.sizeColumnsToFit();
+  };
 
   return {
-    defaultColDef,
-    overlayNoRowsTemplate,
+    onGridReady,
   };
 };

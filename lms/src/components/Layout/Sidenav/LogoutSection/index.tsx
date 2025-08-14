@@ -18,13 +18,8 @@ interface LogoutSectionProps {
   onClose?: () => void;
 }
 
-const LogoutSection: React.FC<LogoutSectionProps> = ({
-  darkMode,
-  isMobile,
-  onClose,
-}) => {
-  const { handleLogout, isAuthenticated, user } = useAuth();
-  const navigate = useNavigate();
+const LogoutSection: React.FC<LogoutSectionProps> = ({ darkMode }) => {
+  const { handleLogout, isAuthenticated } = useAuth();
 
   // 인증된 사용자에게만 로그아웃 버튼 표시
   if (!isAuthenticated) return null;

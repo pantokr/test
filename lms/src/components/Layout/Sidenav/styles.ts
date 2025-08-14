@@ -9,7 +9,7 @@ import {
   Collapse,
 } from "@mui/material";
 
-import type { SidenavStyleProps, SidenavItemStyleProps } from "@/types/sidenav";
+import type { SidenavStyleProps, SidenavItemStyleProps } from "@/types";
 import { SIDENAV_WIDTH } from "@/constants";
 
 export const SidenavRoot = styled(Drawer, {

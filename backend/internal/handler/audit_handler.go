@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"lms/internal/handler/dto/response"
 	serviceInterfaces "lms/internal/service/interfaces"
 
 	"lms/internal/util"
@@ -19,20 +20,24 @@ func InitAuditHandler(auditService serviceInterfaces.AuditServiceInterface) *Aud
 func (h *AuditHandler) LoginHistoryHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	loginInfos, err := h.auditService.GetLoginHistoryAll()
+	histories, err := h.auditService.GetLoginHistoryAll()
 	if err != nil {
-		log.Printf("로그인 정보 조회 실패: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("로그인 기록 조회 실패: %v", err)
+		http.Error(w, "로그인 기록 조회 실패", http.StatusInternalServerError)
+		return
+	}
+	if histories == nil {
+		util.RespondWithJSON(w, http.StatusOK, response.NewResponse[interface{}](true, "로그인 기록이 없습니다.", nil))
 		return
 	}
 
-	util.RespondWithJSON(w, http.StatusOK, loginInfos)
+	util.RespondWithJSON(w, http.StatusOK, response.NewResponse(true, "로그인 기록 조회 성공", &histories))
 }
 
 func (h *AuditHandler) LoginFailureHistoryHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	loginFails, err := h.auditService.GetLoginFailHistoryAll()
+	loginFails, err := h.auditService.GetLoginFailureHistoryAll()
 	if err != nil {
 		util.RespondWithJSON(w, http.StatusInternalServerError, err.Error())
 		return

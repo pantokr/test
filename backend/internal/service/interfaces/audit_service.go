@@ -1,12 +1,20 @@
 package interfaces
 
-import (
-	"lms/internal/handler/dto/response"
-)
+import "lms/internal/handler/dto/response"
 
 type AuditServiceInterface interface {
-	FailLogin(code, loginID, clientIP, serverIP string)
-	GetLoginHistoryAll() ([]response.LoginHistoryResponse, error)
-	GetLoginFailHistoryAll() ([]response.LoginFailResponse, error)
+	// 로그인 실패 기록
+	FailLogin(code, loginID, clientIP, serverIP string) error
+
+	// 로그인 성공 기록
+	RecordLoginSuccess(loginID, clientIP, serverIP string) error
+
+	// 로그인 이력 전체 조회
+	GetLoginHistoryAll() ([]response.LoginHistoryItem, error)
+
+	// 로그인 실패 이력 전체 조회
+	GetLoginFailureHistoryAll() ([]response.LoginFailureHistoryResponse, error)
+
+	// 로그인 리셋 이력 전체 조회
 	GetLoginResetHistoryAll() ([]response.LoginResetResponse, error)
 }

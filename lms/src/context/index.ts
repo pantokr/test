@@ -19,4 +19,4 @@ export type {
   MaterialUIControllerAction,
   SidenavColor,
   LayoutType,
-} from "@/types/context";
+} from "@/types/index";

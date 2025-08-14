@@ -25,6 +25,13 @@ export const loginApi = async (
       createApiUrl(AUTH_ROUTE, "/login"),
       createRequestOptions("POST", credentials)
     );
+
+    if (response.status == 401) {
+      throw new AuthApiError("아이디/비밀번호 오류", 401);
+    } else if (!response.ok) {
+      const errorMsg = await response.text();
+      throw new AuthApiError(errorMsg, response.status, response);
+    }
     return handleResponse<ApiResponse<UserInfo>>(response);
   } catch (error) {
     if (error instanceof AuthApiError) {
@@ -65,7 +72,7 @@ export const logoutApi = async (): Promise<ApiResponse> => {
 /**
  * 현재 사용자 세션 정보 가져오기 (새로고침 시 쿠키 재설정)
  */
-export const userSessionApi = async (): Promise<ApiResponse> => {
+export const sessionApi = async (): Promise<ApiResponse> => {
   try {
     const response = await fetch(
       createApiUrl(AUTH_ROUTE, "/session"),

@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useMediaQuery, useTheme } from "@mui/material";
 
-import type { DashboardLayoutProps } from "@/types/layout";
+import type { DashboardLayoutProps } from "@/types/index";
 import { useMaterialUIController, setLayout } from "@/context";
 import { useSidenav } from "@/hooks";
 import Sidenav from "@/components/Layout/Sidenav";
@@ -14,6 +14,7 @@ import { LayoutContainer, MainArea, SidenavArea } from "./styles";
 import MainContent from "@/components/Layout/MainContent";
 import Navbar from "@/components/Layout/Navbar"; // 상단 바
 import Footer from "@/components/Layout/Footer"; // 하단 푸터
+import { ContentWrapper } from "@/components/Layout/MainContent/styles";
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   showSidenav = true,

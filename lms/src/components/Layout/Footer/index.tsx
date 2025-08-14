@@ -3,7 +3,7 @@
 import React from "react";
 import { Typography, Link, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import type { FooterProps } from "@/types/layout";
+import type { FooterProps } from "@/types/index";
 
 // 스타일드 컴포넌트 내부 정의 - fixed 제거
 const FooterContainer = styled(Box)(({ theme }) => ({
@@ -19,6 +19,9 @@ const FooterContent = styled(Box)(({ theme }) => ({
   justifyContent: "space-between",
   maxWidth: theme.breakpoints.values.xl,
   margin: "0 auto",
+  flexGrow: 1,
+  flexShrink: 1,
+  flexBasis: 0,
 
   [theme.breakpoints.down("sm")]: {
     flexDirection: "column",

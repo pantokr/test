@@ -36,25 +36,12 @@ func New(cfg *config.Config, db *database.DB) *Server {
 }
 
 func (s *Server) setupDependencies() {
-	// Repository 초기화
-	repos := &repository.Repositories{
-		User:  repository.InitUserRepository(s.db),
-		Audit: repository.InitAuditRepository(s.db),
-	}
 
-	// Service 초기화
-	services := &service.Services{
-		Auth: service.InitAuthService(repos.User, repos.Audit),
-		// User:  service.InitUserService(repos.User, repos.Audit),
-		Audit: service.InitAuditService(repos.Audit),
-	}
+	repos := repository.NewRepositories(s.db)
+	services := service.NewServices(repos)
+	handlers := handler.NewHandlers(services)
 
-	// Handler 초기화
-	s.handlers = &handler.Handlers{
-		Auth: handler.InitAuthHandler(services.Auth),
-		// User:  handler.InitUserHandler(services.User, services.Auth),
-		Audit: handler.InitAuditHandler(services.Audit),
-	}
+	s.handlers = handlers
 }
 
 func (s *Server) setupRoutes() {

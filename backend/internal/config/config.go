@@ -24,12 +24,7 @@ type Config struct {
 	Server      ServerConfig
 	Database    DatabaseConfig
 	TCP         TCPConfig
-	SuperUser   SuperUserConfig
 	LocalIP     string `json:"local_ip"`
-}
-
-func (c *Config) getLocalIP() any {
-	panic("unimplemented")
 }
 
 type ServerConfig struct {
@@ -86,7 +81,6 @@ func Load() (*Config, error) {
 		Server:      loadServerConfig(env),
 		Database:    loadDatabaseConfig(env),
 		TCP:         loadTCPConfig(env),
-		SuperUser:   loadSuperUserConfig(),
 	}
 
 	// 설정 검증
@@ -179,14 +173,6 @@ func loadTCPConfig(env Environment) TCPConfig {
 	return TCPConfig{
 		RecvURL:  os.Getenv(prefix + "TCP_RECV_URL"),
 		RecvPort: getEnvWithDefault(prefix+"TCP_RECV_PORT", "9090"),
-	}
-}
-
-// loadSuperUserConfig는 슈퍼 유저 관련 설정을 로드합니다
-func loadSuperUserConfig() SuperUserConfig {
-	return SuperUserConfig{
-		ID:       os.Getenv("SUPER_USER_ID"),
-		Password: os.Getenv("SUPER_USER_PASSWD"),
 	}
 }
 

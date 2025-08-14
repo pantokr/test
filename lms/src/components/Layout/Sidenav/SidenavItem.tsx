@@ -12,12 +12,12 @@ import {
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
-import type { SidenavRoute } from "@/types/sidenav";
+import type { RouteItem } from "@/types";
 import { useMaterialUIController } from "@/context";
 import { SidenavItemRoot, SidenavItemButton, SidenavSubItem } from "./styles";
 
 interface SidenavItemProps {
-  route: SidenavRoute;
+  route: RouteItem;
   darkMode: boolean;
 }
 

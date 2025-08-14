@@ -64,6 +64,9 @@ func FormatDate(t time.Time) string {
 	return t.Format("2006-01-02")
 }
 
-func FormatDateTime(t time.Time) string {
+func FormatDateTime(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
 	return t.Format("2006-01-02 15:04:05")
 }

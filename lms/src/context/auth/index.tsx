@@ -2,9 +2,10 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import type { UserInfo } from "@/types/api/auth";
-import { loginApi, logoutApi, userSessionApi } from "@/api/auth";
+import type { UserInfo } from "@/types";
+import { loginApi, logoutApi, sessionApi } from "@/api/auth";
 import { isPublicRoute } from "@/utils/route";
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   user: UserInfo | null;
@@ -14,9 +15,10 @@ interface AuthContextType {
     passwd: string;
   }) => Promise<void>;
   handleLogout: () => Promise<void>;
-  checkSession: (pathname: string) => Promise<void>;
+  handleSession: (pathname: string) => Promise<void>;
   isAuthenticated: boolean;
   loading: boolean;
+  setLoading: (loading: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,10 +29,12 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   // localStorage에서 사용자 정보 복원
   useEffect(() => {
+    setLoading(true);
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       try {
@@ -39,6 +43,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem("user");
       }
     }
+    setLoading(false);
   }, []);
 
   // user 정보가 변경될 때마다 localStorage에 저장
@@ -54,7 +59,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loginID: string;
     passwd: string;
   }): Promise<void> => {
-    setLoading(true);
     try {
       const response = await loginApi(credentials);
 
@@ -62,24 +66,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error("사용자 정보가 없습니다.");
       }
 
-      const userInfo: UserInfo = {
-        loginID: response.data.loginID,
-        empName: response.data.empName,
-        deptName: response.data.deptName,
-        officeTel: response.data.officeTel,
-        mobileTel: response.data.mobileTel,
-      };
-
-      setUser(userInfo);
+      setUser(response.data);
     } catch (error) {
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleLogout = async (): Promise<void> => {
-    setLoading(true);
     try {
       // 실제 로그아웃 API 호출 (필요한 경우)
       const response = await logoutApi();
@@ -91,31 +84,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setUser(null);
       localStorage.clear(); // 모든 로컬 데이터 클리어
-      setLoading(false);
     }
   };
 
-  const checkSession = async (pathname: string): Promise<void> => {
+  const handleSession = async (pathname: string): Promise<void> => {
     // 공개 라우트는 세션 체크 안함
     if (isPublicRoute(pathname)) {
-      setLoading(false);
       return;
     }
 
     try {
-      const response = await userSessionApi();
+      const response = await sessionApi();
       if (!response?.success) {
         // 세션 무효하면 로그아웃
         setUser(null);
-
         return;
       }
-
-      setLoading(false);
     } catch (error) {
       // 세션 체크 실패하면 로그아웃
       setUser(null);
-      window.location.href = "/auth/sign-in";
+      navigate("/auth/sign-in", { replace: true }); // SPA 방식
     }
   };
 
@@ -128,9 +116,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser,
         handleLogin,
         handleLogout,
-        checkSession,
+        handleSession,
         isAuthenticated,
         loading,
+        setLoading,
       }}
     >
       {children}

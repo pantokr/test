@@ -14,6 +14,6 @@ type Services struct {
 func NewServices(repos *repository.Repositories) *Services {
 	return &Services{
 		Auth:  InitAuthService(repos.User, repos.Audit),
-		Audit: InitAuditService(repos.Audit),
+		Audit: InitAuditService(repos.Audit, repos.User),
 	}
 }

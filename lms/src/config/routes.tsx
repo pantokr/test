@@ -5,18 +5,15 @@ import {
   People as PeopleIcon,
   Settings as SettingsIcon,
   Assessment as AssessmentIcon,
-  Assignment as AssignmentIcon,
-  School as SchoolIcon,
   Person as PersonIcon,
   Login as LoginIcon,
-  Dashboard,
   ListAlt,
   CheckCircle,
   Error,
   RestartAlt,
 } from "@mui/icons-material";
 
-import type { SidenavRoute } from "@/types/sidenav";
+import type { RouteItem } from "@/types";
 
 // 실제 로그인 페이지 import
 import SignIn from "@/pages/auth/SignIn";
@@ -67,7 +64,7 @@ const SignUp = () => (
 );
 
 // 라우트 설정
-const sidenavRoutes: SidenavRoute[] = [
+const sidenavRoutes: RouteItem[] = [
   {
     key: "dashboard",
     name: "대시보드",
@@ -90,7 +87,7 @@ const sidenavRoutes: SidenavRoute[] = [
       {
         key: "login-success-log",
         name: "로그인 기록",
-        route: "/logs/login-success",
+        route: "/logs/login-history",
         icon: <CheckCircle />,
         component: <LoginHistoryPage />,
       },

@@ -9,7 +9,7 @@ import { SIDENAV_WIDTH } from "@/constants";
  */
 export const LayoutContainer = styled(Box)({
   display: "flex",
-  minHeight: "100vh",
+  height: "100vh",
   width: "100vw",
 });
 
@@ -22,15 +22,15 @@ export const SidenavArea = styled(Box, {
   flexShrink: 0, // 사이드바가 줄어들지 않게 고정
 }));
 
-export const MainArea = styled("div")({
-  flexGrow: 1, // 남은 공간 다 차지
-  flexShrink: 1, // 필요시 줄어듦
-  flexBasis: 0, // 초기 기준 0
+export const MainArea = styled(Box)({
+  flexGrow: 1,
+  flexShrink: 1,
+  flexBasis: 0,
   display: "flex",
   flexDirection: "column",
   overflow: "auto",
-  alignItems: "center", // 수평 중앙 정렬
-  justifyContent: "center", // 수직 중앙 정렬 (필요한 경우)
-  maxWidth: "100%", // 최대 너비 제한
-  margin: "0 auto", // 추가적인 중앙 정렬 보장
+  alignItems: "center",
+  justifyContent: "flex-start", // 맨 위에서부터 쌓이도록
+  maxWidth: "100%",
+  margin: "0 auto",
 });

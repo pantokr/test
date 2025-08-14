@@ -36,13 +36,3 @@ export interface RegisterUserData {
   email?: string;
   // 필요한 다른 필드들
 }
-
-/**
- * API 에러 정보
- */
-export interface ApiErrorInfo {
-  message: string;
-  status: number;
-  code?: string;
-  details?: { [key: string]: any }; // Record 대신 인덱스 시그니처 사용
-}

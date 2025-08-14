@@ -12,13 +12,8 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { checkSession, isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const { pathname } = useLocation();
-
-  // 세션 체크
-  useEffect(() => {
-    checkSession(pathname);
-  }, [pathname, checkSession]);
 
   // 로딩 중
   if (loading) {
@@ -47,14 +42,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // 인증되지 않은 사용자가 보호된 라우트에 접근
-  if (!isAuthenticated && !isPublicRoute(pathname)) {
-    return <Navigate to="/auth/sign-in" replace />;
-  }
-
   // 인증된 사용자가 공개 라우트에 접근
   if (isAuthenticated && isPublicRoute(pathname)) {
     return <Navigate to="/dashboard" replace />;
+  }
+  // 인증되지 않은 사용자가 보호된 라우트에 접근
+  if (!isAuthenticated && !isPublicRoute(pathname)) {
+    return <Navigate to="/auth/sign-in" replace />;
   }
 
   // 인증 통과 시 자식 컴포넌트 렌더링

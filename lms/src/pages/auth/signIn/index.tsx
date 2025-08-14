@@ -83,13 +83,10 @@ const SignIn: React.FC = () => {
   // 로그인 처리
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setLoading(true);
-    setError(null);
 
     try {
       // 여기에 실제 로그인 API 호출 로직 구현
       // await new Promise((resolve) => setTimeout(resolve, 1000)); // 시뮬레이션
-
       // 임시 로그인 처리
       if (formData.userId && formData.password) {
         await handleLogin({
@@ -103,8 +100,6 @@ const SignIn: React.FC = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "로그인에 실패했습니다.");
-    } finally {
-      setLoading(false);
     }
   };
 

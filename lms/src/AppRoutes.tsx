@@ -12,14 +12,9 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 
 // Routes and contexts
 import routes from "@/config/routes";
-import { useAuth } from "@/context";
-
-// Types
-import type { SidenavRoute } from "@/types/sidenav";
+import { RouteItem } from "@/types";
 
 const AppRoutes: React.FC = () => {
-  const { isAuthenticated } = useAuth();
-
   // 우클릭 방지 (프로덕션 환경에서만)
   useEffect(() => {
     if (!import.meta.env.PROD) return;
@@ -36,7 +31,7 @@ const AppRoutes: React.FC = () => {
   const routeElements = useMemo(() => {
     const elements: ReactNode[] = [];
 
-    const processRoute = (route: SidenavRoute) => {
+    const processRoute = (route: RouteItem) => {
       if (route.collapse) {
         route.collapse.forEach(processRoute);
         return;
@@ -57,17 +52,6 @@ const AppRoutes: React.FC = () => {
     <ProtectedRoute>
       <Routes>
         {routeElements}
-
-        {/* 루트 경로 리다이렉트 */}
-        <Route
-          path="/"
-          element={
-            <Navigate
-              to={isAuthenticated ? "/dashboard" : "/auth/sign-in"}
-              replace
-            />
-          }
-        />
 
         {/* 404 페이지 */}
         <Route
