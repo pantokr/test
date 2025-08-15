@@ -29,6 +29,7 @@ func (s *AuthService) Login(loginReq request.LoginRequest) (*model.UserAccount, 
 
 	if util.HashPassword(loginReq.Passwd) != *userAccount.Passwd {
 		s.auditRepo.InsertLoginFailureHistory("1", *userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
+		s.userRepo.UpdateUserAccountLoginFailure(*userAccount.LoginID)	
 		return nil, errors.New("아이디 혹은 비밀번호가 일치하지 않습니다")
 	}
 

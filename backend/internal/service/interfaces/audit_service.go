@@ -3,11 +3,11 @@ package interfaces
 import "lms/internal/handler/dto/response"
 
 type AuditServiceInterface interface {
-	// 로그인 실패 기록
-	FailLogin(code, loginID, clientIP, serverIP string) error
+	// // 로그인 실패 기록
+	// RecordLoginFailure(code, loginID, clientIP, serverIP string) error
 
-	// 로그인 성공 기록
-	RecordLoginSuccess(loginID, clientIP, serverIP string) error
+	// // 로그인 성공 기록
+	// RecordLoginSuccess(loginID, clientIP, serverIP string) error
 
 	// 로그인 이력 전체 조회
 	GetLoginHistoryAll() ([]response.LoginHistoryItem, error)

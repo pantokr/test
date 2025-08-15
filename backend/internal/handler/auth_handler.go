@@ -28,7 +28,6 @@ func InitAuthHandler(authService interfaces.AuthServiceInterface) *AuthHandler {
 
 // 로그인 핸들러
 func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("로그인 요청 처리")
 	// JSON 디코딩
 	var creds request.Credentials
 	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {

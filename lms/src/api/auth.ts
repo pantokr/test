@@ -26,10 +26,8 @@ export const loginApi = async (
       createRequestOptions("POST", credentials)
     );
 
-    if (response.status == 401) {
-      throw new AuthApiError("아이디/비밀번호 오류", 401);
-    } else if (!response.ok) {
-      const errorMsg = await response.text();
+    const errorMsg = await response.clone().text();
+    if (!response.ok) {
       throw new AuthApiError(errorMsg, response.status, response);
     }
     return handleResponse<ApiResponse<UserInfo>>(response);
@@ -38,8 +36,7 @@ export const loginApi = async (
       throw error;
     }
     throw new AuthApiError(
-      `로그인 실패: ${
-        error instanceof Error ? error.message : "알 수 없는 오류"
+      `로그인 실패: ${error instanceof Error ? error.message : "알 수 없는 오류"
       }`,
       0
     );
@@ -61,8 +58,7 @@ export const logoutApi = async (): Promise<ApiResponse> => {
       throw error;
     }
     throw new AuthApiError(
-      `로그아웃 실패: ${
-        error instanceof Error ? error.message : "알 수 없는 오류"
+      `로그아웃 실패: ${error instanceof Error ? error.message : "알 수 없는 오류"
       }`,
       0
     );
@@ -90,8 +86,7 @@ export const sessionApi = async (): Promise<ApiResponse> => {
       throw error;
     }
     throw new AuthApiError(
-      `세션을 가져오는 중 오류 발생: ${
-        error instanceof Error ? error.message : "알 수 없는 오류"
+      `세션을 가져오는 중 오류 발생: ${error instanceof Error ? error.message : "알 수 없는 오류"
       }`,
       0
     );

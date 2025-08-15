@@ -3,19 +3,15 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { loginHistoryApi } from "@/api/audit";
-import MuiDataGrid from "@/components/Grid/MuiDatagrid";
+import AgGrid from "@/components/Grid/AgGrid";
 import { LoginHistoryItem } from "@/types";
 import ColumnDefs from "./columnDefs";
+import { Box, Typography, CircularProgress } from "@mui/material";
+import LoadingPage from "@/pages/loading";
 
 const LoginHistoryPage: React.FC = () => {
   const [loginHistory, setLoginHistory] = useState<LoginHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // 데이터를 그리드에 맞게 변환 (id 필드 추가)
-  const transformedData = loginHistory.map((item, index) => ({
-    id: `${item.login_id}_${item.login_time}_${index}`,
-    ...item,
-  }));
 
   const fetchLoginHistory = async () => {
     try {
@@ -38,13 +34,23 @@ const LoginHistoryPage: React.FC = () => {
     fetchLoginHistory();
   }, []);
 
+  if (loading) {
+    LoadingPage("로그인 기록")
+  }
+
   return (
     <DashboardLayout title="로그인 기록">
-      <MuiDataGrid
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="h6" component="h2">
+          로그인 기록
+        </Typography>
+      </Box>
+      <AgGrid
         columnDefs={ColumnDefs}
-        data={transformedData}
-        title="로그인 기록"
-        loading={loading}
+        rowData={loginHistory}
+        height={600}
+        elevation={2}
+        sx={{ width: '100%' }}
       />
     </DashboardLayout>
   );

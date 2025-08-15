@@ -20,6 +20,7 @@ import { styled } from "@mui/material/styles";
 
 import CoverLayout from "@/layouts/CoverLayout";
 import { useAuth } from "@/context";
+import { LoginCredentials } from "@/types";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   backdropFilter: "blur(20px)",
@@ -48,19 +49,15 @@ const LogoBox = styled(Box)(({ theme }) => ({
   },
 }));
 
-interface FormData {
-  userId: string;
-  password: string;
-}
 
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
   const { handleLogin } = useAuth();
   const theme = useTheme();
 
-  const [formData, setFormData] = useState<FormData>({
-    userId: "",
-    password: "",
+  const [formData, setFormData] = useState<LoginCredentials>({
+    loginID: "",
+    passwd: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -69,7 +66,7 @@ const SignIn: React.FC = () => {
 
   // 폼 데이터 변경 핸들러
   const handleChange =
-    (field: keyof FormData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    (field: keyof LoginCredentials) => (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       setFormData((prev) => ({
         ...prev,
@@ -88,10 +85,10 @@ const SignIn: React.FC = () => {
       // 여기에 실제 로그인 API 호출 로직 구현
       // await new Promise((resolve) => setTimeout(resolve, 1000)); // 시뮬레이션
       // 임시 로그인 처리
-      if (formData.userId && formData.password) {
+      if (formData.loginID && formData.passwd) {
         await handleLogin({
-          loginID: formData.userId, // 임시로 이메일 형식 생성
-          passwd: formData.password,
+          loginID: formData.loginID,
+          passwd: formData.passwd,
         });
 
         navigate("/dashboard");
@@ -153,8 +150,8 @@ const SignIn: React.FC = () => {
               fullWidth
               label="아이디"
               type="text"
-              value={formData.userId}
-              onChange={handleChange("userId")}
+              value={formData.loginID}
+              onChange={handleChange("loginID")}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -172,8 +169,8 @@ const SignIn: React.FC = () => {
               fullWidth
               label="비밀번호"
               type={showPassword ? "text" : "password"}
-              value={formData.password}
-              onChange={handleChange("password")}
+              value={formData.passwd}
+              onChange={handleChange("passwd")}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">

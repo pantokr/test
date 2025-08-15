@@ -37,8 +37,8 @@ type DatabaseConfig struct {
 }
 
 type TCPConfig struct {
-	RecvURL  string `json:"recv_url"`
-	RecvPort string `json:"recv_port"`
+	RcvURL  string `json:"rcv_url"`
+	RcvPort string `json:"rcv_port"`
 }
 
 type SuperUserConfig struct {
@@ -171,8 +171,8 @@ func loadTCPConfig(env Environment) TCPConfig {
 	}
 
 	return TCPConfig{
-		RecvURL:  os.Getenv(prefix + "TCP_RECV_URL"),
-		RecvPort: getEnvWithDefault(prefix+"TCP_RECV_PORT", "9090"),
+		RcvURL:  os.Getenv(prefix + "TCP_RCV_URL"),
+		RcvPort: getEnvWithDefault(prefix+"TCP_RCV_PORT", "9090"),
 	}
 }
 
