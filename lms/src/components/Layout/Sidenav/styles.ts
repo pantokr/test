@@ -9,36 +9,93 @@ import {
   Collapse,
 } from "@mui/material";
 
-import type { SidenavStyleProps, SidenavItemStyleProps } from "@/types";
+import type { SidenavItemStyleProps, SidenavColor } from "@/types";
 import { SIDENAV_WIDTH } from "@/constants";
 
 export const SidenavRoot = styled(Drawer, {
   shouldForwardProp: (prop) => prop !== "ownerState",
-})<{ ownerState: SidenavStyleProps["ownerState"] }>(({ theme }) => ({
-  "& .MuiDrawer-paper": {
-    width: SIDENAV_WIDTH,
-    boxSizing: "border-box",
-    border: "none",
-    backgroundColor: "transparent",
-    boxShadow: "none",
-    padding: theme.spacing(2),
+})<{ ownerState: { darkMode: boolean; sidenavColor: SidenavColor } }>(
+  ({ theme, ownerState }) => {
+    // sidenavColor에 따른 색상 결정
+    const getSidenavColors = (color: SidenavColor) => {
+      switch (color) {
+        case "blueGrey":
+          return {
+            background:
+              theme.palette.mode === "dark"
+                ? theme.palette.primary.dark
+                : theme.palette.primary.main, // 수정: 문법 오류 해결
+            border: theme.palette.primary.main,
+            text: theme.palette.primary.contrastText,
+          };
+        case "blue":
+          return {
+            background:
+              theme.palette.mode === "dark"
+                ? theme.palette.primary.dark || theme.palette.primary.main // 수정: 중복 제거
+                : theme.palette.primary.main || theme.palette.primary.light, // 수정: 중복 제거
+            border: theme.palette.secondary.main,
+            text: theme.palette.secondary.contrastText,
+          };
+        case "green":
+          return {
+            background:
+              theme.palette.mode === "dark"
+                ? theme.palette.primary.dark || theme.palette.primary.main // 수정: 중복 제거
+                : theme.palette.primary.main || theme.palette.primary.light, // 수정: 중복 제거
+            border: theme.palette.info.main,
+            text: theme.palette.info.contrastText,
+          };
+        case "deepPurple":
+          return {
+            background:
+              theme.palette.mode === "dark"
+                ? theme.palette.primary.dark || theme.palette.primary.main // 수정: 중복 제거
+                : theme.palette.primary.main || theme.palette.primary.light, // 수정: 중복 제거
+            border: theme.palette.success.main,
+            text: theme.palette.success.contrastText,
+          };
+        default: // 수정: default case 추가
+          return {
+            background:
+              theme.palette.mode === "dark"
+                ? theme.palette.primary.dark
+                : theme.palette.primary.main,
+            border: theme.palette.primary.main,
+            text: theme.palette.primary.contrastText,
+          };
+      }
+    };
 
-    "& > *": {
-      background: "#2c2c2c",
-      borderRadius: theme.spacing(2),
-      boxShadow: "none", // 그림자 제거
-      overflow: "hidden",
-      backdropFilter: "blur(10px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)",
-    },
+    const colors = getSidenavColors(ownerState.sidenavColor);
 
-    overflowX: "visible",
-    transition: theme.transitions.create(["width"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-}));
+    return {
+      "& .MuiDrawer-paper": {
+        width: SIDENAV_WIDTH,
+        boxSizing: "border-box",
+        border: "none",
+        backgroundColor: "transparent",
+        boxShadow: "none",
+        padding: theme.spacing(2),
+
+        "& > *": {
+          background: "#1c1c1c", // 고정된 어두운 배경
+          borderRadius: theme.spacing(2),
+          boxShadow: "none",
+          overflow: "hidden",
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255, 255, 255, 0.1)", // 흰색 테두리 고정
+        },
+
+        overflowX: "visible",
+        transition: theme.transitions.create(["width"], {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.shortest,
+        }),
+      },
+    };
+  }
+);
 
 export const SidenavContent = styled("div")(() => ({
   display: "flex",
@@ -61,9 +118,10 @@ export const SidenavBrandLogo = styled("img")(({ theme }) => ({
   marginRight: theme.spacing(1),
 }));
 
-export const SidenavBrandText = styled("span")(() => ({
-  fontSize: "1.25rem",
-  fontWeight: 600,
+export const SidenavBrandText = styled("span")(({ theme }) => ({
+  fontSize: theme.typography.h5.fontSize,
+  fontWeight: theme.typography.h5.fontWeight,
+  fontFamily: theme.typography.fontFamily,
   color: "inherit",
   textDecoration: "none",
 }));
@@ -84,15 +142,15 @@ export const SidenavItemRoot = styled(ListItem, {
     margin: theme.spacing(0.25, 0),
     borderRadius: theme.spacing(1),
     backgroundColor: ownerState.active
-      ? "rgba(255, 255, 255, 0.1)"
+      ? `${theme.palette.primary.main}75` // active일 때만 primary 색상 배경
       : "transparent",
     transition: theme.transitions.create(["background-color", "transform"], {
       duration: theme.transitions.duration.short,
     }),
     "&:hover": {
       backgroundColor: ownerState.active
-        ? "rgba(255, 255, 255, 0.1)"
-        : "rgba(255, 255, 255, 0.05)",
+        ? `${theme.palette.primary.main}22` // active 호버는 primary 색상
+        : "rgba(255, 255, 255, 0.05)", // 비활성 호버는 흰색 투명도
       transform: "translateX(2px)",
     },
   })
@@ -104,7 +162,9 @@ export const SidenavItemButton = styled(ListItemButton, {
   ({ theme, ownerState }) => ({
     padding: theme.spacing(0.75, 2),
     borderRadius: theme.spacing(1),
-    color: ownerState.active ? "#ffffff" : "rgba(255, 255, 255, 0.8)",
+    color: ownerState.active
+      ? "#ffffff" // 활성화된 아이템은 흰색
+      : "#ffffff", // 기본은 흰색 고정
     transition: theme.transitions.create(["color"], {
       duration: theme.transitions.duration.short,
     }),
@@ -113,15 +173,18 @@ export const SidenavItemButton = styled(ListItemButton, {
       minWidth: 36,
       color: "inherit",
       "& .MuiSvgIcon-root": {
-        fontSize: "1.1rem",
+        fontSize: theme.typography.body1.fontSize,
       },
     },
     "& .MuiListItemText-root": {
       margin: 0,
       "& .MuiTypography-root": {
-        fontSize: "0.8rem",
-        fontWeight: ownerState.active ? 600 : 400,
-        lineHeight: 1.2,
+        fontSize: theme.typography.body2.fontSize,
+        fontWeight: ownerState.active
+          ? theme.typography.fontWeightMedium
+          : theme.typography.fontWeightRegular,
+        fontFamily: theme.typography.fontFamily,
+        lineHeight: theme.typography.body2.lineHeight,
       },
     },
   })
@@ -138,7 +201,7 @@ export const SidenavSubItem = styled(Collapse)(({ theme }) => ({
 export const SidenavDivider = styled("div")(({ theme }) => ({
   height: 1,
   background:
-    "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)",
+    "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)", // 흰색 고정
   margin: theme.spacing(1, 2),
   borderRadius: 1,
 }));
@@ -147,9 +210,10 @@ export const SidenavTitle = styled("div", {
   shouldForwardProp: (prop) => prop !== "darkMode",
 })<{ darkMode?: boolean }>(({ theme }) => ({
   padding: theme.spacing(1.5, 2, 0.5, 2),
-  fontSize: "0.7rem",
-  fontWeight: 700,
+  fontSize: theme.typography.caption.fontSize,
+  fontWeight: theme.typography.fontWeightBold,
+  fontFamily: theme.typography.fontFamily,
   textTransform: "uppercase",
   letterSpacing: "0.8px",
-  color: "rgba(255, 255, 255, 0.6)",
+  color: "rgba(255, 255, 255, 0.6)", // 흰색 고정
 }));

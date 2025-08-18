@@ -22,13 +22,6 @@ export interface RouteItem {
   route?: string;
   component?: ReactNode;
   collapse?: RouteItem[];
-  noCollapse?: boolean;
-  href?: string;
-  target?: "_blank" | "_self";
-  badge?: {
-    color: string;
-    content: string | number;
-  };
   divider?: boolean; // 구분선
   title?: string; // 섹션 제목
 }

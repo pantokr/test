@@ -4,9 +4,10 @@ import "time"
 
 // LoginFail 구조체 정의
 type LoginFailureHistory struct {
-	LoginID   string    `json:"login_id"`
-	LoginTime time.Time `json:"login_time"`
-	FailCode  string    `json:"fail_code"`
-	ClientIP  string    `json:"client_ip"`
-	ServerIP  string    `json:"server_ip"`
+	ID        int64      `json:"id"`
+	LoginID   string     `json:"login_id"`
+	LoginTime *time.Time `json:"login_time"`
+	FailCode  string     `json:"fail_code"`
+	ClientIP  string     `json:"client_ip"`
+	ServerIP  string     `json:"server_ip"`
 }

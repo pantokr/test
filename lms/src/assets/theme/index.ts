@@ -1,174 +1,244 @@
-// src/assets/theme/index.ts - 현대적 테마 구조
+// src/assets/theme/index.ts - MUI 기본 색상 활용
 
 import { createTheme } from "@mui/material/styles";
 import type { Theme, ThemeOptions } from "@mui/material/styles";
+import {
+  blue,
+  green,
+  orange,
+  cyan,
+  pink,
+  deepPurple,
+  blueGrey,
+} from "@mui/material/colors";
+import type { UserSettings } from "@/types/context";
 
-// 공통 테마 설정
-const baseTheme: ThemeOptions = {
-  typography: {
-    fontFamily: ['"Roboto"', '"Helvetica"', '"Arial"', "sans-serif"].join(","),
-    h1: { fontSize: "2.5rem", fontWeight: 600, lineHeight: 1.2 },
-    h2: { fontSize: "2rem", fontWeight: 600, lineHeight: 1.2 },
-    h3: { fontSize: "1.75rem", fontWeight: 600, lineHeight: 1.2 },
-    h4: { fontSize: "1.5rem", fontWeight: 600, lineHeight: 1.2 },
-    h5: { fontSize: "1.25rem", fontWeight: 600, lineHeight: 1.2 },
-    h6: { fontSize: "1rem", fontWeight: 600, lineHeight: 1.2 },
-    button: {
-      fontSize: "0.875rem",
-      fontWeight: 600,
-      textTransform: "none",
-    },
+// MUI 기본 색상 팔레트 활용
+const colorSchemes = {
+  blue: {
+    primary: blue,
+    secondary: pink,
   },
-  shape: {
-    borderRadius: 8,
+  green: {
+    primary: green,
+    secondary: orange,
   },
-  spacing: 8,
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 8,
-          textTransform: "none",
-          fontWeight: 600,
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
-        },
-      },
-    },
+  deepPurple: {
+    primary: deepPurple,
+    secondary: cyan,
+  },
+  blueGrey: {
+    primary: blueGrey, // 약간 파란빛이 도는 검정
+    secondary: cyan,
   },
 };
 
-// 라이트 테마
-const lightTheme = createTheme({
-  ...baseTheme,
-  palette: {
-    mode: "light",
-    primary: {
-      main: "#1976d2",
-      light: "#42a5f5",
-      dark: "#1565c0",
-    },
-    secondary: {
-      main: "#dc004e",
-      light: "#ff5983",
-      dark: "#9a0036",
-    },
-    info: {
-      main: "#0288d1",
-      light: "#03dac6",
-      dark: "#018786",
-    },
-    success: {
-      main: "#2e7d32",
-      light: "#4caf50",
-      dark: "#1b5e20",
-    },
-    warning: {
-      main: "#ed6c02",
-      light: "#ff9800",
-      dark: "#e65100",
-    },
-    error: {
-      main: "#d32f2f",
-      light: "#ef5350",
-      dark: "#c62828",
-    },
-    background: {
-      default: "#f5f5f5",
-      paper: "#ffffff",
-    },
-    text: {
-      primary: "rgba(0, 0, 0, 0.87)",
-      secondary: "rgba(0, 0, 0, 0.6)",
-    },
-  },
-  components: {
-    ...baseTheme.components,
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
-          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
-        },
-      },
-    },
-  },
-});
-
-// 다크 테마
-const darkTheme = createTheme({
-  ...baseTheme,
-  palette: {
-    mode: "dark",
-    primary: {
-      main: "#90caf9",
-      light: "#bbdefb",
-      dark: "#1976d2",
-    },
-    secondary: {
-      main: "#f48fb1",
-      light: "#f8bbd9",
-      dark: "#ad1457",
-    },
-    info: {
-      main: "#4fc3f7",
-      light: "#81d4fa",
-      dark: "#0277bd",
-    },
-    success: {
-      main: "#81c784",
-      light: "#a5d6a7",
-      dark: "#388e3c",
-    },
-    warning: {
-      main: "#ffb74d",
-      light: "#ffcc02",
-      dark: "#f57c00",
-    },
-    error: {
-      main: "#e57373",
-      light: "#ef9a9a",
-      dark: "#d32f2f",
-    },
-    background: {
-      default: "#121212",
-      paper: "#1e1e1e",
-    },
-    text: {
-      primary: "rgba(255, 255, 255, 0.87)",
-      secondary: "rgba(255, 255, 255, 0.6)",
-    },
-  },
-  components: {
-    ...baseTheme.components,
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
-          backgroundColor: "#1e1e1e",
-          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.5)",
-        },
-      },
-    },
-    MuiDrawer: {
-      styleOverrides: {
-        paper: {
-          backgroundColor: "#1e1e1e",
-        },
-      },
-    },
-  },
-});
-
-// 테마 생성 함수 (더 유연한 방식)
-export const createAppTheme = (mode: "light" | "dark"): Theme => {
-  return mode === "dark" ? darkTheme : lightTheme;
+// 폰트 크기 설정 (간소화)
+const fontSizeMultipliers = {
+  small: 0.85,
+  medium: 1,
+  large: 1.15,
 };
+
+// 폰트 패밀리 설정
+const fontFamilies = {
+  default: [
+    '"Roboto"',
+    '"Noto Sans KR"',
+    '"Helvetica"',
+    '"Arial"',
+    "sans-serif",
+  ].join(","),
+  serif: ['"Noto Serif KR"', '"Times New Roman"', '"Times"', "serif"].join(","),
+  monospace: [
+    '"JetBrains Mono"',
+    '"Fira Code"',
+    '"Courier New"',
+    '"Courier"',
+    "monospace",
+  ].join(","),
+};
+
+// 개선된 테마 생성 함수
+export const createAppTheme = (
+  mode: "light" | "dark",
+  userSettings?: UserSettings
+): Theme => {
+  const settings = {
+    fontSize: "medium",
+    fontFamily: "default",
+    colorScheme: "blue",
+    compactMode: false,
+    language: "ko",
+    ...userSettings,
+  } as UserSettings;
+
+  const { fontSize, fontFamily, colorScheme, compactMode } = settings;
+  const colors = colorSchemes[colorScheme];
+  const fontMultiplier = fontSizeMultipliers[fontSize];
+  const isDark = mode === "dark";
+
+  // 기본 테마 생성 (MUI 기본값 활용)
+  const baseTheme = createTheme({
+    palette: {
+      mode,
+      primary: colors.primary,
+      secondary: colors.secondary,
+      // MUI가 자동으로 light/dark 모드에 맞게 색상 조정
+    },
+    typography: {
+      fontFamily: fontFamilies[fontFamily],
+      // MUI 기본 폰트 크기에 배율 적용
+      fontSize: 14 * fontMultiplier,
+      h1: {
+        fontWeight: 600,
+        lineHeight: 1.2,
+        fontSize: `${2.5 * fontMultiplier}rem`,
+      },
+      h2: {
+        fontWeight: 600,
+        lineHeight: 1.2,
+        fontSize: `${2 * fontMultiplier}rem`,
+      },
+      h3: {
+        fontWeight: 600,
+        lineHeight: 1.2,
+        fontSize: `${1.75 * fontMultiplier}rem`,
+      },
+      h4: {
+        fontWeight: 600,
+        lineHeight: 1.2,
+        fontSize: `${1.5 * fontMultiplier}rem`,
+      },
+      h5: {
+        fontWeight: 600,
+        lineHeight: 1.2,
+        fontSize: `${1.25 * fontMultiplier}rem`,
+      },
+      h6: {
+        fontWeight: 600,
+        lineHeight: 1.2,
+        fontSize: `${1 * fontMultiplier}rem`,
+      },
+      button: {
+        fontWeight: 600,
+        textTransform: "none",
+        fontSize: `${0.875 * fontMultiplier}rem`,
+      },
+      body1: {
+        fontSize: `${1 * fontMultiplier}rem`,
+      },
+      body2: {
+        fontSize: `${0.875 * fontMultiplier}rem`,
+      },
+    },
+    shape: {
+      borderRadius: compactMode ? 6 : 8,
+    },
+    spacing: compactMode ? 6 : 8,
+  });
+
+  // 컴포넌트 커스터마이징
+  return createTheme(baseTheme, {
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: compactMode ? 6 : 8,
+            textTransform: "none",
+            fontWeight: 600,
+            padding: compactMode ? "6px 12px" : "8px 16px",
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: compactMode ? 8 : 12,
+            // MUI가 자동으로 mode에 따라 배경색과 그림자 조정
+          },
+        },
+      },
+      MuiTableCell: {
+        styleOverrides: {
+          root: {
+            padding: compactMode ? "8px 12px" : "12px 16px",
+            fontSize: `${0.875 * fontMultiplier}rem`,
+          },
+        },
+      },
+      MuiTextField: {
+        styleOverrides: {
+          root: {
+            "& .MuiOutlinedInput-root": {
+              borderRadius: compactMode ? 6 : 8,
+              fontSize: `${1 * fontMultiplier}rem`,
+            },
+          },
+        },
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            borderRadius: compactMode ? 8 : 12,
+            // AG-Grid 스타일링
+            "&.ag-theme-alpine": {
+              fontSize: `${0.875 * fontMultiplier}rem`,
+              "--ag-font-size": `${0.875 * fontMultiplier}rem`,
+              "--ag-header-height": compactMode ? "32px" : "40px",
+              "--ag-row-height": compactMode ? "28px" : "36px",
+              "--ag-font-family": fontFamilies[fontFamily],
+              // MUI 색상 자동 적용
+              "--ag-header-background-color":
+                baseTheme.palette.grey[isDark ? 800 : 50],
+              "--ag-header-foreground-color": baseTheme.palette.text.primary,
+              "--ag-border-color": baseTheme.palette.divider,
+              "--ag-row-hover-color": baseTheme.palette.action.hover,
+              "--ag-selected-row-background-color":
+                baseTheme.palette.action.selected,
+            },
+          },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            borderRadius: compactMode ? 12 : 16,
+            fontSize: `${0.75 * fontMultiplier}rem`,
+          },
+        },
+      },
+      MuiTooltip: {
+        styleOverrides: {
+          tooltip: {
+            fontSize: `${0.75 * fontMultiplier}rem`,
+            borderRadius: compactMode ? 4 : 6,
+          },
+        },
+      },
+      // 사이드바 메뉴 아이템
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: compactMode ? 4 : 8,
+            margin: compactMode ? "2px 4px" : "4px 8px",
+            "&.Mui-selected": {
+              backgroundColor: baseTheme.palette.primary.main + "1A", // 10% opacity
+              color: baseTheme.palette.primary.main,
+              "&:hover": {
+                backgroundColor: baseTheme.palette.primary.main + "26", // 15% opacity
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+};
+
+// 기존 호환성을 위한 정적 테마들
+const lightTheme = createAppTheme("light");
+const darkTheme = createAppTheme("dark");
 
 // 기본 익스포트 (호환성)
 export default lightTheme;

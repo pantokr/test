@@ -1,6 +1,6 @@
 // src/components/Sidenav/SidenavCollapse.tsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -22,43 +22,43 @@ interface SidenavItemProps {
 }
 
 const SidenavItem: React.FC<SidenavItemProps> = ({ route, darkMode }) => {
-  const [controller] = useMaterialUIController();
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState<boolean>(false);
 
-  const {
-    key,
-    name,
-    icon,
-    route: routePath,
-    collapse,
-    noCollapse,
-    href,
-    target,
-    badge,
-  } = route;
+  const { name, icon, route: routePath, collapse } = route;
 
   if (!name) {
     return null;
   }
 
   const isActive = location.pathname === routePath;
-  const isParentActive =
-    collapse?.some((item) => location.pathname === item.route) || false;
+
+  // 현재 경로가 서브아이템 중 하나와 일치하는지 확인하는 함수
+  const checkActiveInCollapse = (collapseItems: RouteItem[]): boolean => {
+    return collapseItems.some((item) => {
+      if (item.route === location.pathname) return true;
+      if (item.collapse) return checkActiveInCollapse(item.collapse);
+      return false;
+    });
+  };
+
+  const isParentActive = collapse ? checkActiveInCollapse(collapse) : false;
+
+  // 초기 로드 및 경로 변경 시 자동 expand 처리
+  useEffect(() => {
+    if (collapse && isParentActive) {
+      setOpen(true);
+    }
+  }, [location.pathname, collapse, isParentActive]);
 
   const handleClick = (): void => {
-    if (href) {
-      window.open(href, target || "_self");
-      return;
-    }
-
     if (routePath) {
       navigate(routePath);
       return;
     }
 
-    if (collapse && !noCollapse) {
+    if (collapse) {
       setOpen(!open);
     }
   };
@@ -70,25 +70,17 @@ const SidenavItem: React.FC<SidenavItemProps> = ({ route, darkMode }) => {
     return icon;
   };
 
-  const renderBadge = (): React.ReactNode => {
-    if (!badge) return null;
-
-    return (
-      <span style={{ backgroundColor: badge.color }}>{badge.content}</span>
-    );
-  };
-
   const renderExpandIcon = (): React.ReactNode => {
-    if (!collapse || noCollapse) return null;
+    if (!collapse) return null;
 
     return open ? <ExpandLess /> : <ExpandMore />;
   };
 
   const renderSubmenu = (): React.ReactNode => {
-    if (!collapse || noCollapse) return null;
+    if (!collapse) return null;
 
     return (
-      <SidenavSubItem in={open} timeout="auto" unmountOnExit>
+      <SidenavSubItem in={open} timeout={0} unmountOnExit>
         <List component="div" disablePadding>
           {collapse.map((subRoute) => (
             <SidenavItem
@@ -104,7 +96,6 @@ const SidenavItem: React.FC<SidenavItemProps> = ({ route, darkMode }) => {
 
   const ownerState = {
     active: isActive || isParentActive,
-    noCollapse: Boolean(noCollapse),
     open,
     darkMode,
   };
@@ -116,19 +107,13 @@ const SidenavItem: React.FC<SidenavItemProps> = ({ route, darkMode }) => {
           ownerState={ownerState}
           onClick={handleClick}
           role="button"
-          aria-expanded={collapse && !noCollapse ? open : undefined}
+          aria-expanded={collapse ? open : undefined}
           aria-label={name}
         >
           {icon && <ListItemIcon>{renderIcon()}</ListItemIcon>}
 
-          <ListItemText
-            primary={name}
-            primaryTypographyProps={{
-              noWrap: true,
-            }}
-          />
+          <ListItemText primary={name} />
 
-          {renderBadge()}
           {renderExpandIcon()}
         </SidenavItemButton>
       </SidenavItemRoot>

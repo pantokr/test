@@ -65,7 +65,6 @@ func (r *Routes) setupAuditRoutes(router *mux.Router) {
 	audit.Use(middleware.CORS) // 모든 감사 로그는 인증 필요
 
 	audit.HandleFunc("/login-history", r.handlers.Audit.LoginHistoryHandler).Methods("GET", "OPTIONS")
-
-	// 로그인 통계 및 분석
-	audit.HandleFunc("/login-failures", r.handlers.Audit.LoginFailureHistoryHandler).Methods("GET", "OPTIONS")
+	audit.HandleFunc("/login-failure-history", r.handlers.Audit.LoginFailureHistoryHandler).Methods("GET", "OPTIONS")
+	audit.HandleFunc("/login-reset-history", r.handlers.Audit.LoginResetHistoryHandler).Methods("GET", "OPTIONS")
 }

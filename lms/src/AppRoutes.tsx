@@ -11,7 +11,7 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 // Routes and contexts
-import routes from "@/config/routes";
+import routes from "@/routes";
 import { RouteItem } from "@/types";
 
 const AppRoutes: React.FC = () => {

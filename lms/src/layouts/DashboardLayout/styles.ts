@@ -23,14 +23,23 @@ export const SidenavArea = styled(Box, {
 }));
 
 export const MainArea = styled(Box)({
-  flexGrow: 1,
-  flexShrink: 1,
-  flexBasis: 0,
+  // Flex 관련 속성들
+  flexGrow: 1, // 남은 공간을 모두 차지
+  flexShrink: 1, // 공간이 부족하면 축소 가능
+  flexBasis: 0, // 초기 크기를 0으로 설정
+
+  // 레이아웃 설정
   display: "flex",
-  flexDirection: "column",
-  overflow: "auto",
-  alignItems: "center",
-  justifyContent: "flex-start", // 맨 위에서부터 쌓이도록
-  maxWidth: "100%",
-  margin: "0 auto",
+  flexDirection: "column", // 세로 방향으로 자식 요소 배치
+
+  // 스크롤 및 크기 제한
+  overflow: "hidden", // auto에서 hidden으로 변경
+  maxWidth: "100%", // 최대 너비를 부모의 100%로 제한
+
+  // 정렬 설정
+  alignItems: "center", // 가로축 중앙 정렬 (자식 요소들)
+  justifyContent: "flex-start", // 세로축 상단 정렬 (자식 요소들)
+
+  // 마진 설정
+  margin: "0 auto", // 좌우 중앙 정렬 (자기 자신)
 });

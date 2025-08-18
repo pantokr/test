@@ -2,7 +2,6 @@ package repository
 
 import (
 	"fmt"
-	"lms/internal/handler/dto/response"
 	"lms/internal/model"
 	"lms/internal/repository/interfaces"
 	"lms/pkg/database"
@@ -16,12 +15,13 @@ func InitAuditRepository(db *database.DB) interfaces.AuditRepositoryInterface {
 	return &AuditRepository{db: db}
 }
 
-func (r *AuditRepository) InsertLoginHistory(loginID, clientIP, serverIP string) error {
+// InsertLoginHistory - 로그인 기록 삽입
+func (r *AuditRepository) InsertLoginHistory(loginID, clientIP, serverIP string) (int64, error) {
 	const empQuery = `SELECT emp_name FROM user_account WHERE login_id = ?`
 	var empName string
 	err := r.db.QueryRow(empQuery, loginID).Scan(&empName)
 	if err != nil {
-		return fmt.Errorf("emp_name 조회 실패: %w", err)
+		return 0, fmt.Errorf("emp_name 조회 실패: %w", err)
 	}
 
 	const query = `
@@ -29,11 +29,17 @@ func (r *AuditRepository) InsertLoginHistory(loginID, clientIP, serverIP string)
 		(login_id, emp_name, login_time, is_external, client_ip, server_ip)
 		VALUES (?, ?, NOW(), ?, ?, ?)
 	`
-	_, err = r.db.Exec(query, loginID, empName, "0", clientIP, serverIP)
+	result, err := r.db.Exec(query, loginID, empName, "N", clientIP, serverIP)
 	if err != nil {
-		return fmt.Errorf("로그인 기록 삽입 실패: %w", err)
+		return 0, fmt.Errorf("로그인 기록 삽입 실패: %w", err)
 	}
-	return nil
+
+	insertedID, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("삽입된 ID 조회 실패: %w", err)
+	}
+
+	return insertedID, nil
 }
 
 func (r *AuditRepository) SelectLoginHistoryAll() ([]model.LoginHistory, error) {
@@ -71,6 +77,29 @@ func (r *AuditRepository) SelectLoginHistoryAll() ([]model.LoginHistory, error) 
 	return loginHistory, nil
 }
 
+func (r *AuditRepository) UpdateLoginHistoryLogoutTime(sessionID int64) error {
+	const query = `
+		UPDATE login_history 
+		SET logout_time = NOW()
+		WHERE id = ? AND logout_time IS NULL
+	`
+	result, err := r.db.Exec(query, sessionID)
+	if err != nil {
+		return fmt.Errorf("로그아웃 시간 업데이트 실패: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("영향받은 행 수 확인 실패: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("유효하지 않은 세션이거나 이미 로그아웃된 세션입니다")
+	}
+
+	return nil
+}
+
 func (r *AuditRepository) InsertLoginFailureHistory(failCode, loginID, clientIP, serverIP string) error {
 	const query = `
 		INSERT INTO login_failure_history 
@@ -84,11 +113,11 @@ func (r *AuditRepository) InsertLoginFailureHistory(failCode, loginID, clientIP,
 	return nil
 }
 
-func (r *AuditRepository) SelectLoginFailureHistoryAll() ([]response.LoginFailureHistoryResponse, error) {
+func (r *AuditRepository) SelectLoginFailureHistoryAll() ([]model.LoginFailureHistory, error) {
 	const query = `
 		SELECT 
-			login_id, 
-			IFNULL(DATE_FORMAT(login_time, '%Y-%m-%d %H:%i:%s'), '') AS login_time,
+			IFNULL(login_id, '') AS login_id,
+			login_time AS login_time,
 			IFNULL(fail_code, '') AS fail_code, 
 			IFNULL(client_ip, '') AS client_ip, 
 			IFNULL(server_ip, '') AS server_ip 
@@ -102,19 +131,21 @@ func (r *AuditRepository) SelectLoginFailureHistoryAll() ([]response.LoginFailur
 	}
 	defer rows.Close()
 
-	// var loginFails []response.LoginFailureResponse
-	// for rows.Next() {
-	// 	var lf response.LoginFailResponse
-	// 	if err := rows.Scan(&lf.LoginID, &lf.LoginTime, &lf.FailCode, &lf.ClientIP, &lf.ServerIP); err != nil {
-	// 		return nil, err
-	// 	}
-	// 	loginFails = append(loginFails, lf)
-	// }
-	// if err = rows.Err(); err != nil {
-	// 	return nil, err
-	// }
-	// return loginFails, nil
-	return nil, fmt.Errorf("로그인 실패 이력 조회는 아직 구현되지 않았습니다")
+	var loginFailures []model.LoginFailureHistory
+
+	for rows.Next() {
+		var lf model.LoginFailureHistory
+		if err := rows.Scan(&lf.LoginID, &lf.LoginTime, &lf.FailCode, &lf.ClientIP, &lf.ServerIP); err != nil {
+			return nil, err
+		}
+		loginFailures = append(loginFailures, lf)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return loginFailures, nil
 }
 
 func (r *AuditRepository) InsertLoginResetHistory(resetCode, loginID, resetID, resetReason, prevLoginIP string) error {
@@ -130,7 +161,7 @@ func (r *AuditRepository) InsertLoginResetHistory(resetCode, loginID, resetID, r
 	return nil
 }
 
-func (r *AuditRepository) SelectLoginResetHistoryAll() ([]response.LoginResetResponse, error) {
+func (r *AuditRepository) SelectLoginResetHistoryAll() ([]model.LoginResetHistory, error) {
 	const query = `
 		SELECT 
 			IFNULL(DATE_FORMAT(reset_time, '%Y-%m-%d %H:%i:%s'), '') AS reset_time, 
@@ -149,9 +180,9 @@ func (r *AuditRepository) SelectLoginResetHistoryAll() ([]response.LoginResetRes
 	}
 	defer rows.Close()
 
-	var loginResets []response.LoginResetResponse
+	var loginResets []model.LoginResetHistory
 	for rows.Next() {
-		var lr response.LoginResetResponse
+		var lr model.LoginResetHistory
 		if err := rows.Scan(&lr.ResetTime, &lr.ResetCode, &lr.LoginID, &lr.ResetID, &lr.ResetReason, &lr.PrevLoginIP); err != nil {
 			return nil, err
 		}
@@ -160,5 +191,6 @@ func (r *AuditRepository) SelectLoginResetHistoryAll() ([]response.LoginResetRes
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
+
 	return loginResets, nil
 }

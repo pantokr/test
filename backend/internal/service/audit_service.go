@@ -60,23 +60,64 @@ func (s *AuditService) GetLoginHistoryAll() ([]response.LoginHistoryItem, error)
 }
 
 func (s *AuditService) GetLoginFailureHistoryAll() ([]response.LoginFailureHistoryResponse, error) {
-	// data, err := s.auditRepo.SelectLoginFailureHistoryAll()
-	// if err != nil {
-	// 	return nil, fmt.Errorf("로그인 실패 이력 조회 실패: %w", err)
-	// }
-	// var responses []response.LoginFailureHistoryResponse
-	// for _, fail := range data {
-	// 	var response response.LoginFailureHistoryResponse
-	// 	responses = append(responses, response)
-	// }
+	failures, err := s.auditRepo.SelectLoginFailureHistoryAll()
+	if err != nil {
+		return nil, fmt.Errorf("로그인 실패 이력 조회 실패: %w", err)
+	}
 
-	return nil, fmt.Errorf("로그인 실패 이력 조회는 아직 구현되지 않았습니다")
+	// 실패 코드 매핑
+	failCodeMap := map[string]string{
+		"1": "비밀번호 오류",
+		"2": "오류 5회 초과",
+		"3": "비밀번호 만료",
+		"4": "IP 오류",
+		"5": "장기 미사용",
+		"6": "접속 권한 없음",
+		"7": "기타",
+	}
+
+	items := make([]response.LoginFailureHistoryResponse, 0, len(failures))
+	for _, fail := range failures {
+		var response response.LoginFailureHistoryResponse
+		{
+			response.LoginID = fail.LoginID
+			response.LoginTime = util.FormatDateTime(fail.LoginTime)
+
+			// 실패 코드를 설명으로 변환
+			if description, exists := failCodeMap[fail.FailCode]; exists {
+				response.FailCode = description
+			} else {
+				response.FailCode = fail.FailCode // 알 수 없는 코드는 원본 반환
+			}
+
+			response.ClientIP = fail.ClientIP
+			response.ServerIP = fail.ServerIP
+		}
+		items = append(items, response)
+	}
+
+	return items, nil
 }
 
 func (s *AuditService) GetLoginResetHistoryAll() ([]response.LoginResetResponse, error) {
-	data, err := s.auditRepo.SelectLoginResetHistoryAll()
+	resets, err := s.auditRepo.SelectLoginResetHistoryAll()
 	if err != nil {
 		return nil, fmt.Errorf("로그인 리셋 이력 조회 실패: %w", err)
 	}
-	return data, nil
+
+	items := make([]response.LoginResetResponse, 0, len(resets))
+	for _, reset := range resets {
+		var response response.LoginResetResponse
+		{
+			response.ResetTime = util.FormatDateTime(reset.ResetTime)
+			response.ResetCode = reset.ResetCode
+			response.LoginID = reset.LoginID
+			response.ResetID = reset.ResetID
+			response.ResetReason = reset.ResetReason
+			response.PrevLoginIP = reset.PrevLoginIP
+		}
+		items = append(items, response)
+	}
+
+	return items, nil
 }

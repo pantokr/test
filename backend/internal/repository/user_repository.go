@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
 	"lms/internal/model"
 	"lms/internal/repository/interfaces"
@@ -55,27 +54,6 @@ func (r *UserRepository) SelectUserAccountByID(id string) (*model.UserAccount, e
 		return nil, fmt.Errorf("사용자 조회 실패: %w", err)
 	}
 	return &user, nil
-}
-
-func (r *UserRepository) UpdateUserAccountLogoutTime(loginID string) error {
-	const query = `
-		UPDATE login_history
-		SET logout_time = NOW()
-		WHERE login_id = ? AND logout_time IS NULL
-		ORDER BY login_time DESC
-		LIMIT 1
-	`
-	result, err := r.db.Exec(query, loginID)
-	if err != nil {
-		return fmt.Errorf("로그아웃 시간 업데이트 실패: %w", err)
-	}
-
-	affected, _ := result.RowsAffected()
-	if affected == 0 {
-		return errors.New("로그아웃할 로그인 세션을 찾을 수 없습니다")
-	}
-
-	return nil
 }
 
 func (r *UserRepository) UpdateUserAccountLoginFailure(loginID string) error {

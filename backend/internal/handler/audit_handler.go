@@ -27,7 +27,7 @@ func (h *AuditHandler) LoginHistoryHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	if histories == nil {
-		util.RespondWithJSON(w, http.StatusOK, response.NewResponse[interface{}](true, "로그인 기록이 없습니다.", nil))
+		util.RespondWithJSON(w, http.StatusOK, response.NewResponse[any](true, "로그인 기록이 없습니다.", nil))
 		return
 	}
 
@@ -39,12 +39,13 @@ func (h *AuditHandler) LoginFailureHistoryHandler(w http.ResponseWriter, r *http
 
 	loginFails, err := h.auditService.GetLoginFailureHistoryAll()
 	if err != nil {
-		util.RespondWithJSON(w, http.StatusInternalServerError, err.Error())
+		log.Printf("로그인 실패 기록 조회 실패: %v", err)
+		http.Error(w, "로그인 실패 기록 조회 실패", http.StatusInternalServerError)
 		return
 	}
 
 	// 성공 시 200과 JSON 반환
-	util.RespondWithJSON(w, http.StatusOK, loginFails)
+	util.RespondWithJSON(w, http.StatusOK, response.NewResponse(true, "로그인 실패 기록 조회 성공", &loginFails))
 }
 
 func (h *AuditHandler) LoginResetHistoryHandler(w http.ResponseWriter, r *http.Request) {
@@ -52,10 +53,11 @@ func (h *AuditHandler) LoginResetHistoryHandler(w http.ResponseWriter, r *http.R
 
 	loginResets, err := h.auditService.GetLoginResetHistoryAll()
 	if err != nil {
-		util.RespondWithJSON(w, http.StatusInternalServerError, err.Error())
+		log.Printf("로그인 초기화 기록 조회 실패: %v", err)
+		http.Error(w, "로그인 초기화 기록 조회 실패", http.StatusInternalServerError)
 		return
 	}
 
 	// 성공 시 200과 JSON 반환
-	util.RespondWithJSON(w, http.StatusOK, loginResets)
+	util.RespondWithJSON(w, http.StatusOK, response.NewResponse(true, "로그인 초기화 기록 조회 성공", &loginResets))
 }

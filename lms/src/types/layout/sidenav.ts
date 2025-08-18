@@ -64,7 +64,6 @@ export interface SidenavItemStyleProps {
   theme: any;
   ownerState: {
     active: boolean;
-    noCollapse: boolean;
     open: boolean;
     darkMode: boolean;
   };

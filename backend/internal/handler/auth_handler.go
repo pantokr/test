@@ -9,6 +9,7 @@ import (
 	"lms/internal/util"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/sessions"
 )
@@ -44,8 +45,7 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		ServerIP:    serverIP,
 	}
 
-	// 로그인 시도
-	userAccount, err := h.authService.Login(loginReq)
+	userAccount, sessionID, err := h.authService.Login(loginReq)
 	if err != nil {
 		log.Printf("로그인 실패: %v", err)
 		http.Error(w, err.Error(), http.StatusUnauthorized)
@@ -54,8 +54,8 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 세션 생성
 	session, _ := store.Get(r, "lms-session")
-	session.Values["id"] = *userAccount.LoginID
-
+	session.Values["id"] = *userAccount.LoginID // 기존: 사용자 식별용
+	session.Values["session_id"] = sessionID    // 신규: 로그아웃 시 사용할 login_history ID
 	session.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   20 * 60, // 20분(초 단위)
@@ -63,11 +63,17 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteStrictMode,
 		Secure:   false, // HTTPS 환경에서는 true로 설정
 	}
+
 	// 세션 저장 (반드시 JSON 응답 전에!)
 	if err := session.Save(r, w); err != nil {
+		// 세션 저장 실패 시 로그아웃 처리 (정합성 유지)
+		if sessionID > 0 {
+			h.authService.Logout(sessionID) // 생성된 로그인 기록을 정리
+		}
 		http.Error(w, "세션 저장 실패", http.StatusInternalServerError)
 		return
 	}
+
 	// 로그인 성공 응답
 	data := new(response.LoginResponse)
 	data.LoginResponseFromModel(*userAccount)
@@ -87,23 +93,39 @@ func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	idRaw, exists := session.Values["id"]
+	// 세션에서 sessionID 가져오기 (login_history의 id)
+	sessionIDRaw, exists := session.Values["session_id"]
 	if !exists {
 		// 로그인 안 된 상태 -> 그냥 OK 응답
 		http.Error(w, "종료된 세션입니다.", http.StatusUnauthorized)
 		return
 	}
 
-	id, ok := idRaw.(string)
-	if !ok || id == "" {
+	sessionID, ok := sessionIDRaw.(int64)
+	if !ok {
+		// int64로 변환 시도
+		if sessionIDStr, isString := sessionIDRaw.(string); isString {
+			if parsedID, parseErr := strconv.ParseInt(sessionIDStr, 10, 64); parseErr == nil {
+				sessionID = parsedID
+			} else {
+				http.Error(w, "유효하지 않은 세션 ID입니다.", http.StatusUnauthorized)
+				return
+			}
+		} else {
+			http.Error(w, "유효하지 않은 세션 ID입니다.", http.StatusUnauthorized)
+			return
+		}
+	}
+
+	if sessionID <= 0 {
 		http.Error(w, "유효하지 않은 세션 ID입니다.", http.StatusUnauthorized)
 		return
 	}
 
 	// 서비스 로직: 로그아웃 시간 업데이트
-	if err := h.authService.Logout(id); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	if err := h.authService.Logout(sessionID); err != nil {
+		// 로그아웃 실패해도 세션은 삭제 (보안상 안전)
+		log.Printf("로그아웃 처리 실패: %v", err)
 	}
 
 	// 세션 만료 처리

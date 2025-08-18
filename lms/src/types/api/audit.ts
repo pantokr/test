@@ -10,3 +10,20 @@ export interface LoginHistoryItem {
   client_ip: string | null; // 사용자 IP
   server_ip: string | null; // 서버 IP
 }
+
+export interface LoginFailureHistoryItem {
+  login_id: string;
+  login_time: string;
+  fail_code: string;
+  client_ip: string;
+  server_ip: string;
+}
+
+export interface LoginResetHistoryItem {
+  reset_code: string;
+  reset_time: string;
+  login_id: string;
+  reset_id: string;
+  reset_reason: string;
+  prev_login_ip: string;
+}

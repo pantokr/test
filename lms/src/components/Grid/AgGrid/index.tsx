@@ -1,64 +1,112 @@
-import React from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import { ModuleRegistry, AllCommunityModule, ColDef, GridOptions } from 'ag-grid-community';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { styled } from '@mui/material/styles';
+// AgGrid.tsx
+import React, { useMemo } from "react";
+import { AgGridReact } from "ag-grid-react";
+import {
+  ModuleRegistry,
+  AllCommunityModule,
+  ColDef,
+  GridOptions,
+  themeBalham,
+  colorSchemeDark,
+} from "ag-grid-community";
 
-ModuleRegistry.registerModules([AllCommunityModule]); import { Box, Paper } from '@mui/material';
-import { StyledGridContainer } from './styles';
+ModuleRegistry.registerModules([AllCommunityModule]);
+import { Box, Paper } from "@mui/material";
+import { useUserSettings } from "@/context";
+import { UserSettings } from "@/types";
 
 interface AgGridProps {
   columnDefs: ColDef[];
   rowData: any[];
-  height?: string | number;
-  width?: string | number;
   gridOptions?: GridOptions;
   elevation?: number;
   sx?: object;
 }
 
+// fontSize에 따른 설정 매핑
+const FONT_SIZE_MAP = {
+  small: "12px",
+  medium: "14px",
+  large: "16px",
+};
+
+const ROW_HEIGHT_CONFIG = {
+  small: { rowHeight: 24, headerHeight: 28 },
+  medium: { rowHeight: 28, headerHeight: 32 },
+  large: { rowHeight: 32, headerHeight: 36 },
+};
+
+// AG Grid 테마 생성 함수
+const getAgGridTheme = (isDark: boolean, settings: UserSettings) => {
+  const actualFontSize = FONT_SIZE_MAP[settings.fontSize];
+
+  const myTheme = themeBalham.withParams({
+    borderColor: "rgba(128, 128, 128, 0.3)",
+    wrapperBorder: false,
+    headerRowBorder: false,
+    rowBorder: { style: "solid", width: 1 },
+    columnBorder: { style: "solid" },
+    fontSize: actualFontSize,
+  });
+
+  return isDark ? myTheme.withPart(colorSchemeDark) : myTheme;
+};
+
 const AgGrid: React.FC<AgGridProps> = ({
   columnDefs,
   rowData,
-  height = 400,
-  width = '100%',
   gridOptions = {},
   elevation = 1,
-  sx = {},
+  sx = { height: "100%", padding: 1 },
 }) => {
-  const defaultGridOptions: GridOptions = {
-    defaultColDef: {
-      sortable: true,
-      filter: true,
-      resizable: true,
-      flex: 1,
-    },
-    pagination: true,
-    paginationPageSize: 20,
-    animateRows: true,
-    suppressCellFocus: true,
-    theme: 'legacy', // v32 스타일 테마 사용
-    ...gridOptions,
-  };
+  const { userSettings } = useUserSettings();
+
+  // userSettings.fontSize에 따라 행/헤더 높이 계산
+  const heightSettings = useMemo(() => {
+    return ROW_HEIGHT_CONFIG[userSettings.fontSize];
+  }, [userSettings.fontSize]);
+
+  const agGridTheme = useMemo(() => {
+    return getAgGridTheme(userSettings.darkMode, userSettings);
+  }, [userSettings.darkMode, userSettings]);
+
+  const defaultGridOptions: GridOptions = useMemo(
+    () => ({
+      theme: agGridTheme,
+      rowHeight: heightSettings.rowHeight,
+      headerHeight: heightSettings.headerHeight,
+      defaultColDef: {
+        sortable: true,
+        filter: true,
+        resizable: true,
+        flex: 1,
+      },
+      pagination: true,
+      paginationPageSize: 50,
+      paginationPageSizeSelector: [25, 50, 100],
+      animateRows: true,
+      suppressCellFocus: true,
+      ...gridOptions,
+    }),
+    [agGridTheme, heightSettings, gridOptions]
+  );
+
+  const gridKey = useMemo(() => {
+    return `ag-grid-${userSettings.darkMode ? "dark" : "light"}-${
+      userSettings.fontSize
+    }`;
+  }, [userSettings.darkMode, userSettings.fontSize]);
 
   return (
     <Paper elevation={elevation} sx={sx}>
-      <StyledGridContainer>
-        <Box
-          className="ag-theme-alpine"
-          sx={{
-            height: typeof height === 'number' ? `${height}px` : height,
-            width: typeof width === 'number' ? `${width}px` : width,
-          }}
-        >
-          <AgGridReact
-            columnDefs={columnDefs}
-            rowData={rowData}
-            gridOptions={defaultGridOptions}
-          />
-        </Box>
-      </StyledGridContainer>
+      <Box width={"100%"} height={"100%"}>
+        <AgGridReact
+          key={gridKey}
+          columnDefs={columnDefs}
+          rowData={rowData}
+          gridOptions={defaultGridOptions}
+        />
+      </Box>
     </Paper>
   );
 };

@@ -1,55 +1,28 @@
-// src/types/context.ts
+// src/types/context.ts - 다크모드를 UserSettings에 포함
 
-import type { ReactNode } from "react";
+export type SidenavColor = "blue" | "green" | "deepPurple" | "blueGrey";
 
-/**
- * 사이드바 색상 타입
- */
-export type SidenavColor =
-  | "primary"
-  | "secondary"
-  | "info"
-  | "success"
-  | "warning"
-  | "error"
-  | "light"
-  | "dark";
+export interface UserSettings {
+  darkMode: boolean; // 다크모드를 사용자 설정에 포함
+  fontSize: "small" | "medium" | "large";
+  fontFamily: "default" | "serif" | "monospace";
+  colorScheme: "blue" | "green" | "deepPurple" | "blueGrey";
+  compactMode: boolean;
+  language: "ko" | "en" | "ja";
+}
 
-/**
- * 레이아웃 타입
- */
-export type LayoutType = "dashboard" | "page" | "vr";
-
-/**
- * Material UI Controller 상태
- */
 export interface MaterialUIControllerState {
-  darkMode: boolean;
+  // darkMode 제거 - 이제 userSettings.darkMode 사용
   sidenavColor: SidenavColor;
-  layout: LayoutType;
-  openConfigurator: boolean;
+  userSettings: UserSettings;
+  sidenavOpen: boolean;
 }
 
-/**
- * Material UI Controller 액션 타입
- */
 export type MaterialUIControllerAction =
-  | { type: "DARK_MODE"; value: boolean }
+  // DARK_MODE 액션 제거 - UPDATE_USER_SETTINGS로 처리
   | { type: "SIDENAV_COLOR"; value: SidenavColor }
-  | { type: "LAYOUT"; value: LayoutType }
-  | { type: "OPEN_CONFIGURATOR"; value: boolean };
-
-/**
- * Material UI Controller 컨텍스트 타입
- */
-export interface MaterialUIControllerContextType {
-  controller: MaterialUIControllerState;
-  dispatch: React.Dispatch<MaterialUIControllerAction>;
-}
-
-/**
- * Provider Props
- */
-export interface MaterialUIControllerProviderProps {
-  children: ReactNode;
-}
+  | { type: "UPDATE_USER_SETTINGS"; value: Partial<UserSettings> }
+  | { type: "RESET_USER_SETTINGS" }
+  | { type: "TOGGLE_SIDENAV" }
+  | { type: "CLOSE_SIDENAV" }
+  | { type: "OPEN_SIDENAV" };
