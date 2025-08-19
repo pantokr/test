@@ -1,4 +1,4 @@
-import { AuthApiError } from "@/errors/AuthApiError";
+import { AuthApiError } from "@/api/AuthApiError";
 
 // Constants
 

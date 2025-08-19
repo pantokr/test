@@ -1,17 +1,15 @@
 // src/context/theme/ThemeProvider.tsx
-import React, { useReducer, useMemo, useEffect, useRef } from "react";
-import type { ReactNode } from "react";
-import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
-import { CssBaseline, GlobalStyles } from "@mui/material";
 import { createAppTheme } from "@/assets/theme";
-import type { SidenavColor, UserSettings } from "@/types/context";
-import {
-  ThemeContext,
-  themeReducer,
-  getInitialState,
-  defaultUserSettings,
-} from "./ThemeContext";
+import type {
+  AppColorSchemes,
+  UserSettings,
+} from "@/components/layouts/DashboardLayout/context";
+import { CssBaseline, GlobalStyles } from "@mui/material";
+import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
+import type { ReactNode } from "react";
+import React, { useEffect, useMemo, useReducer, useRef } from "react";
 import type { ThemeContextType } from "./ThemeContext";
+import { getInitialState, ThemeContext, themeReducer } from "./ThemeContext";
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -41,7 +39,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   }, [controller.userSettings]);
 
   // 편의 함수들
-  const setSidenavColor = (color: SidenavColor) => {
+  const setSidenavColor = (color: AppColorSchemes) => {
     dispatch({ type: "SIDENAV_COLOR", value: color });
   };
 

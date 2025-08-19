@@ -1,20 +1,29 @@
 // src/assets/theme/index.ts - MUI 기본 색상 활용
 
-import { createTheme } from "@mui/material/styles";
-import type { Theme, ThemeOptions } from "@mui/material/styles";
+import type {
+  AppColorSchemes,
+  UserSettings,
+} from "@/components/layouts/DashboardLayout/context";
 import {
   blue,
+  blueGrey,
+  cyan,
+  deepPurple,
   green,
   orange,
-  cyan,
   pink,
-  deepPurple,
-  blueGrey,
 } from "@mui/material/colors";
-import type { UserSettings } from "@/types/context";
+import type { Theme } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
+import { Color } from "node_modules/@mui/material";
+
+interface ColorScheme {
+  primary: Color;
+  secondary: Color;
+}
 
 // MUI 기본 색상 팔레트 활용
-const colorSchemes = {
+const colorSchemes: Record<AppColorSchemes, ColorScheme> = {
   blue: {
     primary: blue,
     secondary: pink,

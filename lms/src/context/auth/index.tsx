@@ -1,7 +1,7 @@
 // src/context/auth/index.tsx
 export { AuthContext } from "./AuthContext";
-export { AuthProvider } from "./AuthProvider";
 export type { AuthContextType } from "./AuthContext";
+export { AuthProvider } from "./AuthProvider";
 
 export { useAuth } from "./hooks";
 

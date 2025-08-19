@@ -1,11 +1,11 @@
 // src/context/theme/hooks.ts - 다크모드 통합 버전
 
+import type {
+  MaterialUIControllerAction,
+  MaterialUIControllerState,
+} from "@/components/layouts/DashboardLayout/context";
 import { useContext } from "react";
 import { ThemeContext } from "./ThemeContext";
-import type {
-  MaterialUIControllerState,
-  MaterialUIControllerAction,
-} from "@/types/context";
 
 // 기존 호환성을 위한 메인 훅
 export const useMaterialUIController = (): [
@@ -65,7 +65,7 @@ export const useSidenav = () => {
   }
   return {
     sidenavColor: context.controller.sidenavColor,
-    openSidenav: context.controller.sidenavOpen,
+    isSidenavOpen: context.controller.isSidenavOpen,
     toggleSidenav: context.toggleSidenav,
     closeSidenav: context.closeSidenav,
   };

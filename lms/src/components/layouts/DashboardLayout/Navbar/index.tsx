@@ -1,0 +1,210 @@
+// src/layouts/DashboardLayout/Navbar/index.tsx
+
+import {
+  AccountCircle,
+  Email,
+  Logout,
+  Menu as MenuIcon,
+  Notifications,
+  Podcasts,
+  Settings,
+  ShoppingCart,
+} from "@mui/icons-material";
+import { Avatar, Menu, MenuItem, Typography } from "@mui/material";
+import React, { useState } from "react";
+
+import { AppIconButton } from "@/components/common/Button";
+import AppTypography from "@/components/common/Typography";
+import { useAuth } from "@/context";
+import {
+  LeftSection,
+  RightSection,
+  StyledAppBar,
+  StyledToolbar,
+  TitleContainer,
+  UserName,
+  UserSection,
+  menuStyles,
+} from "./styles";
+
+interface NavbarProps {
+  title?: string;
+  light?: boolean;
+  transparent?: boolean;
+  absolute?: boolean;
+  onSidenavToggle?: () => void; // sidenav 토글 함수
+}
+
+const Navbar: React.FC<NavbarProps> = ({
+  title = "",
+  transparent = false,
+  onSidenavToggle,
+}) => {
+  const { user } = useAuth();
+  const [notificationMenu, setNotificationMenu] = useState<null | HTMLElement>(
+    null
+  );
+  const [userMenu, setUserMenu] = useState<null | HTMLElement>(null);
+
+  // 메뉴 핸들러
+  const handleNotificationMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setNotificationMenu(event.currentTarget);
+  };
+
+  const handleNotificationMenuClose = () => {
+    setNotificationMenu(null);
+  };
+
+  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenu(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenu(null);
+  };
+
+  // 알림 메뉴 아이템 컴포넌트
+  const NotificationMenuItem = ({
+    icon,
+    title,
+  }: {
+    icon: React.ReactNode;
+    title: string;
+  }) => (
+    <MenuItem
+      onClick={handleNotificationMenuClose}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
+        py: 1.5,
+        px: 2,
+        minWidth: 280,
+      }}
+    >
+      {icon}
+      <Typography variant="body2">{title}</Typography>
+    </MenuItem>
+  );
+
+  return (
+    <StyledAppBar transparent={transparent}>
+      <StyledToolbar>
+        {/* 📍 왼쪽: 사이드네비 토글 버튼과 제목 */}
+        <LeftSection>
+          {/* 사이드네비 토글 버튼 */}
+          <AppIconButton
+            onClick={onSidenavToggle}
+            icon={<MenuIcon fontSize="small" />}
+          />
+
+          <TitleContainer>
+            {/* 메인 제목 */}
+            {title && (
+              <AppTypography fontWeight="medium">{title}</AppTypography>
+            )}
+          </TitleContainer>
+        </LeftSection>
+
+        {/* ⚙️ 오른쪽: 액션 버튼들 */}
+        <RightSection>
+          {/* 설정 버튼 */}
+          <AppIconButton
+            onClick={handleUserMenuOpen}
+            icon={<Settings fontSize="small" />}
+          />
+
+          {/* 알림 버튼 */}
+          <AppIconButton
+            onClick={handleNotificationMenuOpen}
+            icon={<Notifications fontSize="small" />}
+          />
+
+          {/* 👤 사용자 섹션 */}
+          <UserSection>
+            {/* 사용자 이름 (데스크톱에서만) */}
+            <UserName>{user?.empName || "사용자"}</UserName>
+
+            {/* 아바타 */}
+            <AppIconButton
+              size="small"
+              onClick={() => handleUserMenuOpen}
+              sx={{
+                p: 0,
+                "&:hover": {
+                  backgroundColor: "transparent",
+                },
+              }}
+              icon={
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    bgcolor: "primary.main",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  {user?.empName ? user.empName.charAt(0) : <AccountCircle />}
+                </Avatar>
+              }
+            ></AppIconButton>
+          </UserSection>
+
+          {/* 📢 알림 메뉴 */}
+          <Menu
+            anchorEl={notificationMenu}
+            open={Boolean(notificationMenu)}
+            onClose={handleNotificationMenuClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+            sx={menuStyles}
+          >
+            <NotificationMenuItem
+              icon={<Email fontSize="small" />}
+              title="새 메시지 확인"
+            />
+            <NotificationMenuItem
+              icon={<Podcasts fontSize="small" />}
+              title="팟캐스트 세션 관리"
+            />
+            <NotificationMenuItem
+              icon={<ShoppingCart fontSize="small" />}
+              title="결제가 성공적으로 완료됨"
+            />
+          </Menu>
+
+          {/* 👤 사용자 메뉴 */}
+          <Menu
+            anchorEl={userMenu}
+            open={Boolean(userMenu)}
+            onClose={handleUserMenuClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+            sx={{
+              ...menuStyles,
+              "& .MuiPaper-root": {
+                ...menuStyles["& .MuiPaper-root"],
+                minWidth: 200,
+              },
+            }}
+          >
+            <MenuItem onClick={handleUserMenuClose}>
+              <AccountCircle sx={{ mr: 1.5 }} fontSize="small" />
+              <Typography variant="body2">프로필</Typography>
+            </MenuItem>
+            <MenuItem onClick={handleUserMenuClose}>
+              <Settings sx={{ mr: 1.5 }} fontSize="small" />
+              <Typography variant="body2">설정</Typography>
+            </MenuItem>
+            <MenuItem onClick={handleUserMenuClose}>
+              <Logout sx={{ mr: 1.5 }} fontSize="small" />
+              <Typography variant="body2">로그아웃</Typography>
+            </MenuItem>
+          </Menu>
+        </RightSection>
+      </StyledToolbar>
+    </StyledAppBar>
+  );
+};
+
+export default Navbar;

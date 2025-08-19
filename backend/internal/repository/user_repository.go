@@ -36,9 +36,8 @@ func (r *UserRepository) SelectUserAccountByID(id string) (*model.UserAccount, e
 
 	const query = `
 		SELECT login_id, passwd, emp_name, dept_name, office_tel, mobile_tel,
-			   recent_conn_date, delete_date, passwd_update_date, pw_fail_count,
-			   is_long_unused, is_external, client_ip, pw_ref,
-			   reg_emp_id, reg_date, upd_emp_id, upd_date
+			   recent_conn_date, delete_date, passwd_update_date, pw_fail_count, 
+			   client_ip, pw_ref, reg_emp_id, reg_date, upd_emp_id, upd_date
 		FROM user_account
 		WHERE login_id = ?
 	`
@@ -46,8 +45,7 @@ func (r *UserRepository) SelectUserAccountByID(id string) (*model.UserAccount, e
 	err := r.db.QueryRow(query, id).Scan(
 		&user.LoginID, &user.Passwd, &user.EmpName, &user.DeptName, &user.OfficeTel, &user.MobileTel,
 		&user.RecentConnDate, &user.DeleteDate, &user.PasswdUpdateDate, &user.PwFailCount,
-		&user.IsLongUnused, &user.IsExternal, &user.ClientIP, &user.PwRef,
-		&user.RegEmpID, &user.RegDate, &user.UpdEmpID, &user.UpdDate,
+		&user.ClientIP, &user.PwRef, &user.RegEmpID, &user.RegDate, &user.UpdEmpID, &user.UpdDate,
 	)
 
 	if err != nil {

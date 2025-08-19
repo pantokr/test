@@ -1,18 +1,18 @@
 // src/AppRoutes.tsx - Protected Route 분리 후
 
-import { useEffect, useMemo, type ReactNode } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
+import { useEffect, useMemo, type ReactNode } from "react";
+import { Route, Routes } from "react-router-dom";
 
 // Layout
-import DashboardLayout from "@/layouts/DashboardLayout";
+import DashboardLayout from "@/components/layouts/DashboardLayout";
 
 // Components
-import ProtectedRoute from "@/components/ProtectedRoute";
+import ProtectedRoute from "@/routes/ProtectedRoute";
 
 // Routes and contexts
 import routes from "@/routes";
-import { RouteItem } from "@/types";
+import { RouteItem } from "./routes/types";
 
 const AppRoutes: React.FC = () => {
   // 우클릭 방지 (프로덕션 환경에서만)

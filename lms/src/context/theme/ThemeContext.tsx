@@ -1,11 +1,11 @@
 // src/context/theme/ThemeContext.tsx
-import { createContext } from "react";
 import type {
-  MaterialUIControllerState,
+  AppColorSchemes,
   MaterialUIControllerAction,
-  SidenavColor,
+  MaterialUIControllerState,
   UserSettings,
-} from "@/types/context";
+} from "@/components/layouts/DashboardLayout/context";
+import { createContext } from "react";
 
 // 기본 사용자 설정 (다크모드 포함)
 export const defaultUserSettings: UserSettings = {
@@ -37,7 +37,7 @@ export const getInitialState = (): MaterialUIControllerState => {
   return {
     sidenavColor: "blueGrey",
     userSettings,
-    sidenavOpen: false,
+    isSidenavOpen: false,
   };
 };
 
@@ -60,11 +60,11 @@ export const themeReducer = (
         userSettings: defaultUserSettings,
       };
     case "TOGGLE_SIDENAV":
-      return { ...state, sidenavOpen: !state.sidenavOpen };
+      return { ...state, isSidenavOpen: !state.isSidenavOpen };
     case "CLOSE_SIDENAV":
-      return { ...state, sidenavOpen: false };
+      return { ...state, isSidenavOpen: false };
     case "OPEN_SIDENAV":
-      return { ...state, sidenavOpen: true };
+      return { ...state, isSidenavOpen: true };
     default:
       return state;
   }
@@ -74,7 +74,7 @@ export const themeReducer = (
 export interface ThemeContextType {
   controller: MaterialUIControllerState;
   dispatch: React.Dispatch<MaterialUIControllerAction>;
-  setSidenavColor: (color: SidenavColor) => void;
+  setSidenavColor: (color: AppColorSchemes) => void;
   updateUserSettings: (settings: Partial<UserSettings>) => void;
   resetUserSettings: () => void;
   toggleSidenav: () => void;

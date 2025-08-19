@@ -1,12 +1,22 @@
-import DashboardLayout from "@/layouts/DashboardLayout";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 
-export default function LoadingPage(title: string = "") {
-    return (
-        <DashboardLayout title={title}>
-            <Box display="flex" justifyContent="center" alignItems="center" height={400}>
-                <CircularProgress />
-            </Box>
-        </DashboardLayout>
-    );
-}
+const LoadingPage = ({ title = "" }) => {
+  return (
+    <Box
+      display="flex"
+      flexDirection="column" // 세로 방향 정렬
+      justifyContent="center"
+      alignItems="center"
+      height={400}
+    >
+      {title && (
+        <Typography variant="h6" gutterBottom>
+          {title}
+        </Typography>
+      )}
+      <CircularProgress />
+    </Box>
+  );
+};
+
+export default LoadingPage;

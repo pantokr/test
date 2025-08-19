@@ -1,12 +1,12 @@
 // src/context/auth/AuthProvider.tsx
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import type { ReactNode } from "react";
-import type { UserInfo } from "@/types";
 import { loginApi, logoutApi, sessionApi } from "@/api/auth";
+import type { UserInfo } from "@/types";
 import { isPublicRoute } from "@/utils/route";
-import { AuthContext } from "./AuthContext";
+import type { ReactNode } from "react";
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import type { AuthContextType } from "./AuthContext";
+import { AuthContext } from "./AuthContext";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -15,12 +15,16 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const navigate = useNavigate();
+
   const location = useLocation();
+
+  const expireSession = function () {
+    setUser(null);
+    localStorage.clear();
+  };
 
   // localStorage에서 사용자 정보 복원
   useEffect(() => {
-    setLoading(true);
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       try {
@@ -44,10 +48,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // 라우트 변경시마다 세션 체크
   useEffect(() => {
     // 로딩이 완료되고, 사용자가 인증된 상태에서만 세션 체크
-    if (!loading && user) {
-      handleSession(location.pathname);
-    }
-  }, [location.pathname, loading, user]);
+    handleSession(location.pathname);
+  }, [location.pathname]);
 
   const handleLogin = async (credentials: {
     loginID: string;
@@ -77,9 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      setUser(null);
-      localStorage.clear(); // 모든 로컬 데이터 클리어
-      navigate("/auth/sign-in", { replace: true });
+      expireSession();
     }
   };
 
@@ -93,27 +93,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await sessionApi();
       if (!response?.success) {
         // 세션 무효하면 로그아웃
-        console.warn("Session expired or invalid");
-        setUser(null);
-        localStorage.clear();
-        navigate("/auth/sign-in", { replace: true });
+        expireSession();
         return;
-      }
-
-      // 세션이 유효하지만 사용자 정보가 업데이트된 경우 처리 (선택적)
-      if (response.data && response.data !== user) {
-        setUser(response.data);
       }
     } catch (error) {
       // 세션 체크 실패하면 로그아웃
-      console.error("Session check failed:", error);
-      setUser(null);
-      localStorage.clear();
-      navigate("/auth/sign-in", { replace: true });
+      expireSession();
     }
   };
-
-  const isAuthenticated = Boolean(user?.loginID);
 
   const contextValue: AuthContextType = {
     user,
@@ -121,7 +108,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     handleLogin,
     handleLogout,
     handleSession,
-    isAuthenticated,
     loading,
     setLoading,
   };

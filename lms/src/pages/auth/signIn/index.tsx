@@ -1,24 +1,24 @@
 // src/pages/auth/SignIn/index.tsx
 
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Lock, Person, Visibility, VisibilityOff } from "@mui/icons-material";
 import {
+  Alert,
+  alpha,
+  Box,
+  Button,
   Card,
   CardContent,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  InputAdornment,
   IconButton,
-  Alert,
+  InputAdornment,
+  TextField,
+  Typography,
   useTheme,
-  alpha,
 } from "@mui/material";
-import { Visibility, VisibilityOff, Person, Lock } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-import CoverLayout from "@/layouts/CoverLayout";
+import CoverLayout from "@/components/layouts/CoverLayout";
 import { useAuth } from "@/context";
 import { LoginCredentials } from "@/types";
 
@@ -49,7 +49,6 @@ const LogoBox = styled(Box)(({ theme }) => ({
   },
 }));
 
-
 const SignIn: React.FC = () => {
   const navigate = useNavigate();
   const { handleLogin } = useAuth();
@@ -61,12 +60,13 @@ const SignIn: React.FC = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // 폼 데이터 변경 핸들러
   const handleChange =
-    (field: keyof LoginCredentials) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    (field: keyof LoginCredentials) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       setFormData((prev) => ({
         ...prev,

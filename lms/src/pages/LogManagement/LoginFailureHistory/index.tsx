@@ -1,20 +1,19 @@
 // pages/LogManagement/LoginHistory.tsx
 
-import React, { useState, useEffect } from "react";
-import DashboardLayout from "@/layouts/DashboardLayout";
 import { loginFailureHistoryApi } from "@/api/audit";
-import AgGrid from "@/components/Grid/AgGrid";
+import AgGrid from "@/components/dataGrid/AgGrid/AgGrid";
+import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { LoginHistoryItem } from "@/types";
+import { Box } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import ColumnDefs from "./columnDefs";
-import { Box, Typography } from "@mui/material";
-import LoadingPage from "@/pages/loading";
 
 const LoginFailureHistoryPage: React.FC = () => {
   const [loginFailureHistory, setLoginFailureHistory] = useState<
     LoginHistoryItem[]
   >([]);
-  const [loading, setLoading] = useState(true);
 
+  const [, setLoading] = useState(true);
   const fetchLoginFailHistory = async () => {
     try {
       setLoading(true);
@@ -36,17 +35,8 @@ const LoginFailureHistoryPage: React.FC = () => {
     fetchLoginFailHistory();
   }, []);
 
-  if (loading) {
-    LoadingPage("로그인 실패 기록");
-  }
-
   return (
     <DashboardLayout title="로그인 실패 기록">
-      <Box sx={{ mb: 2, flexShrink: 0 }}>
-        <Typography variant="h6" component="h2">
-          로그인 실패 기록
-        </Typography>
-      </Box>
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <AgGrid columnDefs={ColumnDefs} rowData={loginFailureHistory} />
       </Box>

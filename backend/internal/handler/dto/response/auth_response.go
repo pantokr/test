@@ -2,7 +2,6 @@ package response
 
 import (
 	"lms/internal/model"
-	"lms/internal/util"
 )
 
 type LoginResponse struct {
@@ -14,11 +13,11 @@ type LoginResponse struct {
 }
 
 func (r *LoginResponse) LoginResponseFromModel(userAccount model.UserAccount) {
-	r.LoginID = util.SafeString(userAccount.LoginID)
-	r.EmpName = util.SafeString(userAccount.EmpName)
-	r.DeptName = util.SafeString(userAccount.DeptName)
-	r.OfficeTel = util.SafeString(userAccount.OfficeTel)
-	r.MobileTel = util.SafeString(userAccount.MobileTel)
+	r.LoginID = userAccount.LoginID
+	r.EmpName = userAccount.EmpName
+	r.DeptName = userAccount.DeptName
+	r.OfficeTel = userAccount.OfficeTel
+	r.MobileTel = userAccount.MobileTel
 }
 
 // type UserSessionResponse struct {

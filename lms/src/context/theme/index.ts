@@ -6,10 +6,7 @@ export { ThemeProvider } from "./ThemeProvider";
 // 커스텀 훅들
 export {
   useMaterialUIController,
+  useSidenav,
   useTheme,
   useUserSettings,
-  useSidenav,
 } from "./hooks";
-
-// 액션 크리에이터들
-export * from "./actions";

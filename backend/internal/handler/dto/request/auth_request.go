@@ -7,12 +7,13 @@ type LoginRequest struct {
 }
 
 type UserRegisterRequest struct {
-	LoginID   *string
-	Passwd    *string
-	EmpName   *string
-	DeptName  *string
-	OfficeTel *string
-	MobileTel *string
+	LoginID   string
+	Passwd    string
+	EmpName   string
+	DptName   string
+	OfficeTel string
+	MobileTel string
+	RegEmpID  string
 }
 
 type IdExistsRequest struct {

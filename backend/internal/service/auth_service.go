@@ -27,33 +27,33 @@ func (s *AuthService) Login(loginReq request.LoginRequest) (*model.UserAccount, 
 		return nil, 0, errors.New("아이디 혹은 비밀번호가 일치하지 않습니다")
 	}
 
-	if util.HashPassword(loginReq.Passwd) != *userAccount.Passwd {
-		s.auditRepo.InsertLoginFailureHistory("1", *userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
-		s.userRepo.UpdateUserAccountLoginFailure(*userAccount.LoginID)
+	if util.HashPassword(loginReq.Passwd) != userAccount.Passwd {
+		s.auditRepo.InsertLoginFailureHistory("1", userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
+		s.userRepo.UpdateUserAccountLoginFailure(userAccount.LoginID)
 		return nil, 0, errors.New("아이디 혹은 비밀번호가 일치하지 않습니다")
 	}
 
-	if *userAccount.PwFailCount >= 5 {
-		s.auditRepo.InsertLoginFailureHistory("2", *userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
+	if userAccount.PwFailCount >= 5 {
+		s.auditRepo.InsertLoginFailureHistory("2", userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
 		return nil, 0, errors.New("로그인 실패 5회 초과")
 	}
 
 	if userAccount.PasswdUpdateDate != nil && time.Since(*userAccount.PasswdUpdateDate) > 30*24*time.Hour {
-		s.auditRepo.InsertLoginFailureHistory("3", *userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
+		s.auditRepo.InsertLoginFailureHistory("3", userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
 		return nil, 0, errors.New("비밀번호 변경 30일 초과")
 	}
 
-	if userAccount.ClientIP != nil && *userAccount.ClientIP != loginReq.ClientIP {
-		s.auditRepo.InsertLoginFailureHistory("4", *userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
+	if userAccount.ClientIP != loginReq.ClientIP {
+		s.auditRepo.InsertLoginFailureHistory("4", userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
 		return nil, 0, errors.New("IP 주소가 일치하지 않습니다")
 	}
 
 	if userAccount.RecentConnDate != nil && time.Since(*userAccount.RecentConnDate) > 15*24*time.Hour {
-		s.auditRepo.InsertLoginFailureHistory("5", *userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
+		s.auditRepo.InsertLoginFailureHistory("5", userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
 		return nil, 0, errors.New("최근 접속 이후 15일 초과")
 	}
 
-	sessionID, err := s.auditRepo.InsertLoginHistory(*userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
+	sessionID, err := s.auditRepo.InsertLoginHistory(userAccount.LoginID, loginReq.ClientIP, loginReq.ServerIP)
 	if err != nil {
 		// 기록 실패해도 로그인에 영향 주지 않도록 로그만 남김
 		fmt.Printf("로그인 기록 저장 실패: %v\n", err)
@@ -91,7 +91,7 @@ func (s *AuthService) IsIdExists(id string) (bool, error) {
 }
 
 func (s *AuthService) RegisterUser(registerReq *request.UserRegisterRequest) error {
-	exists, err := s.IsIdExists(*registerReq.LoginID)
+	exists, err := s.IsIdExists(registerReq.LoginID)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func (s *AuthService) RegisterUser(registerReq *request.UserRegisterRequest) err
 	}
 
 	// 비밀번호 해시 처리 (보안상 필수)
-	*registerReq.Passwd = util.HashPassword(*registerReq.Passwd)
+	registerReq.Passwd = util.HashPassword(registerReq.Passwd)
 
 	// 추후 작업
 	return nil

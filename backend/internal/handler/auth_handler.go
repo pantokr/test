@@ -54,8 +54,8 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 세션 생성
 	session, _ := store.Get(r, "lms-session")
-	session.Values["id"] = *userAccount.LoginID // 기존: 사용자 식별용
-	session.Values["session_id"] = sessionID    // 신규: 로그아웃 시 사용할 login_history ID
+	session.Values["id"] = userAccount.LoginID // 기존: 사용자 식별용
+	session.Values["session_id"] = sessionID   // 신규: 로그아웃 시 사용할 login_history ID
 	session.Options = &sessions.Options{
 		Path:     "/",
 		MaxAge:   20 * 60, // 20분(초 단위)

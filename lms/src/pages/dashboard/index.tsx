@@ -1,7 +1,7 @@
 // pages/dashboard.tsx
 
+import DashboardLayout from "@/components/layouts/DashboardLayout";
 import React from "react";
-import DashboardLayout from "@/layouts/DashboardLayout";
 
 const DashboardPage: React.FC = () => {
   return (
