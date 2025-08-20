@@ -1,9 +1,6 @@
 // src/assets/theme/index.ts - MUI 기본 색상 활용
 
-import type {
-  AppColorSchemes,
-  UserSettings,
-} from "@/components/layouts/DashboardLayout/context";
+import type { AppColorSchemes, ThemeSettings } from "@/context/types";
 import {
   blue,
   blueGrey,
@@ -71,18 +68,9 @@ const fontFamilies = {
 // 개선된 테마 생성 함수
 export const createAppTheme = (
   mode: "light" | "dark",
-  userSettings?: UserSettings
+  themeSettings: ThemeSettings
 ): Theme => {
-  const settings = {
-    fontSize: "medium",
-    fontFamily: "default",
-    colorScheme: "blue",
-    compactMode: false,
-    language: "ko",
-    ...userSettings,
-  } as UserSettings;
-
-  const { fontSize, fontFamily, colorScheme, compactMode } = settings;
+  const { fontSize, fontFamily, colorScheme, compactMode } = themeSettings;
   const colors = colorSchemes[colorScheme];
   const fontMultiplier = fontSizeMultipliers[fontSize];
   const isDark = mode === "dark";
@@ -245,10 +233,10 @@ export const createAppTheme = (
   });
 };
 
-// 기존 호환성을 위한 정적 테마들
-const lightTheme = createAppTheme("light");
-const darkTheme = createAppTheme("dark");
+// // 기존 호환성을 위한 정적 테마들
+// const lightTheme = createAppTheme("light",);
+// const darkTheme = createAppTheme("dark");
 
-// 기본 익스포트 (호환성)
-export default lightTheme;
-export { darkTheme };
+// // 기본 익스포트 (호환성)
+// export default lightTheme;
+// export { darkTheme };

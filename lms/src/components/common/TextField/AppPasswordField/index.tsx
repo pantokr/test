@@ -1,69 +1,65 @@
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import {
-  IconButton,
-  InputAdornment,
-  TextField,
-  TextFieldProps,
-} from "@mui/material";
-import { useState } from "react";
+// src/components/common/TextField/AppPasswordField.tsx
+import { Lock, Visibility, VisibilityOff } from "@mui/icons-material";
+import { InputAdornment, TextFieldProps } from "@mui/material";
+import React, { useState } from "react";
+import { AppIconButton } from "../../Button";
+import AppTextField from "../AppTextField";
 
-interface AppPasswordFieldProps
-  extends Omit<TextFieldProps, "value" | "onChange" | "type"> {
-  value?: string;
-  onChange?: (value: string) => void;
-}
+type AppPasswordFieldProps = Omit<TextFieldProps, "type"> & {
+  // 추가 커스텀 props가 필요하면 여기에
+  showPasswordIcon?: boolean; // 비밀번호 표시 아이콘 표시 여부
+  showLockIcon?: boolean; // 자물쇠 아이콘 표시 여부
+};
 
 export const AppPasswordField: React.FC<AppPasswordFieldProps> = ({
-  label,
-  value,
-  onChange,
+  label = "비밀번호",
+  placeholder = "비밀번호를 입력하세요",
+  fullWidth = true,
+  required = true,
+  sx = { mb: 2 },
+  showPasswordIcon = true,
+  showLockIcon = true,
+  slotProps,
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [internalValue, setInternalValue] = useState(value || "");
 
-  const handleClickShowPassword = () => {
+  const handleTogglePassword = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleMouseDownPassword = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    event.preventDefault();
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInternalValue(newValue);
-    onChange?.(newValue);
-  };
-
   return (
-    <TextField
+    <AppTextField
+      fullWidth={fullWidth}
       label={label}
       type={showPassword ? "text" : "password"}
-      value={onChange ? value || "" : internalValue}
-      onChange={handleChange}
-      variant="outlined"
-      size="small"
+      placeholder={placeholder}
+      required={required}
+      sx={sx}
       slotProps={{
         input: {
-          endAdornment: (
+          startAdornment: showLockIcon ? (
+            <InputAdornment position="start">
+              <Lock color="action" />
+            </InputAdornment>
+          ) : undefined,
+          endAdornment: showPasswordIcon ? (
             <InputAdornment position="end">
-              <IconButton
+              <AppIconButton
+                onClick={handleTogglePassword}
                 aria-label="toggle password visibility"
-                onClick={handleClickShowPassword}
-                onMouseDown={handleMouseDownPassword}
-                edge="end"
-                size="small"
               >
                 {showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
+              </AppIconButton>
             </InputAdornment>
-          ),
+          ) : undefined,
+          ...slotProps?.input, // 추가 input props 병합
         },
+        ...slotProps, // 기타 slotProps 병합
       }}
       {...props}
     />
   );
 };
+
+export default AppPasswordField;

@@ -1,34 +1,21 @@
 // src/components/common/TextField/TextField.tsx
 import { TextField, TextFieldProps } from "@mui/material";
-import React, { useState } from "react";
+import React from "react";
 
-interface AppTextFieldProps extends Omit<TextFieldProps, "value" | "onChange"> {
-  value?: string;
-  onChange?: (value: string) => void;
-}
+// 또는 더 간단한 방법 - type 사용
+type AppTextFieldProps = TextFieldProps & {
+  // 필요한 경우 추가 커스텀 props를 여기에 정의
+};
 
 export const AppTextField: React.FC<AppTextFieldProps> = ({
-  label,
-  value,
-  onChange,
+  variant = "outlined",
+  size = "small",
+  fullWidth = false,
   ...props
 }) => {
-  const [internalValue, setInternalValue] = useState(value || "");
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInternalValue(newValue);
-    onChange?.(newValue);
-  };
-
   return (
-    <TextField
-      label={label}
-      value={onChange ? value || "" : internalValue}
-      onChange={handleChange}
-      variant="outlined"
-      size="small"
-      {...props}
-    />
+    <TextField variant={variant} size={size} fullWidth={fullWidth} {...props} />
   );
 };
+
+export default AppTextField;

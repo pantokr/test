@@ -1,8 +1,8 @@
+import { IconButton } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { IconButton as MuiIconButton } from "@mui/material";
 import { AppIconButtonProps } from "../types";
 
-export const StyledAppIconButton = styled(MuiIconButton)<AppIconButtonProps>(
+export const StyledAppIconButton = styled(IconButton)<AppIconButtonProps>(
   ({ size = "medium" }) => ({
     // 포커스 및 클릭 시 테두리 제거
     "&:focus": {

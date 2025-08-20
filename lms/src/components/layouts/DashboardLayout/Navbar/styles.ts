@@ -1,23 +1,24 @@
 // src/layouts/DashboardLayout/Navbar/styles.ts
 
-import { AppBar, Box, InputBase, Toolbar } from "@mui/material";
+import { AppBox } from "@/components/common/Box";
+import { Box, Toolbar } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 /**
  * 메인 네비바 컨테이너
  */
-export const StyledAppBar = styled(AppBar, {
+export const StyledAppBar = styled(AppBox, {
   shouldForwardProp: (prop) => prop !== "transparent",
 })<{ transparent?: boolean }>(({ theme }) => ({
   position: "sticky",
+  top: 0,
+  width: "100%",
   color: "inherit",
-  elevation: 0,
-  backgroundColor: "transparent", // 🌟 완전 투명 배경
-  backdropFilter: "none", // 블러 제거
-  boxShadow: "none", // 그림자 제거
-  border: "none", // 테두리 제거
+  backgroundColor: "transparent", // 완전 투명
+  backdropFilter: "none",
+  boxShadow: "none",
+  border: "none",
   zIndex: theme.zIndex.drawer - 1,
-  height: 64,
   transition: theme.transitions.create(["background-color", "box-shadow"], {
     easing: theme.transitions.easing.easeInOut,
     duration: theme.transitions.duration.standard,
@@ -31,7 +32,6 @@ export const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  minHeight: "64px !important",
   padding: theme.spacing(0, 3),
 
   [theme.breakpoints.down("sm")]: {
@@ -42,7 +42,7 @@ export const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 /**
  * 왼쪽 섹션 (제목, 브레드크럼)
  */
-export const LeftSection = styled(Box)(({ theme }) => ({
+export const LeftSection = styled(AppBox)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: theme.spacing(2),
@@ -52,7 +52,7 @@ export const LeftSection = styled(Box)(({ theme }) => ({
 /**
  * 제목 컨테이너
  */
-export const TitleContainer = styled(Box)(() => ({
+export const TitleContainer = styled(AppBox)(() => ({
   display: "flex",
   flexDirection: "column",
   minWidth: 0,
@@ -61,7 +61,7 @@ export const TitleContainer = styled(Box)(() => ({
 /**
  * 가운데 섹션 (검색창)
  */
-export const CenterSection = styled(Box)(({ theme }) => ({
+export const CenterSection = styled(AppBox)(({ theme }) => ({
   flex: "0 1 400px",
   margin: theme.spacing(0, 3),
 
@@ -73,7 +73,7 @@ export const CenterSection = styled(Box)(({ theme }) => ({
 /**
  * 오른쪽 섹션 (액션 버튼들)
  */
-export const RightSection = styled(Box)(({ theme }) => ({
+export const RightSection = styled(AppBox)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: theme.spacing(0.5),
@@ -82,68 +82,68 @@ export const RightSection = styled(Box)(({ theme }) => ({
 /**
  * 검색창 컨테이너
  */
-export const SearchContainer = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.spacing(1),
-  backgroundColor: "rgba(255, 255, 255, 0.1)", // 어두운 테마에 맞는 색상
-  border: "1px solid rgba(255, 255, 255, 0.1)",
-  "&:hover": {
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    borderColor: "rgba(255, 255, 255, 0.2)",
-  },
-  "&:focus-within": {
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    borderColor: "rgba(255, 255, 255, 0.3)",
-  },
-  marginLeft: 0,
-  width: "100%",
-  transition: theme.transitions.create(["background-color", "border-color"], {
-    duration: theme.transitions.duration.short,
-  }),
+// export const SearchContainer = styled("div")(({ theme }) => ({
+//   position: "relative",
+//   borderRadius: theme.spacing(1),
+//   backgroundColor: "rgba(255, 255, 255, 0.0)", // 어두운 테마에 맞는 색상
+//   border: "1px solid rgba(255, 255, 255, 0.1)",
+//   "&:hover": {
+//     backgroundColor: "rgba(255, 255, 255, 0.15)",
+//     borderColor: "rgba(255, 255, 255, 0.2)",
+//   },
+//   "&:focus-within": {
+//     backgroundColor: "rgba(255, 255, 255, 0.15)",
+//     borderColor: "rgba(255, 255, 255, 0.3)",
+//   },
+//   marginLeft: 0,
+//   width: "100%",
+//   transition: theme.transitions.create(["background-color", "border-color"], {
+//     duration: theme.transitions.duration.short,
+//   }),
 
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(1),
-    width: "auto",
-  },
-}));
+//   [theme.breakpoints.up("sm")]: {
+//     marginLeft: theme.spacing(1),
+//     width: "auto",
+//   },
+// }));
 
 /**
  * 검색 아이콘 래퍼
  */
-export const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: theme.palette.text.secondary, // 테마 보조 텍스트 색상
-}));
+// export const SearchIconWrapper = styled("div")(({ theme }) => ({
+//   padding: theme.spacing(0, 2),
+//   height: "100%",
+//   position: "absolute",
+//   pointerEvents: "none",
+//   display: "flex",
+//   alignItems: "center",
+//   justifyContent: "center",
+//   color: theme.palette.text.secondary, // 테마 보조 텍스트 색상
+// }));
 
 /**
  * 검색 입력창
  */
-export const SearchInput = styled(InputBase)(({ theme }) => ({
-  color: theme.palette.text.primary, // 테마 기본 텍스트 색상
-  width: "100%",
+// export const SearchInput = styled(InputBase)(({ theme }) => ({
+//   color: theme.palette.text.primary, // 테마 기본 텍스트 색상
+//   width: "100%",
 
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    width: "100%",
+//   "& .MuiInputBase-input": {
+//     padding: theme.spacing(1, 1, 1, 0),
+//     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+//     transition: theme.transitions.create("width"),
+//     width: "100%",
 
-    "&::placeholder": {
-      color: theme.palette.text.secondary, // 테마 보조 텍스트 색상
-      opacity: 0.7,
-    },
+//     "&::placeholder": {
+//       color: theme.palette.text.secondary, // 테마 보조 텍스트 색상
+//       opacity: 0.7,
+//     },
 
-    [theme.breakpoints.up("md")]: {
-      width: "20ch",
-    },
-  },
-}));
+//     [theme.breakpoints.up("md")]: {
+//       width: "20ch",
+//     },
+//   },
+// }));
 
 /**
  * 액션 버튼 (설정, 알림 등)

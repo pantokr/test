@@ -1,7 +1,7 @@
 // src/types/sidenav.ts
 
 import { RouteItem } from "@/routes/types";
-import { AppColorSchemes } from "@/types";
+import { AppColorSchemes } from "../../../context/types";
 
 /**
  * 사이드바 브랜드 정보
@@ -32,6 +32,12 @@ export interface SidenavRootProps {
   onClose?: () => void;
 }
 
+export interface SidenavItemProps {
+  route: RouteItem;
+  darkMode: boolean;
+  onNavigate?: () => void;
+}
+
 /**
  * 사이드바 메인 컴포넌트 Props
  */
@@ -43,17 +49,6 @@ export interface SidenavProps {
   isOpen?: boolean;
   onOpen?: () => void;
   onClose?: () => void;
-}
-
-/**
- * 사이드바 스타일 Props
- */
-export interface SidenavStyleProps {
-  theme: any;
-  ownerState: {
-    darkMode: boolean;
-    miniSidenav?: boolean;
-  };
 }
 
 /**

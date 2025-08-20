@@ -52,7 +52,6 @@ const AppRoutes: React.FC = () => {
     <ProtectedRoute>
       <Routes>
         {routeElements}
-
         {/* 404 페이지 */}
         <Route
           path="*"

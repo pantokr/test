@@ -1,7 +1,7 @@
 // AgGrid.tsx
 import { AppPaper } from "@/components/common";
-import { useUserSettings } from "@/context";
-import { UserSettings } from "@/types";
+import { useThemeSettings } from "@/context";
+import { ThemeSettings } from "@/context/types";
 import { Box } from "@mui/material";
 import {
   AllCommunityModule,
@@ -38,8 +38,8 @@ const ROW_HEIGHT_CONFIG = {
 };
 
 // AG Grid 테마 생성 함수
-const getAgGridTheme = (isDark: boolean, settings: UserSettings) => {
-  const actualFontSize = FONT_SIZE_MAP[settings.fontSize];
+const getAgGridTheme = (themeSettings: ThemeSettings) => {
+  const actualFontSize = FONT_SIZE_MAP[themeSettings.fontSize];
 
   const myTheme = themeBalham.withParams({
     borderColor: "rgba(128, 128, 128, 0.3)",
@@ -50,7 +50,7 @@ const getAgGridTheme = (isDark: boolean, settings: UserSettings) => {
     fontSize: actualFontSize,
   });
 
-  return isDark ? myTheme.withPart(colorSchemeDark) : myTheme;
+  return themeSettings.darkMode ? myTheme.withPart(colorSchemeDark) : myTheme;
 };
 
 const AgGrid: React.FC<AgGridProps> = ({
@@ -58,16 +58,15 @@ const AgGrid: React.FC<AgGridProps> = ({
   rowData,
   gridOptions = {},
 }) => {
-  const { userSettings } = useUserSettings();
-
+  const { themeSettings } = useThemeSettings();
   // userSettings.fontSize에 따라 행/헤더 높이 계산
   const heightSettings = useMemo(() => {
-    return ROW_HEIGHT_CONFIG[userSettings.fontSize];
-  }, [userSettings.fontSize]);
+    return ROW_HEIGHT_CONFIG[themeSettings.fontSize];
+  }, [themeSettings.fontSize]);
 
   const agGridTheme = useMemo(() => {
-    return getAgGridTheme(userSettings.darkMode, userSettings);
-  }, [userSettings.darkMode, userSettings]);
+    return getAgGridTheme(themeSettings);
+  }, [themeSettings]);
 
   const defaultGridOptions: GridOptions = useMemo(
     () => ({
@@ -91,10 +90,10 @@ const AgGrid: React.FC<AgGridProps> = ({
   );
 
   const gridKey = useMemo(() => {
-    return `ag-grid-${userSettings.darkMode ? "dark" : "light"}-${
-      userSettings.fontSize
+    return `ag-grid-${themeSettings.darkMode ? "dark" : "light"}-${
+      themeSettings.fontSize
     }`;
-  }, [userSettings.darkMode, userSettings.fontSize]);
+  }, [themeSettings.darkMode, themeSettings.fontSize]);
 
   return (
     <AppPaper>

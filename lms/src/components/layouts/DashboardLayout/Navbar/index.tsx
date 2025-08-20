@@ -10,7 +10,7 @@ import {
   Settings,
   ShoppingCart,
 } from "@mui/icons-material";
-import { Avatar, Menu, MenuItem, Typography } from "@mui/material";
+import { Menu, MenuItem, Typography } from "@mui/material";
 import React, { useState } from "react";
 
 import { AppIconButton } from "@/components/common/Button";
@@ -37,7 +37,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({
   title = "",
-  transparent = false,
+  transparent = true,
   onSidenavToggle,
 }) => {
   const { user } = useAuth();
@@ -93,10 +93,9 @@ const Navbar: React.FC<NavbarProps> = ({
         {/* 📍 왼쪽: 사이드네비 토글 버튼과 제목 */}
         <LeftSection>
           {/* 사이드네비 토글 버튼 */}
-          <AppIconButton
-            onClick={onSidenavToggle}
-            icon={<MenuIcon fontSize="small" />}
-          />
+          <AppIconButton onClick={onSidenavToggle}>
+            <MenuIcon fontSize="small" />
+          </AppIconButton>
 
           <TitleContainer>
             {/* 메인 제목 */}
@@ -109,45 +108,19 @@ const Navbar: React.FC<NavbarProps> = ({
         {/* ⚙️ 오른쪽: 액션 버튼들 */}
         <RightSection>
           {/* 설정 버튼 */}
-          <AppIconButton
-            onClick={handleUserMenuOpen}
-            icon={<Settings fontSize="small" />}
-          />
+          <AppIconButton onClick={handleUserMenuOpen}>
+            <Settings fontSize="small" />
+          </AppIconButton>
 
           {/* 알림 버튼 */}
-          <AppIconButton
-            onClick={handleNotificationMenuOpen}
-            icon={<Notifications fontSize="small" />}
-          />
+          <AppIconButton onClick={handleNotificationMenuOpen}>
+            <Notifications fontSize="small" />
+          </AppIconButton>
 
           {/* 👤 사용자 섹션 */}
           <UserSection>
             {/* 사용자 이름 (데스크톱에서만) */}
-            <UserName>{user?.empName || "사용자"}</UserName>
-
-            {/* 아바타 */}
-            <AppIconButton
-              size="small"
-              onClick={() => handleUserMenuOpen}
-              sx={{
-                p: 0,
-                "&:hover": {
-                  backgroundColor: "transparent",
-                },
-              }}
-              icon={
-                <Avatar
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    bgcolor: "primary.main",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  {user?.empName ? user.empName.charAt(0) : <AccountCircle />}
-                </Avatar>
-              }
-            ></AppIconButton>
+            <UserName>{user?.empName || "사용자"} 님</UserName>
           </UserSection>
 
           {/* 📢 알림 메뉴 */}

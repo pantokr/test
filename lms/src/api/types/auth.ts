@@ -15,24 +15,10 @@ export interface LoginCredentials {
 /**
  * 사용자 기본 정보
  */
-export interface UserInfo {
+export interface UserInformation {
   loginID: string;
   empName: string;
   deptName: string;
   officeTel: string;
   mobileTel: string;
-}
-
-/**
- * 사용자 등록 데이터
- */
-export interface RegisterUserData {
-  id: string;
-  passwd: string;
-  empName: string;
-  deptName: string;
-  officeTel?: string;
-  mobileTel?: string;
-  email?: string;
-  // 필요한 다른 필드들
 }

@@ -23,8 +23,10 @@ interface ColumnProps
   mainAxisAlignment?: MainAxisAlignment;
   crossAxisAlignment?: CrossAxisAlignment;
   mainAxisSize?: MainAxisSize;
-  gap?: number | string;
-  verticalPadding?: number | string;
+  /**
+   * 자식 요소들이 전체 너비를 차지하도록 설정
+   */
+  fullWidth?: boolean;
 }
 
 const mapMainAxisAlignment = (alignment: MainAxisAlignment) => {
@@ -64,23 +66,28 @@ const mapCrossAxisAlignment = (alignment: CrossAxisAlignment) => {
 export const Column: React.FC<ColumnProps> = ({
   children,
   mainAxisAlignment = "start",
-  crossAxisAlignment = "start",
+  crossAxisAlignment = "stretch",
   mainAxisSize = "max",
-  gap = 1,
-  verticalPadding = 1,
+  fullWidth = false,
   sx,
   ...props
 }) => {
   return (
     <Stack
       direction="column"
-      spacing={gap}
+      spacing={1}
       sx={{
+        backgroundColor: "background.default",
         justifyContent: mapMainAxisAlignment(mainAxisAlignment),
         alignItems: mapCrossAxisAlignment(crossAxisAlignment),
         height: mainAxisSize === "min" ? "auto" : "100%",
         width: "100%",
-        py: verticalPadding,
+        // 자식 요소들에 전체 너비 적용
+        ...(fullWidth && {
+          "& > *": {
+            width: "100% !important",
+          },
+        }),
         ...sx,
       }}
       {...props}

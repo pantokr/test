@@ -1,9 +1,9 @@
 // pages/LogManagement/LoginHistory.tsx
 
 import { loginHistoryApi } from "@/api/audit";
+import { LoginHistoryItem } from "@/api/types";
 import AgGrid from "@/components/dataGrid/AgGrid/AgGrid";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import { LoginHistoryItem } from "@/types";
 import { Box } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ColumnDefs from "./columnDefs";

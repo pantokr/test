@@ -21,13 +21,7 @@ export type TypographyVariant =
   | "overline";
 
 // 색상 타입
-export type TypographyColor =
-  | "inherit"
-  | "primary"
-  | "secondary"
-  | "textPrimary"
-  | "textSecondary"
-  | "error";
+export type TypographyColor = string;
 
 // AppTypography Props 인터페이스
 export interface AppTypographyProps

@@ -6,7 +6,6 @@ import { StyledAppButton } from "./styles";
 
 export const AppButton: React.FC<AppButtonProps> = ({
   size = "medium",
-  buttonStyle = "text",
   children,
   onClick,
   sx,
@@ -18,12 +17,12 @@ export const AppButton: React.FC<AppButtonProps> = ({
   return (
     <StyledAppButton
       size={size}
-      variant={buttonStyle}
       onClick={onClick}
       sx={{
-        backgroundColor: baseColor, // ✅ 연한 primary 색
+        boxShadow: theme.shadows[4],
+        backgroundColor: baseColor,
         "&:hover": {
-          backgroundColor: alpha(baseColor, 0.3), // ✅ hover 시 살짝 진하게
+          backgroundColor: alpha(baseColor, 0.75),
         },
         ...sx,
       }}

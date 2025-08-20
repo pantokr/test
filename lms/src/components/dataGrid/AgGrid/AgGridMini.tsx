@@ -1,7 +1,7 @@
 // AgGridMini.tsx
 import { AppPaper } from "@/components/common";
-import { useUserSettings } from "@/context";
-import { UserSettings } from "@/types";
+import { useThemeSettings } from "@/context";
+import { ThemeSettings } from "@/context/types";
 import { Box } from "@mui/material";
 import {
   AllCommunityModule,
@@ -39,8 +39,8 @@ const MINI_ROW_HEIGHT_CONFIG = {
 };
 
 // AG Grid 테마 생성 함수 (미니 버전)
-const getMiniAgGridTheme = (isDark: boolean, settings: UserSettings) => {
-  const actualFontSize = MINI_FONT_SIZE_MAP[settings.fontSize];
+const getMiniAgGridTheme = (themeSettings: ThemeSettings) => {
+  const actualFontSize = MINI_FONT_SIZE_MAP[themeSettings.fontSize];
 
   const myTheme = themeBalham.withParams({
     borderColor: "rgba(128, 128, 128, 0.2)",
@@ -52,7 +52,7 @@ const getMiniAgGridTheme = (isDark: boolean, settings: UserSettings) => {
     spacing: 4, // 간격 줄임
   });
 
-  return isDark ? myTheme.withPart(colorSchemeDark) : myTheme;
+  return themeSettings.darkMode ? myTheme.withPart(colorSchemeDark) : myTheme;
 };
 
 const AgGridMini: React.FC<AgGridMiniProps> = ({
@@ -63,7 +63,7 @@ const AgGridMini: React.FC<AgGridMiniProps> = ({
   elevation = 0,
   sx,
 }) => {
-  const { userSettings } = useUserSettings();
+  const { themeSettings } = useThemeSettings();
 
   // 최대 행수에 따라 표시할 데이터 제한
   const limitedRowData = useMemo(() => {
@@ -72,12 +72,12 @@ const AgGridMini: React.FC<AgGridMiniProps> = ({
 
   // userSettings.fontSize에 따라 행/헤더 높이 계산
   const heightSettings = useMemo(() => {
-    return MINI_ROW_HEIGHT_CONFIG[userSettings.fontSize];
-  }, [userSettings.fontSize]);
+    return MINI_ROW_HEIGHT_CONFIG[themeSettings.fontSize];
+  }, [themeSettings.fontSize]);
 
   const agGridTheme = useMemo(() => {
-    return getMiniAgGridTheme(userSettings.darkMode, userSettings);
-  }, [userSettings.darkMode, userSettings]);
+    return getMiniAgGridTheme(themeSettings);
+  }, [themeSettings]);
 
   // 그리드 높이 계산 (헤더 + 행들)
   const gridHeight = useMemo(() => {
@@ -98,7 +98,7 @@ const AgGridMini: React.FC<AgGridMiniProps> = ({
         flex: 1,
         cellStyle: {
           padding: "2px 8px",
-          fontSize: MINI_FONT_SIZE_MAP[userSettings.fontSize],
+          fontSize: MINI_FONT_SIZE_MAP[themeSettings.fontSize],
         },
       },
       // 미니 그리드 전용 설정
@@ -118,14 +118,14 @@ const AgGridMini: React.FC<AgGridMiniProps> = ({
       // 헤더 표시 여부
       suppressColumnMoveAnimation: true,
     }),
-    [agGridTheme, heightSettings, showHeader, userSettings.fontSize]
+    [agGridTheme, heightSettings, showHeader, themeSettings.fontSize]
   );
 
   const gridKey = useMemo(() => {
-    return `ag-grid-mini-${userSettings.darkMode ? "dark" : "light"}-${
-      userSettings.fontSize
+    return `ag-grid-mini-${themeSettings.darkMode ? "dark" : "light"}-${
+      themeSettings.fontSize
     }-${maxRows}`;
-  }, [userSettings.darkMode, userSettings.fontSize, maxRows]);
+  }, [themeSettings.darkMode, themeSettings.fontSize, maxRows]);
 
   return (
     <AppPaper elevation={elevation} sx={{ overflow: "hidden", ...sx }}>

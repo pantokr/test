@@ -1,7 +1,7 @@
+import { useThemeSettings } from "@/context";
 import React from "react";
-import { StyledAppIconButton } from "./styles";
 import { AppIconButtonProps } from "../types";
-import { useUserSettings } from "@/context";
+import { StyledAppIconButton } from "./styles";
 
 /**
  * AppIconButton 컴포넌트 (아이콘만)
@@ -12,22 +12,27 @@ import { useUserSettings } from "@/context";
  * @param sx - MUI sx prop
  */
 export const AppIconButton: React.FC<AppIconButtonProps> = ({
-  size,
-  icon,
   onClick,
+  icon,
+  iconColor,
+  size,
+  children,
   sx,
   ...props
 }) => {
-  const { userSettings } = useUserSettings();
+  const { themeSettings } = useThemeSettings();
   return (
     <StyledAppIconButton
-      icon={undefined}
-      size={size || userSettings.fontSize}
+      // icon={undefined}
+      size={size || themeSettings.fontSize}
       onClick={onClick}
-      sx={sx}
+      sx={{
+        color: iconColor,
+        ...sx,
+      }}
       {...props}
     >
-      {icon}
+      {children || icon}
     </StyledAppIconButton>
   );
 };

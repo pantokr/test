@@ -1,16 +1,16 @@
-// pages/LogManagement/LoginHistory.tsx
+// pages/LogManagement/LoginFailureHistory.tsx
 
 import { loginFailureHistoryApi } from "@/api/audit";
+import { LoginFailureHistoryItem } from "@/api/types";
 import AgGrid from "@/components/dataGrid/AgGrid/AgGrid";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import { LoginHistoryItem } from "@/types";
 import { Box } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ColumnDefs from "./columnDefs";
 
 const LoginFailureHistoryPage: React.FC = () => {
   const [loginFailureHistory, setLoginFailureHistory] = useState<
-    LoginHistoryItem[]
+    LoginFailureHistoryItem[]
   >([]);
 
   const [, setLoading] = useState(true);

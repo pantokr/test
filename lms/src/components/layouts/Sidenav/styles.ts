@@ -13,47 +13,45 @@ import { styled } from "@mui/material/styles";
 import { AppBox } from "@/components/common/Box";
 import AppTypography from "@/components/common/Typography";
 import { SIDENAV_WIDTH } from "@/constants";
-import { AppColorSchemes } from "@/types";
 import { SidenavItemStyleProps } from "./types";
 
 export const SidenavRoot = styled(Drawer, {
   shouldForwardProp: (prop) => prop !== "ownerState",
-})<{ ownerState: { darkMode: boolean; sidenavColor: AppColorSchemes } }>(
-  ({ theme }) => {
-    // sidenavColor에 따른 색상 결정
+})<{ ownerState: { darkMode: boolean } }>(({ theme }) => {
+  return {
+    "& .MuiDrawer-paper": {
+      width: SIDENAV_WIDTH,
+      boxSizing: "border-box",
+      border: "none",
+      backgroundColor: "transparent",
+      boxShadow: "none",
 
-    return {
-      "& .MuiDrawer-paper": {
-        width: SIDENAV_WIDTH,
-        boxSizing: "border-box",
-        border: "none",
-        backgroundColor: "transparent",
-        boxShadow: "none",
-        padding: theme.spacing(2),
-
-        "& > *": {
-          background: "#1c1c1c",
-          borderRadius: theme.spacing(2),
-          boxShadow: "none",
-          overflow: "hidden",
-          backdropFilter: "blur(10px)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-        },
-
-        overflowX: "visible",
-        transition: theme.transitions.create(["width"], {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.shortest,
-        }),
+      "& > *": {
+        background: "#1c1c1caa",
+        overflow: "hidden",
+        backdropFilter: "blur(10px)",
+        height: "100%", // 전체 높이 사용
       },
-    };
-  }
-);
+
+      overflowX: "visible",
+      transition: theme.transitions.create(["width"], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.shortest,
+      }),
+    },
+
+    // Drawer root 자체의 borderRadius도 제거
+    "& .MuiPaper-root": {
+      borderRadius: "0 !important",
+    },
+  };
+});
 
 export const SidenavContent = styled(AppBox)(() => ({
   display: "flex",
   flexDirection: "column",
   height: "100%",
+  padding: 0, // padding 값 설정
 }));
 
 export const SidenavBrand = styled(AppBox)(({ theme }) => ({
@@ -74,11 +72,11 @@ export const SidenavBrandText = styled(AppTypography)(({ theme }) => ({
 }));
 
 export const SidenavList = styled(List)(({ theme }) => ({
-  padding: theme.spacing(0.5, 1.5),
+  padding: theme.spacing(1, 2),
   flex: 1,
 
   "& .MuiListItem-root": {
-    padding: theme.spacing(0.125, 0), // 기존 0.25에서 0.125로 줄임
+    padding: theme.spacing(0.125, 0),
   },
 }));
 
@@ -86,7 +84,7 @@ export const SidenavItemRoot = styled(ListItem, {
   shouldForwardProp: (prop) => prop !== "ownerState",
 })<{ ownerState: SidenavItemStyleProps["ownerState"] }>(
   ({ theme, ownerState }) => ({
-    margin: theme.spacing(0.25, 0), // 기존 0.25에서 0.125로 줄임
+    margin: theme.spacing(0.25, 0),
     borderRadius: theme.spacing(1),
     backgroundColor: ownerState.active
       ? `${theme.palette.primary.main}75`
@@ -118,7 +116,7 @@ export const SidenavItemButton = styled(ListItemButton, {
       minWidth: 32,
       color: "inherit",
       "& .MuiSvgIcon-root": {
-        fontSize: theme.typography.body2.fontSize, // body1에서 body2로 아이콘 크기 줄임
+        fontSize: theme.typography.body2.fontSize,
       },
     },
     "& .MuiListItemText-root": {
@@ -138,8 +136,8 @@ export const SidenavItemButton = styled(ListItemButton, {
 export const SidenavSubItem = styled(Collapse)(({ theme }) => ({
   "& .MuiList-root": {
     paddingLeft: theme.spacing(2.5),
-    paddingTop: theme.spacing(0.125), // 기존 0.25에서 0.125로 줄임
-    paddingBottom: theme.spacing(0.125), // 기존 0.25에서 0.125로 줄임
+    paddingTop: theme.spacing(0.125),
+    paddingBottom: theme.spacing(0.125),
   },
 }));
 
@@ -155,7 +153,6 @@ export const SidenavDivider = styled(Divider)(({ theme }) => ({
 export const SidenavTitle = styled(AppTypography, {
   shouldForwardProp: (prop) => prop !== "darkMode",
 })<{ darkMode?: boolean }>(({ theme }) => ({
-  padding: theme.spacing(1.5, 2, 0.5, 2),
   fontSize: theme.typography.caption.fontSize,
   fontWeight: theme.typography.fontWeightBold,
   fontFamily: theme.typography.fontFamily,

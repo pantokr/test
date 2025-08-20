@@ -7,13 +7,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { RouteItem } from "@/routes/types";
 import { SidenavItemButton, SidenavItemRoot, SidenavSubItem } from "./styles";
+import { SidenavItemProps } from "./types";
 
-interface SidenavItemProps {
-  route: RouteItem;
-  darkMode: boolean;
-}
-
-const SidenavItem: React.FC<SidenavItemProps> = ({ route, darkMode }) => {
+const SidenavItem: React.FC<SidenavItemProps> = ({
+  route,
+  darkMode,
+  onNavigate,
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState<boolean>(false);
@@ -37,16 +37,19 @@ const SidenavItem: React.FC<SidenavItemProps> = ({ route, darkMode }) => {
 
   const isParentActive = collapse ? checkActiveInCollapse(collapse) : false;
 
-  // 초기 로드 및 경로 변경 시 자동 expand 처리
   useEffect(() => {
     if (collapse && isParentActive) {
       setOpen(true);
     }
-  }, [location.pathname, collapse, isParentActive]);
+  }, [collapse, isParentActive]);
 
   const handleClick = (): void => {
     if (routePath) {
+      if (onNavigate) {
+        onNavigate();
+      }
       navigate(routePath);
+
       return;
     }
 
@@ -79,6 +82,7 @@ const SidenavItem: React.FC<SidenavItemProps> = ({ route, darkMode }) => {
               key={subRoute.key}
               route={subRoute}
               darkMode={darkMode}
+              onNavigate={onNavigate}
             />
           ))}
         </List>

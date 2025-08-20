@@ -8,7 +8,7 @@ export interface AppPaperProps extends PaperProps {
 }
 
 export const AppPaper: React.FC<AppPaperProps> = ({
-  elevation = 1,
+  elevation = 4,
   padding = 1,
   children,
   ...props

@@ -23,8 +23,10 @@ interface RowProps
   mainAxisAlignment?: MainAxisAlignment;
   crossAxisAlignment?: CrossAxisAlignment;
   mainAxisSize?: MainAxisSize;
-  gap?: number | string;
-  horizontalPadding?: number | string;
+  /**
+   * 자식 요소들이 전체 높이를 차지하도록 설정
+   */
+  fullHeight?: boolean;
 }
 
 const mapMainAxisAlignment = (alignment: MainAxisAlignment) => {
@@ -64,23 +66,29 @@ const mapCrossAxisAlignment = (alignment: CrossAxisAlignment) => {
 export const Row: React.FC<RowProps> = ({
   children,
   mainAxisAlignment = "start",
-  crossAxisAlignment = "start",
+  crossAxisAlignment = "center", // Row는 center가 더 자연스러움
   mainAxisSize = "max",
-  gap = 1,
-  horizontalPadding = 1,
+  fullHeight = false,
   sx,
   ...props
 }) => {
   return (
     <Stack
       direction="row"
-      spacing={gap}
+      spacing={2}
       sx={{
+        backgroundColor: "background.default",
         justifyContent: mapMainAxisAlignment(mainAxisAlignment),
         alignItems: mapCrossAxisAlignment(crossAxisAlignment),
         width: mainAxisSize === "min" ? "auto" : "100%",
         height: "auto",
-        px: horizontalPadding,
+        py: 1,
+        // 자식 요소들에 전체 높이 적용
+        ...(fullHeight && {
+          "& > *": {
+            height: "100% !important",
+          },
+        }),
         ...sx,
       }}
       {...props}

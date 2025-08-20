@@ -1,9 +1,9 @@
 // pages/LogManagement/LoginHistory.tsx
 
 import { loginHistoryApi } from "@/api/audit";
+import { LoginHistoryItem } from "@/api/types";
 import AgGrid from "@/components/dataGrid/AgGrid/AgGrid";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import { LoginHistoryItem } from "@/types";
 import { Box } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ColumnDefs from "./columnDefs";
@@ -34,7 +34,7 @@ const UserListPage: React.FC = () => {
   }, []);
 
   return (
-    <DashboardLayout title="사용자 관리">
+    <DashboardLayout title="로그인 기록">
       <Box sx={{ mb: 2, flexShrink: 0 }}></Box>
       <Box sx={{ flex: 1, minHeight: 0 }}>
         <AgGrid columnDefs={ColumnDefs} rowData={loginHistory} />

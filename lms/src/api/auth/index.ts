@@ -1,16 +1,16 @@
 // src/api/auth.ts
 
 // Types import
-import type { ApiResponse, LoginCredentials, UserInfo } from "@/types";
 
 // Error import
-import { AuthApiError } from "../AuthApiError";
+import { AUTH_ROUTE } from "@/constants";
 import {
   createApiUrl,
   createRequestOptions,
   handleResponse,
 } from "@/utils/api";
-import { AUTH_ROUTE } from "@/constants";
+import { AuthApiError } from "../AuthApiError";
+import { ApiResponse, LoginCredentials, UserInformation } from "../types";
 
 // API Functions
 /**
@@ -19,7 +19,7 @@ import { AUTH_ROUTE } from "@/constants";
 
 export const loginApi = async (
   credentials: LoginCredentials
-): Promise<ApiResponse<UserInfo>> => {
+): Promise<ApiResponse<UserInformation>> => {
   try {
     const response = await fetch(
       createApiUrl(AUTH_ROUTE, "/login"),
@@ -30,7 +30,7 @@ export const loginApi = async (
     if (!response.ok) {
       throw new AuthApiError(errorMsg, response.status, response);
     }
-    return handleResponse<ApiResponse<UserInfo>>(response);
+    return handleResponse<ApiResponse<UserInformation>>(response);
   } catch (error) {
     if (error instanceof AuthApiError) {
       throw error;

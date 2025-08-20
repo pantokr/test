@@ -1,18 +1,17 @@
 // src/components/Sidenav/index.tsx (brand 로고 제거 버전)
 
-import { Close } from "@mui/icons-material";
-import { IconButton, useMediaQuery, useTheme } from "@mui/material";
 import type { ReactNode } from "react";
 import React, { useCallback } from "react";
 
-import { useSidenav, useUserSettings } from "@/context/theme";
+import { AppIconButton, Row } from "@/components/common";
+import AppTypography from "@/components/common/Typography";
+import { useDevice, useSidenav, useThemeSettings } from "@/context";
 import { RouteItem } from "@/routes/types";
 import { isPublicRoute } from "@/utils/route";
+import { Close } from "@mui/icons-material";
 import LogoutSection from "./LogoutSection";
 import SidenavItem from "./SidenavItem";
 import {
-  SidenavBrand,
-  SidenavBrandText,
   SidenavContent,
   SidenavDivider,
   SidenavList,
@@ -24,38 +23,33 @@ import { SidenavProps } from "./types";
 const Sidenav: React.FC<Omit<SidenavProps, "color">> = ({
   routes,
   brandName = "LMS",
-  isOpen = true,
+  isOpen = false,
   onClose,
 }) => {
-  // useUserSettings에서 sidenavColor와 isDark 가져오기
-  const { isDark } = useUserSettings();
-  const { sidenavColor, closeSidenav } = useSidenav();
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+  const { themeSettings } = useThemeSettings();
+  const { isSidenavPinned } = useSidenav();
+  const { isMobile } = useDevice();
 
   // onClose를 useCallback으로 메모이제이션하여 무한 루프 방지
   const handleClose = useCallback(() => {
     if (onClose) {
       onClose();
-    } else {
-      closeSidenav(); // fallback으로 context의 closeSidenav 사용
     }
-  }, [onClose, closeSidenav]);
+  }, [onClose]);
 
   const renderBrand = (): ReactNode => (
-    <SidenavBrand>
-      <SidenavBrandText>{brandName}</SidenavBrandText>
-      {isMobile && (
-        <IconButton
-          onClick={handleClose}
-          sx={{ marginLeft: "auto", color: "inherit" }}
-          aria-label="Close sidebar"
-        >
-          <Close />
-        </IconButton>
-      )}
-    </SidenavBrand>
+    <Row
+      mainAxisAlignment="spaceBetween"
+      crossAxisAlignment="center"
+      sx={{ backgroundColor: "transparent" }}
+    >
+      <AppTypography fontSize="large" variant="h1" color="white">
+        {brandName}
+      </AppTypography>
+      <AppIconButton onClick={handleClose} size="large" iconColor="white">
+        <Close />
+      </AppIconButton>
+    </Row>
   );
 
   const renderRoutes = (routes: RouteItem[]): ReactNode =>
@@ -65,6 +59,7 @@ const Sidenav: React.FC<Omit<SidenavProps, "color">> = ({
         return null;
       }
 
+      // 작은 아이템의 묶음
       // collapse가 있는 경우 하위 라우트들도 체크
       if (route.collapse) {
         const filteredCollapse = route.collapse.filter((subRoute) => {
@@ -87,32 +82,46 @@ const Sidenav: React.FC<Omit<SidenavProps, "color">> = ({
           <SidenavItem
             key={`${route.key}-${location.pathname}`} // 경로 변경시 강제 리마운팅
             route={filteredRoute}
-            darkMode={isDark}
+            darkMode={themeSettings.darkMode}
+            onNavigate={handleClose}
           />
         );
       }
 
+      // 구분선
       if (route.divider) return <SidenavDivider key={`divider-${route.key}`} />;
+
+      // 제목
       if (route.title)
         return (
-          <SidenavTitle key={`title-${route.key}`} darkMode={isDark}>
+          <SidenavTitle
+            key={`title-${route.key}`}
+            darkMode={themeSettings.darkMode}
+          >
             {route.title}
           </SidenavTitle>
         );
+
+      // 큰 ITEM
       if (route.name)
-        return <SidenavItem key={route.key} route={route} darkMode={isDark} />;
+        return (
+          <SidenavItem
+            key={route.key}
+            route={route}
+            darkMode={themeSettings.darkMode}
+            onNavigate={handleClose}
+          />
+        );
       return null;
     });
   return (
     <SidenavRoot
-      variant={isMobile ? "temporary" : "permanent"}
+      variant={!isSidenavPinned ? "temporary" : "persistent"}
       open={isOpen}
       onClose={handleClose}
       ownerState={{
-        darkMode: isDark,
-        sidenavColor, // sidenavColor 전달
+        darkMode: themeSettings.darkMode,
       }}
-      ModalProps={{ keepMounted: true }}
     >
       <SidenavContent
         sx={{
@@ -126,7 +135,7 @@ const Sidenav: React.FC<Omit<SidenavProps, "color">> = ({
           {renderRoutes(routes)}
         </SidenavList>
         <LogoutSection
-          darkMode={isDark}
+          darkMode={themeSettings.darkMode}
           isMobile={isMobile}
           onClose={handleClose}
         />

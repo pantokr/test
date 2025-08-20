@@ -1,16 +1,16 @@
-// pages/LogManagement/LoginHistory.tsx
+// pages/LogManagement/LoginResetHistory.tsx
 
 import { loginResetHistoryApi } from "@/api/audit";
+import { LoginResetHistoryItem } from "@/api/types";
 import AgGrid from "@/components/dataGrid/AgGrid/AgGrid";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import { LoginHistoryItem } from "@/types";
 import { Box } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ColumnDefs from "./columnDefs";
 
 const LoginResetHistoryPage: React.FC = () => {
   const [loginResetHistory, setLoginResetHistory] = useState<
-    LoginHistoryItem[]
+    LoginResetHistoryItem[]
   >([]);
   const [, setLoading] = useState(true);
 

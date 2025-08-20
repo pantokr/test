@@ -18,8 +18,8 @@ import {
 import type { RouteItem } from "./types";
 
 // 실제 로그인 페이지 import
-import SignIn from "@/pages/auth/SignIn";
 import DashboardPage from "@/pages/Dashboard";
+import SignIn from "@/pages/SignIn";
 import UserRegistrationPage from "@/pages/UserManagement/UserRegistration";
 import LoginFailureHistoryPage from "../pages/LogManagement/LoginFailureHistory";
 import LoginResetHistoryPage from "../pages/LogManagement/LoginResetHistory";

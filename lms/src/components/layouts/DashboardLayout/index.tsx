@@ -1,33 +1,31 @@
 // src/layouts/DashboardLayout.tsx
 
-import { useMediaQuery, useTheme } from "@mui/material";
 import React from "react";
 
 import sidenavRoute from "@/routes";
 
 import Sidenav from "@/components/layouts/Sidenav";
-import { useSidenav } from "@/context";
-import Footer from "./Footer";
+import { SIDENAV_WIDTH } from "@/constants";
+import { useDevice } from "@/context";
+import { useSidenav } from "@/context/sidenav";
 import MainContent from "./MainContent";
 import Navbar from "./Navbar";
-import PreferenceToggle from "./PreferenceToggle";
+import PreferenceToggle from "./PreferenceToggle/PreferenceToggle";
 import { LayoutContainer, MainArea, SidenavArea } from "./styles";
 import { DashboardLayoutProps } from "./types";
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   title = "",
-  showSidenav = true,
   showPreferenceToggle = true, // 테마 토글 버튼 표시 옵션
   children,
 }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
-  const { isSidenavOpen, closeSidenav, toggleSidenav } = useSidenav();
+  const { isMobile } = useDevice();
+  const { isSidenavOpen, isSidenavPinned, closeSidenav, toggleSidenav } =
+    useSidenav();
 
   return (
     <LayoutContainer>
-      <SidenavArea show={showSidenav && !isMobile}>
-        {}
+      <SidenavArea width={!isMobile && isSidenavPinned ? SIDENAV_WIDTH : 0}>
         <Sidenav
           brandName="LMS"
           routes={sidenavRoute}
@@ -35,21 +33,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           onClose={closeSidenav}
         />
       </SidenavArea>
-
       <MainArea>
         <Navbar
           title={title}
           onSidenavToggle={() => {
-            // if (isMobile) {
-            //   toggleSidenav();
-            // }
             toggleSidenav();
           }}
         />
         <MainContent>{children}</MainContent>
-        <Footer />
+        {/* <Footer /> */}
       </MainArea>
-
       {/* 테마 토글 플로팅 버튼 */}
       {showPreferenceToggle && <PreferenceToggle />}
     </LayoutContainer>
