@@ -41,7 +41,7 @@ const Sidenav: React.FC<Omit<SidenavProps, "color">> = ({
     <Row
       mainAxisAlignment="spaceBetween"
       crossAxisAlignment="center"
-      sx={{ backgroundColor: "transparent" }}
+      sx={{ backgroundColor: "transparent", px: 2 }}
     >
       <AppTypography fontSize="large" variant="h1" color="white">
         {brandName}

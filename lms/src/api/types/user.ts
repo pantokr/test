@@ -5,8 +5,9 @@ export interface UserRegistration {
   loginID: string;
   passwd: string;
   empName: string;
-  deptName: string;
-  officeTel?: string;
-  mobileTel?: string;
-  email?: string;
+  dptName: string;
+  officeTel: string;
+  mobileTel: string;
+  email: string;
+  regEmpID: string;
 }

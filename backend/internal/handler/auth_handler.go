@@ -166,47 +166,6 @@ func (h *AuthHandler) SessionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 응답 생성
-	// resp := response.UserSessionResponse{
-	// 	LastLoginDate: userAccount.RecentConnDate.String(),
-	// 	// Permissions:   []string{"user"}, // 예시로 "user" 권한만 설정
-	// }
-
 	resp := response.NewResponse[any](true, "", nil)
 	util.RespondWithJSON(w, http.StatusOK, resp)
-}
-
-func (h *AuthHandler) IdExistsHandler(w http.ResponseWriter, r *http.Request) {
-	var req request.IdExistsRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "잘못된 요청입니다.", http.StatusBadRequest)
-		return
-	}
-
-	exists, err := h.authService.IsIdExists(req.ID)
-	if err != nil {
-		log.Printf("ID 존재 여부 조회 실패: %v", err)
-		http.Error(w, "서버 오류", http.StatusInternalServerError)
-		return
-	}
-
-	util.RespondWithJSON(w, http.StatusOK, response.IdExistsResponse{Exists: exists})
-}
-
-// 사용자관리 핸들러
-func (h *AuthHandler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
-	var userReq *request.UserRegisterRequest
-	if err := json.NewDecoder(r.Body).Decode(userReq); err != nil {
-		http.Error(w, "잘못된 요청입니다.", http.StatusBadRequest)
-		return
-	}
-
-	err := h.authService.RegisterUser(userReq)
-	if err != nil {
-		log.Printf("사용자 등록 실패: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	util.RespondWithJSON(w, http.StatusOK, struct{}{})
 }

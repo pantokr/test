@@ -10,11 +10,9 @@ import ColumnDefs from "./columnDefs";
 
 const LoginHistoryPage: React.FC = () => {
   const [loginHistory, setLoginHistory] = useState<LoginHistoryItem[]>([]);
-  const [, setLoading] = useState(true);
 
   const fetchLoginHistory = async () => {
     try {
-      setLoading(true);
       const response = await loginHistoryApi();
 
       if (response && response.data) {
@@ -25,7 +23,6 @@ const LoginHistoryPage: React.FC = () => {
     } catch (err) {
       console.error("로그인 기록 조회 오류:", err);
     } finally {
-      setLoading(false);
     }
   };
 

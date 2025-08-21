@@ -1,3 +1,2 @@
-export * from "./AppIconButton";
 export * from "./AppButton";
-export * from "./types";
+export * from "./AppIconButton";

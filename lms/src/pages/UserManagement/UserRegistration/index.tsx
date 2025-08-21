@@ -1,6 +1,10 @@
 // pages/UserManagement/UserRegistration/index.tsx
+import { AuthApiError } from "@/api";
+import { ApiResponse } from "@/api/types";
 import { UserRegistration } from "@/api/types/user";
+import { UserRegistrationApi } from "@/api/user";
 import {
+  AppAutocomplete,
   AppButton,
   AppPaper,
   AppTextField,
@@ -9,65 +13,81 @@ import {
 } from "@/components/common";
 import { AppBox } from "@/components/common/Box";
 import { AppPasswordField } from "@/components/common/TextField";
+import AppTypography from "@/components/common/Typography";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import {
-  validateConfirmPassword,
-  validateLoginID,
-  validatePassword,
-} from "@/utils/validator";
+import { useAuth } from "@/context";
+import { AutocompleteRenderInputParams } from "@mui/material";
 import React, { useState } from "react";
+import { validateRegistrationForm } from "./utils";
 
 const UserRegistrationPage: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<UserRegistration>({
     loginID: "",
     passwd: "",
     empName: "",
-    deptName: "",
+    dptName: "",
     officeTel: "",
     mobileTel: "",
     email: "",
+    regEmpID: "",
   });
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [error, setError] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
+  const { user } = useAuth();
   const handleChange =
     (field: keyof UserRegistration) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
+      let value = event.target.value;
+      if (field === "officeTel" || field === "mobileTel") {
+        value = value.replace(/\D/g, ""); // 숫자가 아닌 문자 제거
+      }
+
       setFormData((prev) => ({
         ...prev,
         [field]: value,
       }));
       // 에러 메시지 초기화
-      if (error) setError(null);
+      if (errorMsg) setErrorMsg(null);
     };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    // ID 검증
-    const loginIDError = validateLoginID(formData.loginID);
-    if (loginIDError) {
-      setError(loginIDError);
-      return;
-    }
-
-    // 비밀번호 검증
-    const passwordError = validatePassword(formData.passwd);
-    if (passwordError) {
-      setError(passwordError);
-      return;
-    }
-
-    // 비밀번호 확인 검증
-    const confirmPasswordError = validateConfirmPassword(
-      formData.passwd,
+    // 전체 폼 검증
+    const { valid, error } = validateRegistrationForm(
+      formData,
       confirmPassword
     );
-    if (confirmPasswordError) {
-      setError(confirmPasswordError);
+    if (!valid && error !== undefined) {
+      setErrorMsg(error);
       return;
+    }
+
+    // 모든 검증이 통과하면 폼 제출
+    try {
+      if (!user) {
+        setErrorMsg("등록자 정보가 없습니다. 재로그인 후 다시 시도해주세요.");
+        return;
+      }
+      formData.regEmpID = user.loginID;
+      const response: ApiResponse = await UserRegistrationApi(formData);
+
+      // 성공 처리
+      setSuccessMsg(response.message || "사용자 등록 성공");
+      // 필요하면 폼 초기화 등 추가 처리
+    } catch (error) {
+      if (error instanceof AuthApiError) {
+        // API 에러 메시지 표시
+        setErrorMsg(error.message);
+      } else {
+        setErrorMsg("알 수 없는 오류가 발생했습니다");
+      }
+    } finally {
+      setLoading;
     }
   };
 
@@ -116,7 +136,71 @@ const UserRegistrationPage: React.FC = () => {
                   sx={{ flex: 1 }}
                 />
               </Row>
-              <Row>{error && <p style={{ color: "red" }}>{error}</p>}</Row>
+              <Row>
+                <AppTextField
+                  label="전화번호"
+                  name="officeTel"
+                  id="officeTel"
+                  autoComplete="tel"
+                  type="tel"
+                  value={formData.officeTel}
+                  sx={{ flex: 1 }}
+                  onChange={handleChange("officeTel")}
+                />
+                <AppTextField
+                  label="휴대전화"
+                  name="mobileTel"
+                  id="mobileTel"
+                  autoComplete="tel"
+                  type="tel"
+                  value={formData.mobileTel}
+                  sx={{ flex: 1 }}
+                  onChange={handleChange("mobileTel")}
+                />
+              </Row>
+              <Row>
+                <AppTextField
+                  label="이메일"
+                  name="email"
+                  value={formData.email}
+                  sx={{ flex: 1 }}
+                  onChange={handleChange("email")}
+                />
+              </Row>
+              <Row mainAxisAlignment="end">
+                <AppAutocomplete
+                  label="부서"
+                  options={["재무", "인사", "총무", "기타"]}
+                  value={formData.dptName}
+                  onChange={(event, newValue) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      dptName: newValue || "",
+                    }))
+                  }
+                  renderInput={function (
+                    params: AutocompleteRenderInputParams
+                  ): React.ReactNode {
+                    return <AppTextField {...params} label="부서" />;
+                  }}
+                  sx={{ flex: 1, maxWidth: "25%", minWidth: "160px" }}
+                />
+              </Row>
+
+              <Row>
+                {errorMsg && (
+                  <AppTypography style={{ color: "red" }}>
+                    {errorMsg}
+                  </AppTypography>
+                )}
+              </Row>
+              <Row>
+                {successMsg && (
+                  <AppTypography style={{ color: "green" }}>
+                    {successMsg}
+                  </AppTypography>
+                )}
+              </Row>
               <Row mainAxisAlignment="end">
                 <AppButton type="submit">등록</AppButton>
               </Row>

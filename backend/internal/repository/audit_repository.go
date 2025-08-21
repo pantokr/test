@@ -16,20 +16,14 @@ func InitAuditRepository(db *database.DB) interfaces.AuditRepositoryInterface {
 }
 
 // InsertLoginHistory - 로그인 기록 삽입
-func (r *AuditRepository) InsertLoginHistory(loginID, clientIP, serverIP string) (int64, error) {
-	const empQuery = `SELECT emp_name FROM user_account WHERE login_id = ?`
-	var empName string
-	err := r.db.QueryRow(empQuery, loginID).Scan(&empName)
-	if err != nil {
-		return 0, fmt.Errorf("emp_name 조회 실패: %w", err)
-	}
+func (r *AuditRepository) InsertLoginHistory(history *model.LoginHistory) (int64, error) {
 
 	const query = `
 		INSERT INTO login_history 
 		(login_id, emp_name, login_time, is_external, client_ip, server_ip)
 		VALUES (?, ?, NOW(), ?, ?, ?)
 	`
-	result, err := r.db.Exec(query, loginID, empName, "N", clientIP, serverIP)
+	result, err := r.db.Exec(query, history.LoginID, history.EmpName, "N", history.ClientIP, history.ServerIP)
 	if err != nil {
 		return 0, fmt.Errorf("로그인 기록 삽입 실패: %w", err)
 	}
@@ -100,13 +94,13 @@ func (r *AuditRepository) UpdateLoginHistoryLogoutTime(sessionID int64) error {
 	return nil
 }
 
-func (r *AuditRepository) InsertLoginFailureHistory(failCode, loginID, clientIP, serverIP string) error {
+func (r *AuditRepository) InsertLoginFailureHistory(failure *model.LoginFailureHistory) error {
 	const query = `
 		INSERT INTO login_failure_history 
 		(login_time, fail_code, login_id, client_ip, server_ip)
 		VALUES (NOW(), ?, ?, ?, ?)
 	`
-	_, err := r.db.Exec(query, failCode, loginID, clientIP, serverIP)
+	_, err := r.db.Exec(query, failure.FailCode, failure.LoginID, failure.ClientIP, failure.ServerIP)
 	if err != nil {
 		return fmt.Errorf("로그인 실패 기록 삽입 실패: %w", err)
 	}
@@ -148,13 +142,13 @@ func (r *AuditRepository) SelectLoginFailureHistoryAll() ([]model.LoginFailureHi
 	return loginFailures, nil
 }
 
-func (r *AuditRepository) InsertLoginResetHistory(resetCode, loginID, resetID, resetReason, prevLoginIP string) error {
+func (r *AuditRepository) InsertLoginResetHistory(reset *model.LoginResetHistory) error {
 	const query = `
 		INSERT INTO login_reset_history 
 		(reset_time, reset_code, login_id, reset_id, reset_reason, prev_login_ip)
-		VALUES (NOW(), ?, ?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?, ?)
 	`
-	_, err := r.db.Exec(query, resetCode, loginID, resetID, resetReason, prevLoginIP)
+	_, err := r.db.Exec(query, reset.ResetTime, reset.ResetCode, reset.LoginID, reset.ResetID, reset.ResetReason, reset.PrevLoginIP)
 	if err != nil {
 		return fmt.Errorf("로그인 리셋 기록 삽입 실패: %w", err)
 	}

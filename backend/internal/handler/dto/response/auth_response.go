@@ -7,7 +7,7 @@ import (
 type LoginResponse struct {
 	LoginID   string `json:"loginID"`
 	EmpName   string `json:"empName"`
-	DeptName  string `json:"deptName"`
+	DptName   string `json:"dptName"`
 	OfficeTel string `json:"officeTel"`
 	MobileTel string `json:"mobileTel"`
 }
@@ -15,7 +15,7 @@ type LoginResponse struct {
 func (r *LoginResponse) LoginResponseFromModel(userAccount model.UserAccount) {
 	r.LoginID = userAccount.LoginID
 	r.EmpName = userAccount.EmpName
-	r.DeptName = userAccount.DeptName
+	r.DptName = userAccount.DptName
 	r.OfficeTel = userAccount.OfficeTel
 	r.MobileTel = userAccount.MobileTel
 }
@@ -25,7 +25,3 @@ func (r *LoginResponse) LoginResponseFromModel(userAccount model.UserAccount) {
 // 	LastLoginDate string `json:"lastLoginDate"`
 // 	// Permissions   []string `json:"permissions"`
 // }
-
-type IdExistsResponse struct {
-	Exists bool `json:"exists"`
-}

@@ -1,7 +1,6 @@
 // src/context/auth.tsx
 import { loginApi, logoutApi, sessionApi } from "@/api/auth";
 import { UserInformation } from "@/api/types";
-import { isPublicRoute } from "@/utils/route";
 import React, {
   createContext,
   useCallback,
@@ -11,13 +10,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 
 // 타입 정의
 export interface AuthContextType {
   user: UserInformation | null;
+  isUserLoading: boolean;
   isAuthenticated: boolean;
-  loading: boolean;
+  isInitialized: boolean; // 초기화 완료 상태 추가
   login: (credentials: { loginID: string; passwd: string }) => Promise<void>;
   logout: () => Promise<void>;
   checkSession: () => Promise<boolean>;
@@ -42,96 +41,92 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<UserInformation | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [isUserLoading, setIsUserLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // 초기화 완료 여부 추적
-  const isInitialized = useRef(false);
+  // 세션 검증 진행 중 여부
+  const isValidatingSession = useRef(false);
 
   // 인증 상태 계산
   const isAuthenticated = useMemo(() => !!user, [user]);
 
-  // 세션 만료 처리
-  const expireSession = useCallback(() => {
+  // 세션 정리 함수
+  const clearSession = useCallback(() => {
     setUser(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+  }, []);
 
-    // 공개 라우트가 아니라면 로그인 페이지로 리다이렉트
-    if (!isPublicRoute(location.pathname)) {
-      navigate("/auth/signin", { replace: true });
+  // 서버에서 세션 검증
+  const checkSession = useCallback(async (): Promise<boolean> => {
+    const savedUser = sessionStorage.getItem("user");
+    if (!savedUser) {
+      return false;
     }
-  }, [location.pathname, navigate]);
 
-  // 로컬스토리지에서 사용자 정보 복원 (초기화)
+    // 이미 검증 중이면 대기
+    if (isValidatingSession.current) {
+      return true; // 낙관적으로 true 반환
+    }
+
+    try {
+      isValidatingSession.current = true;
+      setIsUserLoading(true);
+
+      // 세션 검증 API 호출
+      const response = await sessionApi();
+
+      if (response.success) {
+        return true;
+      } else {
+        clearSession();
+        return false;
+      }
+    } catch (error) {
+      console.error("Session validation error:", error);
+      // 네트워크 오류 등의 경우 세션 정리
+      clearSession();
+      return false;
+    } finally {
+      isValidatingSession.current = false;
+      setIsUserLoading(false);
+    }
+  }, [clearSession]);
+
+  // sessionStorage에서 사용자 정보 복원 및 세션 검증 (초기화)
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       try {
-        const savedUser = localStorage.getItem("user");
+        const savedUser = sessionStorage.getItem("user");
         if (savedUser) {
           const parsedUser = JSON.parse(savedUser);
-          setUser(parsedUser);
+
+          // 서버에서 세션 유효성 검증
+          const isValidSession = await checkSession();
+
+          if (isValidSession) {
+            setUser(parsedUser);
+          }
+          // checkSession에서 이미 clearSession 처리됨
+        } else {
+          setIsUserLoading(false);
         }
       } catch (error) {
         console.error("Failed to restore user session:", error);
-        localStorage.removeItem("user");
+        clearSession();
+        setIsUserLoading(false);
       } finally {
-        setLoading(false);
-        isInitialized.current = true;
+        setIsInitialized(true);
       }
     };
 
     initializeAuth();
-  }, []);
-
-  // 사용자 정보 변경시 로컬스토리지 동기화
-  useEffect(() => {
-    // 초기화 완료 후에만 저장
-    if (!isInitialized.current) return;
-
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
-    }
-  }, [user]);
-
-  // 세션 체크 함수
-  const checkSession = useCallback(async (): Promise<boolean> => {
-    try {
-      const response = await sessionApi();
-      if (!response?.success) {
-        expireSession();
-        return false;
-      }
-      return true;
-    } catch (error) {
-      console.error("Session check failed:", error);
-      expireSession();
-      return false;
-    }
-  }, [expireSession]);
-
-  // 라우트 변경시 세션 체크
-  useEffect(() => {
-    const performSessionCheck = async () => {
-      // 초기화 완료되지 않았거나 공개 라우트면 스킵
-      if (!isInitialized.current || isPublicRoute(location.pathname) || !user) {
-        return;
-      }
-
-      await checkSession();
-    };
-
-    performSessionCheck();
-  }, [location.pathname, user, checkSession]);
+  }, [checkSession, clearSession]);
 
   // 로그인 함수
   const login = useCallback(
     async (credentials: { loginID: string; passwd: string }): Promise<void> => {
       try {
-        setLoading(true);
+        setIsUserLoading(true);
         const response = await loginApi(credentials);
 
         if (!response.data) {
@@ -139,25 +134,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
 
         setUser(response.data);
-
-        // 로그인 성공 후 리다이렉트
-        const redirectTo =
-          new URLSearchParams(location.search).get("redirect") || "/dashboard";
-        navigate(redirectTo, { replace: true });
+        sessionStorage.setItem("user", JSON.stringify(response.data));
       } catch (error) {
         console.error("Login failed:", error);
+        clearSession();
         throw error;
       } finally {
-        setLoading(false);
+        setIsUserLoading(false);
       }
     },
-    [location.search, navigate]
+    [clearSession]
   );
 
   // 로그아웃 함수
   const logout = useCallback(async (): Promise<void> => {
     try {
-      setLoading(true);
+      setIsUserLoading(true);
 
       // API 호출 (실패해도 로컬 세션은 정리)
       try {
@@ -167,27 +159,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // API 실패해도 계속 진행
       }
 
-      expireSession();
+      clearSession();
     } catch (error) {
       console.error("Logout error:", error);
       // 에러가 발생해도 로컬 세션 정리
-      expireSession();
+      clearSession();
     } finally {
-      setLoading(false);
+      setIsUserLoading(false);
+      alert("로그아웃 되었습니다.");
     }
-  }, [expireSession]);
+  }, [clearSession]);
 
   // Context 값 메모이제이션
   const contextValue: AuthContextType = useMemo(
     () => ({
       user,
+      isUserLoading,
       isAuthenticated,
-      loading,
+      isInitialized,
       login,
       logout,
       checkSession,
     }),
-    [user, isAuthenticated, loading, login, logout, checkSession]
+    [
+      user,
+      isUserLoading,
+      isAuthenticated,
+      isInitialized,
+      login,
+      logout,
+      checkSession,
+    ]
   );
 
   return (

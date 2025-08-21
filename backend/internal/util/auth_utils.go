@@ -1,13 +1,13 @@
 package util
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"net"
 	"net/http"
 	"strings"
-	"time"
 )
 
 func GetClientIP(r *http.Request) string {
@@ -54,19 +54,20 @@ func SafeString(s *string) string {
 	return *s
 }
 
-func HashPassword(password string) string {
-	hash := sha256.Sum256([]byte(password))
+func GenerateSalt(length int) (string, error) {
+	// 원하는 길이만큼 바이트 배열 생성
+	bytes := make([]byte, length)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		return "", err
+	}
+
+	// hex 문자열로 변환해서 반환
+	return hex.EncodeToString(bytes), nil
+}
+
+func HashPassword(password string, salt string) string {
+	hash := sha256.Sum256([]byte(password + salt))
 	pw := hex.EncodeToString(hash[:])
 	return pw
-}
-
-func FormatDate(t time.Time) string {
-	return t.Format("2006-01-02")
-}
-
-func FormatDateTime(t *time.Time) string {
-	if t == nil {
-		return ""
-	}
-	return t.Format("2006-01-02 15:04:05")
 }

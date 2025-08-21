@@ -6,7 +6,7 @@ type UserAccount struct {
 	LoginID          string
 	Passwd           string
 	EmpName          string
-	DeptName         string
+	DptName          string
 	OfficeTel        string
 	MobileTel        string
 	RecentConnDate   *time.Time

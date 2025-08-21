@@ -1,6 +1,6 @@
 // src/errors/AuthApiError.ts
 
-import type { ApiErrorInfo } from "@/types/index";
+import { ApiErrorInfo } from "./types";
 
 /**
  * 인증 API 관련 에러를 처리하는 커스텀 에러 클래스

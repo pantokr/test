@@ -2,9 +2,10 @@
 
 import { loginFailureHistoryApi } from "@/api/audit";
 import { LoginFailureHistoryItem } from "@/api/types";
+import { AppBox } from "@/components/common/Box";
 import AgGrid from "@/components/dataGrid/AgGrid/AgGrid";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import { Box } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ColumnDefs from "./columnDefs";
 
@@ -13,7 +14,7 @@ const LoginFailureHistoryPage: React.FC = () => {
     LoginFailureHistoryItem[]
   >([]);
 
-  const [, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const fetchLoginFailHistory = async () => {
     try {
       setLoading(true);
@@ -37,9 +38,22 @@ const LoginFailureHistoryPage: React.FC = () => {
 
   return (
     <DashboardLayout title="로그인 실패 기록">
-      <Box sx={{ flex: 1, minHeight: 0 }}>
-        <AgGrid columnDefs={ColumnDefs} rowData={loginFailureHistory} />
-      </Box>
+      <AppBox sx={{ flex: 1, minHeight: 0 }}>
+        {loading ? (
+          <AppBox
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <CircularProgress />
+          </AppBox>
+        ) : (
+          <AgGrid columnDefs={ColumnDefs} rowData={loginFailureHistory} />
+        )}
+      </AppBox>
     </DashboardLayout>
   );
 };

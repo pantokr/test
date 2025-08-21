@@ -14,10 +14,4 @@ type AuthServiceInterface interface {
 
 	// 사용자 정보 조회
 	GetUserInfo(loginID string) (*model.UserAccount, error)
-
-	// 사용자 ID 존재 여부 확인
-	IsIdExists(id string) (bool, error)
-
-	// 사용자 등록
-	RegisterUser(registerReq *request.UserRegisterRequest) error
 }

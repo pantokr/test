@@ -1,17 +1,17 @@
 // src/AppRoutes.tsx - Protected Route 분리 후
 
-import { Box, Typography } from "@mui/material";
 import { useEffect, useMemo, type ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
 
 // Layout
-import DashboardLayout from "@/components/layouts/DashboardLayout";
 
 // Components
 import ProtectedRoute from "@/routes/ProtectedRoute";
 
 // Routes and contexts
 import routes from "@/routes";
+import NotFoundPage from "./pages/common/NotFound";
+import SignInPage from "./pages/SignIn";
 import { RouteItem } from "./routes/types";
 
 const AppRoutes: React.FC = () => {
@@ -52,29 +52,9 @@ const AppRoutes: React.FC = () => {
     <ProtectedRoute>
       <Routes>
         {routeElements}
-        {/* 404 페이지 */}
-        <Route
-          path="*"
-          element={
-            <DashboardLayout title="페이지를 찾을 수 없습니다">
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                justifyContent="center"
-                minHeight="400px"
-                gap={2}
-              >
-                <Typography variant="h4" color="text.secondary">
-                  404
-                </Typography>
-                <Typography variant="h6" color="text.secondary">
-                  요청하신 페이지를 찾을 수 없습니다.
-                </Typography>
-              </Box>
-            </DashboardLayout>
-          }
-        />
+        {/* 404 페이지 - 전체 화면을 덮는 컴포넌트 */}
+        <Route path="*" element={<NotFoundPage />} />
+        <Route path="/" element={<SignInPage />} />
       </Routes>
     </ProtectedRoute>
   );

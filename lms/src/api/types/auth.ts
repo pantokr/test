@@ -18,7 +18,7 @@ export interface LoginCredentials {
 export interface UserInformation {
   loginID: string;
   empName: string;
-  deptName: string;
+  dptName: string;
   officeTel: string;
   mobileTel: string;
 }

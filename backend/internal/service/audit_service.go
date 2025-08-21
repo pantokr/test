@@ -17,26 +17,6 @@ func InitAuditService(auditRepo repositoryInterfaces.AuditRepositoryInterface, u
 	return &AuditService{auditRepo: auditRepo, userRepo: userRepo}
 }
 
-// func (s *AuditService) RecordLoginFailure(code, loginID, clientIP, serverIP string) error {
-// 	if err := s.auditRepo.InsertLoginFailureHistory(code, loginID, clientIP, serverIP); err != nil {
-// 		return err
-// 	}
-// 	if err := s.userRepo.UpdateUserAccountLoginFailure(loginID); err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-
-// func (s *AuditService) RecordLoginSuccess(loginID, clientIP, serverIP string) error {
-// 	if err := s.auditRepo.InsertLoginHistory(loginID, clientIP, serverIP); err != nil {
-// 		return fmt.Errorf("로그인 성공 기록 실패: %w", err)
-// 	}
-// 	if err := s.userRepo.UpdateUserAccountLoginSuccess(loginID); err != nil {
-// 		return fmt.Errorf("로그인 성공 처리 실패: %w", err)
-// 	}
-// 	return nil
-// }
-
 func (s *AuditService) GetLoginHistoryAll() ([]response.LoginHistoryItem, error) {
 	histories, err := s.auditRepo.SelectLoginHistoryAll()
 	if err != nil {
