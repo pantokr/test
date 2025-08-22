@@ -1,6 +1,4 @@
 // pages/UserManagement/UserRegistration/index.tsx
-import { AuthApiError } from "@/api";
-import { ApiResponse } from "@/api/types";
 import { UserRegistration } from "@/api/types/user";
 import { UserRegistrationApi } from "@/api/user";
 import {
@@ -57,6 +55,11 @@ const UserRegistrationPage: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    // confirm 메시지
+    if (!confirm("사용자를 등록하시겠습니까?")) {
+      return;
+    }
+
     // 전체 폼 검증
     const { valid, error } = validateRegistrationForm(
       formData,
@@ -74,20 +77,15 @@ const UserRegistrationPage: React.FC = () => {
         return;
       }
       formData.regEmpID = user.loginID;
-      const response: ApiResponse = await UserRegistrationApi(formData);
+      await UserRegistrationApi(formData);
 
       // 성공 처리
-      setSuccessMsg(response.message || "사용자 등록 성공");
-      // 필요하면 폼 초기화 등 추가 처리
-    } catch (error) {
-      if (error instanceof AuthApiError) {
-        // API 에러 메시지 표시
-        setErrorMsg(error.message);
-      } else {
-        setErrorMsg("알 수 없는 오류가 발생했습니다");
-      }
+      alert("사용자 등록이 완료되었습니다.");
+      window.location.reload();
+    } catch (error: any) {
+      setErrorMsg(error.message || "알 수 없는 오류가 발생했습니다");
     } finally {
-      setLoading;
+      setLoading(false);
     }
   };
 

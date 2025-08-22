@@ -4,7 +4,6 @@ import { UserInformation } from "@/api/types";
 import React, {
   createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -14,7 +13,6 @@ import React, {
 // 타입 정의
 export interface AuthContextType {
   user: UserInformation | null;
-  isUserLoading: boolean;
   isAuthenticated: boolean;
   isInitialized: boolean; // 초기화 완료 상태 추가
   login: (credentials: { loginID: string; passwd: string }) => Promise<void>;
@@ -22,26 +20,16 @@ export interface AuthContextType {
   checkSession: () => Promise<boolean>;
 }
 
-// Context 생성
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// 커스텀 훅
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return context;
-};
-
 // Provider 컴포넌트
 interface AuthProviderProps {
   children: React.ReactNode;
 }
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<UserInformation | null>(null);
-  const [isUserLoading, setIsUserLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // 세션 검증 진행 중 여부
@@ -70,27 +58,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       isValidatingSession.current = true;
-      setIsUserLoading(true);
 
       // 세션 검증 API 호출
       const response = await sessionApi();
-
-      if (response.success) {
-        return true;
-      } else {
-        clearSession();
-        return false;
-      }
+      sessionStorage.setItem("user", JSON.stringify(response));
+      return true;
     } catch (error) {
-      console.error("Session validation error:", error);
-      // 네트워크 오류 등의 경우 세션 정리
-      clearSession();
-      return false;
+      throw error;
     } finally {
       isValidatingSession.current = false;
-      setIsUserLoading(false);
     }
-  }, [clearSession]);
+  }, []);
 
   // sessionStorage에서 사용자 정보 복원 및 세션 검증 (초기화)
   useEffect(() => {
@@ -106,66 +84,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (isValidSession) {
             setUser(parsedUser);
           }
-          // checkSession에서 이미 clearSession 처리됨
-        } else {
-          setIsUserLoading(false);
         }
       } catch (error) {
-        console.error("Failed to restore user session:", error);
         clearSession();
-        setIsUserLoading(false);
       } finally {
         setIsInitialized(true);
       }
     };
 
     initializeAuth();
-  }, [checkSession, clearSession]);
+  }, []);
 
   // 로그인 함수
   const login = useCallback(
     async (credentials: { loginID: string; passwd: string }): Promise<void> => {
       try {
-        setIsUserLoading(true);
         const response = await loginApi(credentials);
 
-        if (!response.data) {
-          throw new Error("사용자 정보가 없습니다.");
-        }
-
-        setUser(response.data);
-        sessionStorage.setItem("user", JSON.stringify(response.data));
+        setUser(response);
+        sessionStorage.setItem("user", JSON.stringify(response));
       } catch (error) {
-        console.error("Login failed:", error);
-        clearSession();
         throw error;
-      } finally {
-        setIsUserLoading(false);
       }
     },
-    [clearSession]
+    []
   );
 
   // 로그아웃 함수
   const logout = useCallback(async (): Promise<void> => {
     try {
-      setIsUserLoading(true);
-
-      // API 호출 (실패해도 로컬 세션은 정리)
-      try {
-        await logoutApi();
-      } catch (error) {
-        console.error("Logout API failed:", error);
-        // API 실패해도 계속 진행
-      }
-
-      clearSession();
+      await logoutApi();
     } catch (error) {
-      console.error("Logout error:", error);
-      // 에러가 발생해도 로컬 세션 정리
-      clearSession();
     } finally {
-      setIsUserLoading(false);
+      // API 성공/실패 관계없이 항상 로컬 세션 정리
+      clearSession();
       alert("로그아웃 되었습니다.");
     }
   }, [clearSession]);
@@ -174,22 +126,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const contextValue: AuthContextType = useMemo(
     () => ({
       user,
-      isUserLoading,
       isAuthenticated,
       isInitialized,
       login,
       logout,
       checkSession,
     }),
-    [
-      user,
-      isUserLoading,
-      isAuthenticated,
-      isInitialized,
-      login,
-      logout,
-      checkSession,
-    ]
+    [user, isAuthenticated, isInitialized, login, logout, checkSession]
   );
 
   return (

@@ -3,7 +3,7 @@
 import { Person } from "@mui/icons-material";
 import { Alert, InputAdornment, Typography, useTheme } from "@mui/material";
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { LoginCredentials } from "@/api/types";
 import { AppButton, AppTextField } from "@/components/common";
@@ -11,6 +11,7 @@ import { AppBox } from "@/components/common/Box";
 import { AppPasswordField } from "@/components/common/TextField";
 import AppTypography from "@/components/common/Typography";
 import CoverLayout from "@/components/layouts/CoverLayout";
+import UserRegistrationDialog from "@/components/UserRegistrationDialog";
 import { useAuth } from "@/context";
 import { LogoBox, StyledPaper } from "./styles";
 
@@ -26,6 +27,7 @@ const SignInPage: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // 폼 데이터 변경 핸들러
   const handleChange =
@@ -55,14 +57,31 @@ const SignInPage: React.FC = () => {
         });
 
         navigate("/dashboard");
-      } else {
-        throw new Error("아이디와 비밀번호를 입력해주세요.");
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "로그인에 실패했습니다.");
+    } catch (err: any) {
+      if (err.response?.data?.detail == "NO_INFO") {
+        handleOpenDialog();
+      } else {
+        setError(err.message || "알 수 없는 오류");
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const handleRegistrationSuccess = () => {
+    // 등록 성공 후 실행할 로직
+    // 예: 사용자 목록 새로고침, 토스트 메시지 표시 등
+    console.log("사용자 등록이 성공했습니다!");
+    // 필요시 추가 작업 수행
   };
 
   return (
@@ -114,16 +133,19 @@ const SignInPage: React.FC = () => {
             <AppTextField
               fullWidth
               label="아이디"
-              type="text"
+              type="text" // 아이디는 text가 맞음
               value={formData.loginID}
               onChange={handleChange("loginID")}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Person color="action" />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Person color="action" />
+                    </InputAdornment>
+                  ),
+                },
               }}
+              autoComplete="username"
               sx={{ mb: 2 }}
               required
               placeholder="아이디를 입력하세요"
@@ -143,15 +165,9 @@ const SignInPage: React.FC = () => {
               alignItems="center"
               mb={3}
             >
-              <Link
-                to="/auth/forgot-password"
-                style={{
-                  textDecoration: "none",
-                  color: theme.palette.primary.main,
-                }}
-              >
+              <AppButton onClick={handleOpenDialog}>
                 <Typography variant="body2">비밀번호 찾기</Typography>
-              </Link>
+              </AppButton>
             </AppBox>
 
             {/* 로그인 버튼 */}
@@ -174,6 +190,11 @@ const SignInPage: React.FC = () => {
               {loading ? "로그인 중..." : "로그인"}
             </AppButton>
           </AppBox>
+          <UserRegistrationDialog
+            open={dialogOpen}
+            onClose={handleCloseDialog}
+            onSuccess={handleRegistrationSuccess}
+          />
         </AppBox>
       </StyledPaper>
     </CoverLayout>

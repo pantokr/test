@@ -1,3 +1,4 @@
+// internal/service/interfaces/auth_service_interface.go
 package interfaces
 
 import (
@@ -5,13 +6,9 @@ import (
 	"lms/internal/model"
 )
 
+// AuthServiceInterface 인증 서비스 인터페이스
 type AuthServiceInterface interface {
-	// 로그인 처리
-	Login(loginReq request.LoginRequest) (*model.UserAccount, int64, error)
-
-	// 로그아웃 처리
+	Login(loginReq request.LoginRequest) (*model.UserAccount, int64, string, error)
 	Logout(sessionID int64) error
-
-	// 사용자 정보 조회
 	GetUserInfo(loginID string) (*model.UserAccount, error)
 }

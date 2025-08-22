@@ -1,8 +1,8 @@
 import { useMediaQuery, useTheme } from "@mui/material";
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode } from "react";
 
 // DeviceContext 타입 정의
-interface DeviceContextType {
+export interface DeviceContextType {
   isMobile: boolean;
   isTablet: boolean;
   isDesktop: boolean;
@@ -10,7 +10,9 @@ interface DeviceContextType {
 }
 
 // DeviceContext 생성
-const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
+export const DeviceContext = createContext<DeviceContextType | undefined>(
+  undefined
+);
 
 // DeviceProvider Props 타입 정의
 interface DeviceProviderProps {
@@ -35,13 +37,4 @@ export const DeviceProvider = ({ children }: DeviceProviderProps) => {
   return (
     <DeviceContext.Provider value={value}>{children}</DeviceContext.Provider>
   );
-};
-
-// useDevice 커스텀 훅
-export const useDevice = (): DeviceContextType => {
-  const context = useContext(DeviceContext);
-  if (!context) {
-    throw new Error("useDevice must be used within DeviceProvider");
-  }
-  return context;
 };

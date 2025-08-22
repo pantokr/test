@@ -1,6 +1,6 @@
 import { useAuth } from "@/context";
 import { isPublicRoute } from "@/utils/route";
-import React from "react";
+import React, { useEffect } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
 interface ProtectedRouteProps {
@@ -8,13 +8,18 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isUserLoading } = useAuth();
+  const { user, isInitialized, checkSession } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
 
   const isPublic = isPublicRoute(currentPath);
 
-  if (!isUserLoading) {
+  useEffect(() => {
+    // 보호된 페이지 접근할 때마다 세션 체크
+    checkSession();
+  }, [location.pathname]);
+
+  if (isInitialized) {
     // 미인증 사용자가 Private 라우트 접근
     if (!user && !isPublic) {
       return <Navigate to="/auth/sign-in" replace />;

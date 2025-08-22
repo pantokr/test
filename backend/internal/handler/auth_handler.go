@@ -1,3 +1,4 @@
+// internal/handler/auth_handler.go
 package handler
 
 import (
@@ -5,34 +6,28 @@ import (
 	"lms/internal/config"
 	"lms/internal/handler/dto/request"
 	"lms/internal/handler/dto/response"
+	"lms/internal/service"
 	"lms/internal/service/interfaces"
 	"lms/internal/util"
 	"log"
 	"net/http"
-	"strconv"
-
-	"github.com/gorilla/sessions"
 )
 
 type AuthHandler struct {
-	authService interfaces.AuthServiceInterface
+	authService    interfaces.AuthServiceInterface
+	sessionService *service.SessionService // 구체 타입 사용
 }
 
-var store = sessions.NewCookieStore([]byte("secret-key"))
-
-// InitAuthHandler - AuthHandler 초기화
-func InitAuthHandler(authService interfaces.AuthServiceInterface) *AuthHandler {
+func InitAuthHandler(authService interfaces.AuthServiceInterface, sessionService *service.SessionService) *AuthHandler {
 	return &AuthHandler{
-		authService: authService,
+		authService:    authService,
+		sessionService: sessionService,
 	}
 }
-
-// 로그인 핸들러
 func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
-	// JSON 디코딩
 	var creds request.Credentials
 	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
-		http.Error(w, "잘못된 요청입니다.", http.StatusBadRequest)
+		util.RespondError(w, http.StatusBadRequest, "잘못된 요청입니다.", "")
 		return
 	}
 
@@ -45,127 +40,72 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		ServerIP:    serverIP,
 	}
 
-	userAccount, sessionID, err := h.authService.Login(loginReq)
+	userAccount, sessionID, detailCode, err := h.authService.Login(loginReq)
 	if err != nil {
 		log.Printf("로그인 실패: %v", err)
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		util.RespondError(w, http.StatusUnauthorized, detailCode, err.Error())
 		return
 	}
 
-	// 세션 생성
-	session, _ := store.Get(r, "lms-session")
-	session.Values["id"] = userAccount.LoginID // 기존: 사용자 식별용
-	session.Values["session_id"] = sessionID   // 신규: 로그아웃 시 사용할 login_history ID
-	session.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   20 * 60, // 20분(초 단위)
-		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
-		Secure:   false, // HTTPS 환경에서는 true로 설정
-	}
-
-	// 세션 저장 (반드시 JSON 응답 전에!)
-	if err := session.Save(r, w); err != nil {
-		// 세션 저장 실패 시 로그아웃 처리 (정합성 유지)
+	// SessionService를 통한 세션 생성
+	if err := h.sessionService.CreateSession(w, r, userAccount.LoginID, userAccount.EmpName, sessionID); err != nil {
+		log.Printf("세션 저장 실패: %v", err)
 		if sessionID > 0 {
-			h.authService.Logout(sessionID) // 생성된 로그인 기록을 정리
+			h.authService.Logout(sessionID)
 		}
-		http.Error(w, "세션 저장 실패", http.StatusInternalServerError)
+		util.RespondError(w, http.StatusInternalServerError, "세션 저장 실패", "")
 		return
 	}
 
-	// 로그인 성공 응답
 	data := new(response.LoginResponse)
 	data.LoginResponseFromModel(*userAccount)
-	resp := response.APIResponse{
-		Success: true,
-		Message: "로그인 성공",
-		Data:    data,
-	}
 
-	util.RespondWithJSON(w, http.StatusOK, resp)
+	util.RespondSuccess(w, http.StatusOK, data)
 }
 
 func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, "lms-session")
+	// SessionService를 통한 세션 검증
+	sessionInfo, err := h.sessionService.ValidateSession(r)
 	if err != nil {
-		http.Error(w, "세션 조회 실패", http.StatusInternalServerError)
-		return
+		log.Printf("세션 검증 실패: %v", err)
 	}
 
-	// 세션에서 sessionID 가져오기 (login_history의 id)
-	sessionIDRaw, exists := session.Values["session_id"]
-	if !exists {
-		// 로그인 안 된 상태 -> 그냥 OK 응답
-		http.Error(w, "종료된 세션입니다.", http.StatusUnauthorized)
-		return
-	}
-
-	sessionID, ok := sessionIDRaw.(int64)
-	if !ok {
-		// int64로 변환 시도
-		if sessionIDStr, isString := sessionIDRaw.(string); isString {
-			if parsedID, parseErr := strconv.ParseInt(sessionIDStr, 10, 64); parseErr == nil {
-				sessionID = parsedID
-			} else {
-				http.Error(w, "유효하지 않은 세션 ID입니다.", http.StatusUnauthorized)
-				return
-			}
-		} else {
-			http.Error(w, "유효하지 않은 세션 ID입니다.", http.StatusUnauthorized)
-			return
-		}
-	}
-
-	if sessionID <= 0 {
-		http.Error(w, "유효하지 않은 세션 ID입니다.", http.StatusUnauthorized)
-		return
-	}
-
-	// 서비스 로직: 로그아웃 시간 업데이트
-	if err := h.authService.Logout(sessionID); err != nil {
-		// 로그아웃 실패해도 세션은 삭제 (보안상 안전)
+	// 로그아웃 처리
+	if err := h.authService.Logout(sessionInfo.SessionID); err != nil {
 		log.Printf("로그아웃 처리 실패: %v", err)
 	}
 
-	// 세션 만료 처리
-	session.Options.MaxAge = -1
-	if err := session.Save(r, w); err != nil {
-		log.Printf("세션 저장 실패: %v", err)
+	// SessionService를 통한 세션 삭제
+	if err := h.sessionService.DestroySession(w, r); err != nil {
+		log.Printf("세션 삭제 실패: %v", err)
 	}
 
-	// 응답
-	resp := response.APIResponse{
-		Success: true,
-		Message: "로그아웃 성공",
-	}
-	util.RespondWithJSON(w, http.StatusOK, resp)
+	util.RespondSuccess(w, http.StatusOK, nil)
 }
 
 func (h *AuthHandler) SessionHandler(w http.ResponseWriter, r *http.Request) {
-	sessionName := "lms-session"
-
-	// 세션 가져오기
-	session, err := store.Get(r, sessionName)
-	if err != nil || session == nil {
-		http.Error(w, "세션이 존재하지 않습니다.", http.StatusUnauthorized)
+	// SessionService를 통한 세션 검증
+	sessionInfo, err := h.sessionService.ValidateSession(r)
+	if err != nil {
+		util.RespondError(w, http.StatusUnauthorized, "세션 검증 실패", "")
 		return
 	}
 
-	// 세션에서 사용자 ID 추출
-	id, ok := session.Values["id"].(string)
-	if !ok || id == "" {
-		http.Error(w, "세션 ID가 유효하지 않습니다.", http.StatusUnauthorized)
-		return
-	}
-
-	// 사용자 정보 조회
-	userAccount, err := h.authService.GetUserInfo(id)
+	// 상세 사용자 정보 조회
+	userAccount, err := h.authService.GetUserInfo(sessionInfo.UserID)
 	if userAccount == nil || err != nil {
-		http.Error(w, "사용자 정보를 찾을 수 없습니다.", http.StatusUnauthorized)
+		util.RespondError(w, http.StatusNotFound, "사용자 정보 없음", "")
 		return
 	}
 
-	resp := response.NewResponse[any](true, "", nil)
-	util.RespondWithJSON(w, http.StatusOK, resp)
+	// 세션 시간 연장
+	if err := h.sessionService.ExtendSession(w, r); err != nil {
+		log.Printf("세션 연장 실패: %v", err)
+		// 연장 실패해도 응답은 계속 진행
+	}
+
+	userData := response.LoginResponse{}
+	userData.LoginResponseFromModel(*userAccount)
+
+	util.RespondSuccess(w, http.StatusOK, userData)
 }

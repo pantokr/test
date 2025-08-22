@@ -4,7 +4,7 @@ import { Box } from "@mui/material";
 import React from "react";
 
 import { AppButton } from "@/components/common/Button/AppButton";
-import { useAuth } from "@/context";
+import { useAuth, useSidenav } from "@/context";
 import { LogoutButton, LogoutContainer } from "./styles";
 
 interface LogoutSectionProps {
@@ -14,7 +14,8 @@ interface LogoutSectionProps {
 }
 
 const LogoutSection: React.FC<LogoutSectionProps> = () => {
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
+  const { resetSidenav } = useSidenav();
 
   return (
     <Box sx={LogoutContainer()}>
@@ -29,7 +30,10 @@ const LogoutSection: React.FC<LogoutSectionProps> = () => {
 
       <AppButton
         variant="outlined"
-        onClick={logout}
+        onClick={async () => {
+          await logout();
+          resetSidenav();
+        }}
         sx={LogoutButton}
         fullWidth
       >

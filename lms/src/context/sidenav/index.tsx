@@ -1,16 +1,16 @@
 import React, {
   createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
-import { useDevice } from "../device";
+import { useDevice } from "../hooks";
 
-interface SidenavContextType {
+export interface SidenavContextType {
   isSidenavOpen: boolean;
   isSidenavPinned: boolean;
+  resetSidenav: () => void;
   openSidenav: () => void;
   closeSidenav: () => void;
   toggleSidenav: () => void;
@@ -19,15 +19,9 @@ interface SidenavContextType {
   shouldShowSidenav: boolean;
 }
 
-const SidenavContext = createContext<SidenavContextType | undefined>(undefined);
-
-export const useSidenav = () => {
-  const context = useContext(SidenavContext);
-  if (!context) {
-    throw new Error("useSidenav must be used within SidenavProvider");
-  }
-  return context;
-};
+export const SidenavContext = createContext<SidenavContextType | undefined>(
+  undefined
+);
 
 export const SidenavProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -50,6 +44,11 @@ export const SidenavProvider: React.FC<{ children: React.ReactNode }> = ({
       setSidenavOpen(true);
     }
   }, [isMobile, isSidenavPinned]);
+
+  const resetSidenav = useCallback(() => {
+    setSidenavOpen(false);
+    setSidenavPinnedState(false);
+  }, []);
 
   const openSidenav = useCallback(() => {
     setSidenavOpen(true);
@@ -99,6 +98,7 @@ export const SidenavProvider: React.FC<{ children: React.ReactNode }> = ({
     () => ({
       isSidenavOpen,
       isSidenavPinned,
+      resetSidenav,
       openSidenav,
       closeSidenav,
       toggleSidenav,
@@ -108,6 +108,7 @@ export const SidenavProvider: React.FC<{ children: React.ReactNode }> = ({
     [
       isSidenavOpen,
       isSidenavPinned,
+      resetSidenav,
       openSidenav,
       closeSidenav,
       toggleSidenav,

@@ -24,16 +24,17 @@ func InitUserHandler(userService interfaces.UserServiceInterface) *UserHandler {
 func (h *UserHandler) UserRegistrationHandler(w http.ResponseWriter, r *http.Request) {
 	var userRegReq request.UserRegistrationRequest
 	if err := json.NewDecoder(r.Body).Decode(&userRegReq); err != nil {
-		http.Error(w, "잘못된 요청입니다.", http.StatusBadRequest)
+		util.RespondError(w, http.StatusBadRequest, "잘못된 요청입니다.", "")
 		return
 	}
 
 	err := h.userService.RegisterUser(userRegReq)
 	if err != nil {
 		log.Printf("사용자 등록 실패: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		util.RespondError(w, http.StatusInternalServerError, err.Error(), "")
 		return
 	}
 
-	util.RespondWithJSON(w, http.StatusOK, struct{}{})
+	log.Printf("사용자 등록 성공: %s", userRegReq.LoginID)
+	util.RespondSuccess(w, http.StatusOK, nil)
 }

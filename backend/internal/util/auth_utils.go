@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"net"
 	"net/http"
 	"strings"
@@ -37,21 +36,6 @@ func GetServerIP() (string, error) {
 		}
 	}
 	return "", nil
-}
-
-func RespondWithJSON(w http.ResponseWriter, status int, data any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		http.Error(w, "JSON 인코딩 실패", http.StatusInternalServerError)
-	}
-}
-
-func SafeString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
 }
 
 func GenerateSalt(length int) (string, error) {

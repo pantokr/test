@@ -7,6 +7,6 @@ type UserRepositoryInterface interface {
 	InsertUserAccount(user *model.UserAccount) error
 
 	SelectUserAccountByID(userID string) (*model.UserAccount, error)
-	UpdateUserAccountLoginFailure(loginID string) error
-	UpdateUserAccountLoginSuccess(loginID string) error
+	UpdateUserAccountLoginFailureByID(loginID string) error
+	UpdateUserAccountLoginSuccess(*model.UserAccount) error
 }

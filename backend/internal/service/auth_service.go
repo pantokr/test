@@ -16,107 +16,166 @@ type AuthService struct {
 	auditRepo repositoryInterfaces.AuditRepositoryInterface
 }
 
+// LoginValidationResult 로그인 검증 결과
+type LoginValidationResult struct {
+	IsValid  bool
+	FailCode string
+	ErrorMsg string
+	User     *model.UserAccount
+}
+
 func InitAuthService(userRepo repositoryInterfaces.UserRepositoryInterface, auditRepo repositoryInterfaces.AuditRepositoryInterface) serviceInterfaces.AuthServiceInterface {
 	return &AuthService{userRepo: userRepo, auditRepo: auditRepo}
 }
 
-func (s *AuthService) Login(loginReq request.LoginRequest) (*model.UserAccount, int64, error) {
-	userAccount, err := s.userRepo.SelectUserAccountByID(loginReq.Credentials.LoginID)
-
+func (s *AuthService) Login(loginReq request.LoginRequest) (*model.UserAccount, int64, string, error) {
 	now := time.Now()
+
+	// 1. 로그인 검증 수행
+	validationResult := s.validateLogin(loginReq)
+
+	// 2. 검증 실패 시 로깅 및 에러 반환
+	if !validationResult.IsValid {
+		s.logLoginFailure(loginReq, validationResult.FailCode, now)
+
+		// 비밀번호 불일치인 경우 실패 횟수 증가
+		if validationResult.FailCode == "1" && validationResult.User != nil {
+			s.userRepo.UpdateUserAccountLoginFailureByID(validationResult.User.LoginID)
+		}
+
+		return nil, 0, validationResult.FailCode, errors.New(validationResult.ErrorMsg)
+	}
+
+	if loginReq.Credentials.LoginID == loginReq.Credentials.Passwd {
+		return validationResult.User, 0, "NO_INFO", errors.New("비밀번호 재설정 필요")
+	}
+
+	// 3. 로그인 성공 처리
+	return s.handleLoginSuccess(validationResult.User, loginReq, now)
+}
+
+// validateLogin 로그인 검증 로직
+func (s *AuthService) validateLogin(loginReq request.LoginRequest) LoginValidationResult {
+	// 사용자 조회
+	userAccount, err := s.userRepo.SelectUserAccountByID(loginReq.Credentials.LoginID)
 	if err != nil || userAccount == nil {
-		s.auditRepo.InsertLoginFailureHistory(&model.LoginFailureHistory{
-			FailCode:  "7",
-			LoginTime: &now,
-			LoginID:   loginReq.Credentials.LoginID,
-			ClientIP:  loginReq.ClientIP,
-			ServerIP:  loginReq.ServerIP,
-		}) // 실패 기록 로깅
-		return nil, 0, errors.New("아이디 혹은 비밀번호가 일치하지 않습니다")
+		return LoginValidationResult{
+			IsValid:  false,
+			FailCode: "7",
+			ErrorMsg: "아이디 혹은 비밀번호가 일치하지 않습니다",
+			User:     nil,
+		}
 	}
 
+	// 비밀번호 검증
 	if util.HashPassword(loginReq.Passwd, userAccount.PwRef) != userAccount.Passwd {
-		s.auditRepo.InsertLoginFailureHistory(&model.LoginFailureHistory{
-			FailCode:  "1",
-			LoginTime: &now,
-			LoginID:   loginReq.Credentials.LoginID,
-			ClientIP:  loginReq.ClientIP,
-			ServerIP:  loginReq.ServerIP,
-		})
-		s.userRepo.UpdateUserAccountLoginFailure(userAccount.LoginID)
-		return nil, 0, errors.New("아이디 혹은 비밀번호가 일치하지 않습니다")
+		return LoginValidationResult{
+			IsValid:  false,
+			FailCode: "1",
+			ErrorMsg: "아이디 혹은 비밀번호가 일치하지 않습니다",
+			User:     userAccount,
+		}
 	}
 
+	// 로그인 실패 횟수 검증
 	if userAccount.PwFailCount >= 5 {
-		// 로그인 실패 5회 초과
-		s.auditRepo.InsertLoginFailureHistory(&model.LoginFailureHistory{
-			FailCode:  "2",
-			LoginTime: &now,
-			LoginID:   loginReq.Credentials.LoginID,
-			ClientIP:  loginReq.ClientIP,
-			ServerIP:  loginReq.ServerIP,
-		})
-		return nil, 0, errors.New("로그인 실패 5회 초과")
+		return LoginValidationResult{
+			IsValid:  false,
+			FailCode: "2",
+			ErrorMsg: "로그인 실패 5회 초과",
+			User:     userAccount,
+		}
 	}
 
+	// 비밀번호 만료 검증
 	if userAccount.PasswdUpdateDate != nil && time.Since(*userAccount.PasswdUpdateDate) > 30*24*time.Hour {
-		s.auditRepo.InsertLoginFailureHistory(&model.LoginFailureHistory{
-			FailCode:  "3",
-			LoginTime: &now,
-			LoginID:   loginReq.Credentials.LoginID,
-			ClientIP:  loginReq.ClientIP,
-			ServerIP:  loginReq.ServerIP,
-		})
-		return nil, 0, errors.New("비밀번호 변경 30일 초과")
+		return LoginValidationResult{
+			IsValid:  false,
+			FailCode: "3",
+			ErrorMsg: "비밀번호 변경 30일 초과",
+			User:     userAccount,
+		}
 	}
 
-	if userAccount.ClientIP != loginReq.ClientIP {
-		s.auditRepo.InsertLoginFailureHistory(&model.LoginFailureHistory{
-			FailCode:  "4",
-			LoginTime: &now,
-			LoginID:   userAccount.LoginID,
-			ClientIP:  loginReq.ClientIP,
-			ServerIP:  loginReq.ServerIP,
-		})
-		return nil, 0, errors.New("IP 주소가 일치하지 않습니다")
+	// IP 주소 검증
+	if userAccount.ClientIP != "" && userAccount.ClientIP != loginReq.ClientIP {
+		return LoginValidationResult{
+			IsValid:  false,
+			FailCode: "4",
+			ErrorMsg: "IP 주소가 일치하지 않습니다",
+			User:     userAccount,
+		}
 	}
 
+	// 최근 접속일 검증
 	if userAccount.RecentConnDate != nil && time.Since(*userAccount.RecentConnDate) > 15*24*time.Hour {
-		s.auditRepo.InsertLoginFailureHistory(&model.LoginFailureHistory{
-			FailCode:  "5",
-			LoginTime: &now,
-			LoginID:   userAccount.LoginID,
-			ClientIP:  loginReq.ClientIP,
-			ServerIP:  loginReq.ServerIP,
-		})
-		return nil, 0, errors.New("최근 접속 이후 15일 초과")
+		return LoginValidationResult{
+			IsValid:  false,
+			FailCode: "5",
+			ErrorMsg: "최근 접속 이후 15일 초과",
+			User:     userAccount,
+		}
 	}
 
-	sessionID, err := s.auditRepo.InsertLoginHistory(&model.LoginHistory{
+	return LoginValidationResult{
+		IsValid:  true,
+		FailCode: "",
+		ErrorMsg: "",
+		User:     userAccount,
+	}
+}
+
+// logLoginFailure 로그인 실패 로깅
+func (s *AuthService) logLoginFailure(loginReq request.LoginRequest, failCode string, loginTime time.Time) {
+	s.auditRepo.InsertLoginFailureHistory(&model.LoginFailureHistory{
+		FailCode:  failCode,
+		LoginTime: &loginTime,
+		LoginID:   loginReq.Credentials.LoginID,
+		ClientIP:  loginReq.ClientIP,
+		ServerIP:  loginReq.ServerIP,
+	})
+}
+
+// logLoginSuccess 로그인 성공 로깅
+func (s *AuthService) logLoginSuccess(userAccount *model.UserAccount, loginReq request.LoginRequest, loginTime time.Time) (int64, error) {
+	return s.auditRepo.InsertLoginHistory(&model.LoginHistory{
 		LoginID:    userAccount.LoginID,
 		EmpName:    userAccount.EmpName,
-		LoginTime:  &now,
+		LoginTime:  &loginTime,
 		IsExternal: "N",
 		ClientIP:   loginReq.ClientIP,
 		ServerIP:   loginReq.ServerIP,
 	})
-	if err != nil {
-		// 기록 실패해도 로그인에 영향 주지 않도록 로그만 남김
-		fmt.Printf("로그인 기록 저장 실패: %v\n", err)
-		sessionID = 0 // 실패시 0으로 설정
-	}
-
-	return userAccount, sessionID, nil
 }
 
-// 로그아웃 서비스 (신규)
-func (s *AuthService) Logout(sessionID int64) error {
+// handleLoginSuccess 로그인 성공 처리
+func (s *AuthService) handleLoginSuccess(userAccount *model.UserAccount, loginReq request.LoginRequest, now time.Time) (*model.UserAccount, int64, string, error) {
+	// 로그인 성공 로깅
+	sessionID, err := s.logLoginSuccess(userAccount, loginReq, now)
+	if err != nil {
+		fmt.Printf("로그인 기록 저장 실패: %v\n", err)
+		return nil, 0, "", errors.New("로그인 기록 저장 실패")
+	}
 
-	// 로그아웃 시간 업데이트
+	// 사용자 정보 업데이트
+	updatedUserAccount := *userAccount
+	updatedUserAccount.RecentConnDate = &now
+	updatedUserAccount.PwFailCount = 0
+	updatedUserAccount.ClientIP = loginReq.ClientIP
+
+	if err := s.userRepo.UpdateUserAccountLoginSuccess(&updatedUserAccount); err != nil {
+		fmt.Printf("사용자 정보 업데이트 실패: %v\n", err)
+		return nil, 0, "", errors.New("사용자 정보 업데이트 실패")
+	}
+
+	return userAccount, sessionID, "", nil
+}
+
+// 로그아웃 서비스
+func (s *AuthService) Logout(sessionID int64) error {
 	if err := s.auditRepo.UpdateLoginHistoryLogoutTime(sessionID); err != nil {
 		return fmt.Errorf("로그아웃 처리 실패: %w", err)
 	}
-
 	return nil
 }
 

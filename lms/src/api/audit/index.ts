@@ -1,75 +1,33 @@
 // src/api/auth.ts
-
-import { AuthApiError } from "@/api/AuthApiError";
 import { AUDIT_ROUTE } from "@/constants";
+import { axiosClient, createApiUrl } from "@/utils/api";
 import {
-  ApiResponse,
   LoginFailureHistoryItem,
   LoginHistoryItem,
   LoginResetHistoryItem,
-} from "@/types";
-import {
-  createApiUrl,
-  createRequestOptions,
-  handleResponse,
-} from "@/utils/api";
+} from "../types";
 
-export const loginHistoryApi = async (): Promise<ApiResponse> => {
-  try {
-    const response = await fetch(
-      createApiUrl(AUDIT_ROUTE, "/login-history"),
-      createRequestOptions("GET")
-    );
-    return handleResponse<ApiResponse<LoginHistoryItem[]>>(response);
-  } catch (error) {
-    if (error instanceof AuthApiError) {
-      throw error;
-    }
-    throw new AuthApiError(
-      `로그인 히스토리 조회 실패: ${
-        error instanceof Error ? error.message : "알 수 없는 오류"
-      }`,
-      0
-    );
-  }
+export const loginHistoryApi = async (): Promise<LoginHistoryItem[]> => {
+  const response = await axiosClient.get(
+    createApiUrl(AUDIT_ROUTE, "/login-history")
+  );
+  return response.data;
 };
 
-export const loginFailureHistoryApi = async (): Promise<ApiResponse> => {
-  try {
-    const response = await fetch(
-      createApiUrl(AUDIT_ROUTE, "/login-failure-history"),
-      createRequestOptions("GET")
-    );
-    return handleResponse<ApiResponse<LoginFailureHistoryItem[]>>(response);
-  } catch (error) {
-    if (error instanceof AuthApiError) {
-      throw error;
-    }
-    throw new AuthApiError(
-      `로그인 실패 히스토리 조회 실패: ${
-        error instanceof Error ? error.message : "알 수 없는 오류"
-      }`,
-      0
-    );
-  }
+export const loginFailureHistoryApi = async (): Promise<
+  LoginFailureHistoryItem[]
+> => {
+  const response = await axiosClient.get(
+    createApiUrl(AUDIT_ROUTE, "/login-failure-history")
+  );
+  return response.data;
 };
 
-export const loginResetHistoryApi = async (): Promise<ApiResponse> => {
-  try {
-    const response = await fetch(
-      createApiUrl(AUDIT_ROUTE, "/login-reset-history"),
-      createRequestOptions("GET")
-    );
-    return handleResponse<ApiResponse<LoginResetHistoryItem[]>>(response);
-  } catch (error) {
-    if (error instanceof AuthApiError) {
-      throw error;
-    }
-    throw new AuthApiError(
-      `로그인 리셋 히스토리 조회 실패: ${
-        error instanceof Error ? error.message : "알 수 없는 오류"
-      }`,
-      0
-    );
-  }
+export const loginResetHistoryApi = async (): Promise<
+  LoginResetHistoryItem[]
+> => {
+  const response = await axiosClient.get(
+    createApiUrl(AUDIT_ROUTE, "/login-reset-history")
+  );
+  return response.data;
 };

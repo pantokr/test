@@ -1,8 +1,6 @@
 package service
 
 import (
-	"errors"
-	"fmt"
 	"lms/internal/handler/dto/request"
 	"lms/internal/model"
 	repositoryInterfaces "lms/internal/repository/interfaces"
@@ -19,17 +17,9 @@ func InitUserService(userRepo repositoryInterfaces.UserRepositoryInterface) serv
 }
 
 func (s *UserService) RegisterUser(registerReq request.UserRegistrationRequest) error {
-	// 사용자 등록 로직
-	userAccount, err := s.userRepo.SelectUserAccountByID(registerReq.LoginID)
-	if userAccount != nil || err != nil {
-		// 이미 존재하는 사용자
-		if err == nil {
-			fmt.Printf("이미 존재하는 사용자입니다: %s\n", registerReq.LoginID)
-		}
-		return errors.New("이미 존재하는 사용자입니다")
-	}
 
-	salt, err := util.GenerateSalt(8)
+	// 사용자 등록 로직
+	salt, err := util.GenerateSalt(4)
 	if err != nil {
 		return err
 	}

@@ -4,21 +4,18 @@ import { ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
 import React, {
   createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
 import { ThemeSettings } from "../types";
 
-interface ThemeContextType {
+export interface ThemeContextType {
   themeSettings: ThemeSettings;
   updateThemeSettings: (settings: Partial<ThemeSettings>) => void;
   resetThemeSettings: () => void;
   toggleDarkMode: () => void;
 }
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const defaultThemeSettings: ThemeSettings = {
   darkMode: false,
@@ -29,13 +26,9 @@ const defaultThemeSettings: ThemeSettings = {
   language: "ko",
 };
 
-export const useThemeSettings = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error("useThemeSettings must be used within ThemeProvider");
-  }
-  return context;
-};
+export const ThemeContext = createContext<ThemeContextType | undefined>(
+  undefined
+);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,

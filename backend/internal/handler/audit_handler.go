@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"lms/internal/handler/dto/response"
 	serviceInterfaces "lms/internal/service/interfaces"
 
 	"lms/internal/util"
@@ -23,15 +22,15 @@ func (h *AuditHandler) LoginHistoryHandler(w http.ResponseWriter, r *http.Reques
 	histories, err := h.auditService.GetLoginHistoryAll()
 	if err != nil {
 		log.Printf("로그인 기록 조회 실패: %v", err)
-		http.Error(w, "로그인 기록 조회 실패", http.StatusInternalServerError)
+		util.RespondError(w, http.StatusInternalServerError, "로그인 기록 조회 실패", "")
 		return
 	}
 	if histories == nil {
-		util.RespondWithJSON(w, http.StatusOK, response.NewResponse[any](true, "로그인 기록이 없습니다.", nil))
+		util.RespondSuccess(w, http.StatusOK, nil)
 		return
 	}
 
-	util.RespondWithJSON(w, http.StatusOK, response.NewResponse(true, "로그인 기록 조회 성공", &histories))
+	util.RespondSuccess(w, http.StatusOK, &histories)
 }
 
 func (h *AuditHandler) LoginFailureHistoryHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,12 +39,12 @@ func (h *AuditHandler) LoginFailureHistoryHandler(w http.ResponseWriter, r *http
 	loginFails, err := h.auditService.GetLoginFailureHistoryAll()
 	if err != nil {
 		log.Printf("로그인 실패 기록 조회 실패: %v", err)
-		http.Error(w, "로그인 실패 기록 조회 실패", http.StatusInternalServerError)
+		util.RespondError(w, http.StatusInternalServerError, "로그인 실패 기록 조회 실패", "")
 		return
 	}
 
 	// 성공 시 200과 JSON 반환
-	util.RespondWithJSON(w, http.StatusOK, response.NewResponse(true, "로그인 실패 기록 조회 성공", &loginFails))
+	util.RespondSuccess(w, http.StatusOK, &loginFails)
 }
 
 func (h *AuditHandler) LoginResetHistoryHandler(w http.ResponseWriter, r *http.Request) {
@@ -54,10 +53,10 @@ func (h *AuditHandler) LoginResetHistoryHandler(w http.ResponseWriter, r *http.R
 	loginResets, err := h.auditService.GetLoginResetHistoryAll()
 	if err != nil {
 		log.Printf("로그인 초기화 기록 조회 실패: %v", err)
-		http.Error(w, "로그인 초기화 기록 조회 실패", http.StatusInternalServerError)
+		util.RespondError(w, http.StatusInternalServerError, "로그인 초기화 기록 조회 실패", "")
 		return
 	}
 
 	// 성공 시 200과 JSON 반환
-	util.RespondWithJSON(w, http.StatusOK, response.NewResponse(true, "로그인 초기화 기록 조회 성공", &loginResets))
+	util.RespondSuccess(w, http.StatusOK, &loginResets)
 }

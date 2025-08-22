@@ -33,6 +33,7 @@ export const AppPasswordField: React.FC<AppPasswordFieldProps> = ({
       fullWidth={fullWidth}
       label={label}
       type={showPassword ? "text" : "password"}
+      autoComplete="current-password"
       placeholder={placeholder}
       required={required}
       sx={sx}

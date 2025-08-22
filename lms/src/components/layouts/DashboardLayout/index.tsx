@@ -6,8 +6,7 @@ import sidenavRoute from "@/routes";
 
 import Sidenav from "@/components/layouts/Sidenav";
 import { SIDENAV_WIDTH } from "@/constants";
-import { useDevice } from "@/context";
-import { useSidenav } from "@/context/sidenav";
+import { useDevice, useSidenav } from "@/context";
 import MainContent from "./MainContent";
 import Navbar from "./Navbar";
 import PreferenceToggle from "./PreferenceToggle/PreferenceToggle";
@@ -22,7 +21,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const { isMobile } = useDevice();
   const { isSidenavOpen, isSidenavPinned, closeSidenav, toggleSidenav } =
     useSidenav();
-
   return (
     <LayoutContainer>
       <SidenavArea width={!isMobile && isSidenavPinned ? SIDENAV_WIDTH : 0}>

@@ -19,14 +19,12 @@ import type { RouteItem } from "./types";
 
 // 실제 로그인 페이지 import
 import DashboardPage from "@/pages/Dashboard";
+import LoginHistoryPage from "@/pages/LogManagement/LoginHistory";
 import SignIn from "@/pages/SignIn";
+import UserListPage from "@/pages/UserManagement/UserList";
 import UserRegistrationPage from "@/pages/UserManagement/UserRegistration";
 import LoginFailureHistoryPage from "../pages/LogManagement/LoginFailureHistory";
 import LoginResetHistoryPage from "../pages/LogManagement/LoginResetHistory";
-import {
-  default as LoginHistoryPage,
-  default as UserListPage,
-} from "../pages/UserManagement/UserList";
 
 const Reports = () => (
   <div style={{ padding: 20 }}>

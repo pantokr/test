@@ -30,6 +30,7 @@ const CoverContainer = styled(AppBox, {
   backgroundRepeat: "no-repeat",
   backgroundAttachment: "fixed",
 
+  padding: 0,
   // 모바일에서 fixed 문제 해결
   [theme.breakpoints.down("md")]: {
     backgroundAttachment: "scroll",
