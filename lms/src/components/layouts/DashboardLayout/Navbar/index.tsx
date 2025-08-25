@@ -12,6 +12,7 @@ import {
 } from "@mui/icons-material";
 import { Menu, MenuItem, Typography } from "@mui/material";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { AppIconButton } from "@/components/common/Button";
 import AppTypography from "@/components/common/Typography";
@@ -40,7 +41,8 @@ const Navbar: React.FC<NavbarProps> = ({
   transparent = true,
   onSidenavToggle,
 }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [notificationMenu, setNotificationMenu] = useState<null | HTMLElement>(
     null
   );
@@ -61,6 +63,34 @@ const Navbar: React.FC<NavbarProps> = ({
 
   const handleUserMenuClose = () => {
     setUserMenu(null);
+  };
+
+  // 프로필 페이지로 이동
+  const handleProfileClick = () => {
+    handleUserMenuClose();
+    navigate("/profile-settings");
+  };
+
+  // 설정 페이지로 이동
+  const handleSettingsClick = () => {
+    handleUserMenuClose();
+    navigate("/settings");
+  };
+
+  // 로그아웃 처리
+  const handleLogoutClick = async () => {
+    handleUserMenuClose();
+
+    if (confirm("로그아웃 하시겠습니까?")) {
+      try {
+        await logout();
+        navigate("/auth/sign-in");
+      } catch (error) {
+        console.error("로그아웃 실패:", error);
+        // 에러가 발생해도 로컬에서는 로그아웃 처리
+        navigate("/auth/sign-in");
+      }
+    }
   };
 
   // 알림 메뉴 아이템 컴포넌트
@@ -161,15 +191,20 @@ const Navbar: React.FC<NavbarProps> = ({
               },
             }}
           >
-            <MenuItem onClick={handleUserMenuClose}>
+            {/* 프로필 메뉴 - routes.ts의 /profile 경로와 매칭 */}
+            <MenuItem onClick={handleProfileClick}>
               <AccountCircle sx={{ mr: 1.5 }} fontSize="small" />
-              <Typography variant="body2">프로필</Typography>
+              <Typography variant="body2">프로필 설정</Typography>
             </MenuItem>
-            <MenuItem onClick={handleUserMenuClose}>
+
+            {/* 설정 메뉴 - routes.ts의 /settings 경로와 매칭 */}
+            <MenuItem onClick={handleSettingsClick}>
               <Settings sx={{ mr: 1.5 }} fontSize="small" />
               <Typography variant="body2">설정</Typography>
             </MenuItem>
-            <MenuItem onClick={handleUserMenuClose}>
+
+            {/* 로그아웃 */}
+            <MenuItem onClick={handleLogoutClick}>
               <Logout sx={{ mr: 1.5 }} fontSize="small" />
               <Typography variant="body2">로그아웃</Typography>
             </MenuItem>

@@ -1,18 +1,17 @@
 // src/context/auth.tsx
 import { loginApi, logoutApi, sessionApi } from "@/api/auth";
-import { UserInformation } from "@/api/types";
+import { UserData } from "@/api/types";
 import React, {
   createContext,
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 
 // 타입 정의
 export interface AuthContextType {
-  user: UserInformation | null;
+  user: UserData | null;
   isAuthenticated: boolean;
   isInitialized: boolean; // 초기화 완료 상태 추가
   login: (credentials: { loginID: string; passwd: string }) => Promise<void>;
@@ -29,11 +28,8 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 );
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<UserInformation | null>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-
-  // 세션 검증 진행 중 여부
-  const isValidatingSession = useRef(false);
 
   // 인증 상태 계산
   const isAuthenticated = useMemo(() => !!user, [user]);
@@ -51,22 +47,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return false;
     }
 
-    // 이미 검증 중이면 대기
-    if (isValidatingSession.current) {
-      return true; // 낙관적으로 true 반환
-    }
-
     try {
-      isValidatingSession.current = true;
-
       // 세션 검증 API 호출
       const response = await sessionApi();
       sessionStorage.setItem("user", JSON.stringify(response));
       return true;
     } catch (error) {
       throw error;
-    } finally {
-      isValidatingSession.current = false;
     }
   }, []);
 
@@ -118,7 +105,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       // API 성공/실패 관계없이 항상 로컬 세션 정리
       clearSession();
-      alert("로그아웃 되었습니다.");
     }
   }, [clearSession]);
 

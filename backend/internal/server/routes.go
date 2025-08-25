@@ -59,4 +59,5 @@ func (r *Routes) setupUserRoutes(router *mux.Router) {
 	user.Use(sessionMiddleware)
 
 	user.HandleFunc("/user-registration", r.handlers.User.UserRegistrationHandler).Methods("POST", "OPTIONS")
+	user.HandleFunc("/user-update", r.handlers.User.UserUpdateHandler).Methods("POST", "OPTIONS")
 }

@@ -23,6 +23,7 @@ import LoginHistoryPage from "@/pages/LogManagement/LoginHistory";
 import SignIn from "@/pages/SignIn";
 import UserListPage from "@/pages/UserManagement/UserList";
 import UserRegistrationPage from "@/pages/UserManagement/UserRegistration";
+import ProfileSettingsPage from "@/pages/UserMenu/ProfileSettings";
 import LoginFailureHistoryPage from "../pages/LogManagement/LoginFailureHistory";
 import LoginResetHistoryPage from "../pages/LogManagement/LoginResetHistory";
 
@@ -136,11 +137,11 @@ const sidenavRoutes: RouteItem[] = [
     title: "계정",
   },
   {
-    key: "profile",
+    key: "profile-settings",
     name: "프로필",
     icon: <PersonIcon />,
-    route: "/profile",
-    component: <Profile />,
+    route: "/profile-settings",
+    component: <ProfileSettingsPage />,
   },
   {
     key: "settings",

@@ -50,6 +50,10 @@ func GenerateSalt(length int) (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
+func CheckPassword(password, salt, hashedPassword string) bool {
+	return HashPassword(password, salt) == hashedPassword
+}
+
 func HashPassword(password string, salt string) string {
 	hash := sha256.Sum256([]byte(password + salt))
 	pw := hex.EncodeToString(hash[:])

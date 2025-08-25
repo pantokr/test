@@ -1,23 +1,28 @@
 // AppAutocomplete.tsx (예시)
-import { Autocomplete, AutocompleteProps, TextField } from "@mui/material";
+import { Autocomplete, AutocompleteProps } from "@mui/material";
 import React from "react";
+import { AppTextField } from "../TextField";
 
-export interface AppAutocompleteProps
-  extends AutocompleteProps<string, false, false, false> {
+interface AppAutocompleteProps
+  extends AutocompleteProps<any, boolean, boolean, boolean> {
   label: string;
-  options: string[];
+  options: any[];
+  required?: boolean;
 }
 
 export const AppAutocomplete: React.FC<AppAutocompleteProps> = ({
   label,
   options,
+  required = true,
   ...props
 }) => {
   return (
     <Autocomplete
       options={options}
       {...props}
-      renderInput={(params) => <TextField {...params} label={label} />}
+      renderInput={(params) => (
+        <AppTextField {...params} label={label} required={required} />
+      )}
     />
   );
 };

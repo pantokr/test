@@ -22,15 +22,15 @@ func (h *AuditHandler) LoginHistoryHandler(w http.ResponseWriter, r *http.Reques
 	histories, err := h.auditService.GetLoginHistoryAll()
 	if err != nil {
 		log.Printf("로그인 기록 조회 실패: %v", err)
-		util.RespondError(w, http.StatusInternalServerError, "로그인 기록 조회 실패", "")
+		util.RespondError(w, http.StatusInternalServerError, "로그인 기록 조회 실패")
 		return
 	}
 	if histories == nil {
-		util.RespondSuccess(w, http.StatusOK, nil)
+		util.RespondSuccess(w, nil)
 		return
 	}
 
-	util.RespondSuccess(w, http.StatusOK, &histories)
+	util.RespondSuccess(w, &histories)
 }
 
 func (h *AuditHandler) LoginFailureHistoryHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,12 +39,12 @@ func (h *AuditHandler) LoginFailureHistoryHandler(w http.ResponseWriter, r *http
 	loginFails, err := h.auditService.GetLoginFailureHistoryAll()
 	if err != nil {
 		log.Printf("로그인 실패 기록 조회 실패: %v", err)
-		util.RespondError(w, http.StatusInternalServerError, "로그인 실패 기록 조회 실패", "")
+		util.RespondError(w, http.StatusInternalServerError, "로그인 실패 기록 조회 실패")
 		return
 	}
 
 	// 성공 시 200과 JSON 반환
-	util.RespondSuccess(w, http.StatusOK, &loginFails)
+	util.RespondSuccess(w, &loginFails)
 }
 
 func (h *AuditHandler) LoginResetHistoryHandler(w http.ResponseWriter, r *http.Request) {
@@ -53,10 +53,10 @@ func (h *AuditHandler) LoginResetHistoryHandler(w http.ResponseWriter, r *http.R
 	loginResets, err := h.auditService.GetLoginResetHistoryAll()
 	if err != nil {
 		log.Printf("로그인 초기화 기록 조회 실패: %v", err)
-		util.RespondError(w, http.StatusInternalServerError, "로그인 초기화 기록 조회 실패", "")
+		util.RespondError(w, http.StatusInternalServerError, "로그인 초기화 기록 조회 실패")
 		return
 	}
 
 	// 성공 시 200과 JSON 반환
-	util.RespondSuccess(w, http.StatusOK, &loginResets)
+	util.RespondSuccess(w, &loginResets)
 }

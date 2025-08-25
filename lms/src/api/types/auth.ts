@@ -13,9 +13,19 @@ export interface LoginCredentials {
 }
 
 /**
+ * 로그인 응답
+ */
+export interface LoginResponse {
+  success: boolean;
+  code: string;
+  message: string;
+  userData: UserData;
+}
+
+/**
  * 사용자 기본 정보
  */
-export interface UserInformation {
+export interface UserData {
   loginID: string;
   empName: string;
   dptName: string;

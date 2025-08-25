@@ -29,22 +29,23 @@ export const axiosClient = axios.create({
   withCredentials: true, // 이게 빠져있음
 });
 
-// 401 에러 전역 처리
 axiosClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // if (error.response?.status === 401) {
-    //   if (!error.config?.url?.includes("/auth/")) {
-    //     alert("세션 정보 없음");
-    //   }
-    // }
+  (response) => {
+    const { success, data, message } = response.data;
 
-    // 에러 메시지를 표준화
-    console.log(error);
-    if (error.response?.data) {
-      error.message = error.response.data.error || error.response.data;
+    if (!success) {
+      const error = new Error(message || "Request failed");
+      throw error;
     }
 
+    // data만 반환하도록 response 수정
+    response.data = data;
+    return response;
+  },
+  (error) => {
+    if (error.response?.data?.message) {
+      error.message = error.response.data.message;
+    }
     return Promise.reject(error);
   }
 );

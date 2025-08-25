@@ -27,7 +27,7 @@ func InitAuthHandler(authService interfaces.AuthServiceInterface, sessionService
 func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var creds request.Credentials
 	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
-		util.RespondError(w, http.StatusBadRequest, "잘못된 요청입니다.", "")
+		util.RespondError(w, http.StatusBadRequest, "잘못된 요청입니다.")
 		return
 	}
 
@@ -40,27 +40,30 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		ServerIP:    serverIP,
 	}
 
-	userAccount, sessionID, detailCode, err := h.authService.Login(loginReq)
-	if err != nil {
-		log.Printf("로그인 실패: %v", err)
-		util.RespondError(w, http.StatusUnauthorized, detailCode, err.Error())
+	loginResp := h.authService.Login(loginReq)
+
+	if loginResp == nil || !loginResp.Success {
+		log.Printf("로그인 실패: %v", loginResp.Message)
+		util.RespondError(w, http.StatusUnauthorized, "로그인 실패: "+loginResp.Message)
 		return
+	}
+
+	if loginResp.Code == "3" {
+
 	}
 
 	// SessionService를 통한 세션 생성
-	if err := h.sessionService.CreateSession(w, r, userAccount.LoginID, userAccount.EmpName, sessionID); err != nil {
+	if err := h.sessionService.CreateSession(w, r, loginResp.User.LoginID, loginResp.User.EmpName, loginResp.SessionID); err != nil {
 		log.Printf("세션 저장 실패: %v", err)
-		if sessionID > 0 {
-			h.authService.Logout(sessionID)
+		if loginResp.SessionID > 0 {
+			h.authService.Logout(loginResp.SessionID)
 		}
-		util.RespondError(w, http.StatusInternalServerError, "세션 저장 실패", "")
+		util.RespondError(w, http.StatusInternalServerError, "세션 저장 실패")
 		return
 	}
 
-	data := new(response.LoginResponse)
-	data.LoginResponseFromModel(*userAccount)
+	util.RespondSuccess(w, response.NewLoginUserData(loginResp.User))
 
-	util.RespondSuccess(w, http.StatusOK, data)
 }
 
 func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -80,21 +83,21 @@ func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("세션 삭제 실패: %v", err)
 	}
 
-	util.RespondSuccess(w, http.StatusOK, nil)
+	util.RespondSuccess(w, nil)
 }
 
 func (h *AuthHandler) SessionHandler(w http.ResponseWriter, r *http.Request) {
 	// SessionService를 통한 세션 검증
 	sessionInfo, err := h.sessionService.ValidateSession(r)
 	if err != nil {
-		util.RespondError(w, http.StatusUnauthorized, "세션 검증 실패", "")
+		util.RespondError(w, http.StatusUnauthorized, "세션 검증 실패")
 		return
 	}
 
 	// 상세 사용자 정보 조회
 	userAccount, err := h.authService.GetUserInfo(sessionInfo.UserID)
 	if userAccount == nil || err != nil {
-		util.RespondError(w, http.StatusNotFound, "사용자 정보 없음", "")
+		util.RespondError(w, http.StatusNotFound, "사용자 정보 없음")
 		return
 	}
 
@@ -104,8 +107,5 @@ func (h *AuthHandler) SessionHandler(w http.ResponseWriter, r *http.Request) {
 		// 연장 실패해도 응답은 계속 진행
 	}
 
-	userData := response.LoginResponse{}
-	userData.LoginResponseFromModel(*userAccount)
-
-	util.RespondSuccess(w, http.StatusOK, userData)
+	util.RespondSuccess(w, response.NewLoginUserData(userAccount))
 }

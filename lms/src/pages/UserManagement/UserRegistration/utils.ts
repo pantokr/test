@@ -74,16 +74,7 @@ export const validateRegistrationForm = (
   error = validateLoginID(formData.loginID);
   if (error) return { valid: false, error };
 
-  error = validatePassword(formData.passwd);
-  if (error) return { valid: false, error };
-
-  error = validateConfirmPassword(formData.passwd, confirmPwd);
-  if (error) return { valid: false, error };
-
   error = validateName(formData.empName);
-  if (error) return { valid: false, error };
-
-  error = validateEmail(formData.email);
   if (error) return { valid: false, error };
 
   error = validateDepartment(formData.dptName);

@@ -57,6 +57,23 @@ func (r *UserRepository) SelectUserAccountByID(id string) (*model.UserAccount, e
 	return &user, nil
 }
 
+func (r *UserRepository) UpdateUserAccount(user *model.UserAccount) error {
+
+	const query = `
+		UPDATE user_account
+		SET passwd = ?, emp_name = ?, dpt_name = ?, office_tel = ?, mobile_tel = ?, 
+		passwd_update_date = ?, pw_fail_count = ?,	pw_ref = ?, upd_emp_id = ?, upd_date = ?
+		WHERE login_id = ?
+	`
+
+	_, err := r.db.Exec(query, user.Passwd, user.EmpName, user.DptName, user.OfficeTel, user.MobileTel, user.PasswdUpdateDate, user.PwFailCount, user.PwRef, user.UpdEmpID, user.UpdDate, user.LoginID)
+
+	if err != nil {
+		return fmt.Errorf("사용자 수정 실패: %w", err)
+	}
+	return nil
+}
+
 func (r *UserRepository) UpdateUserAccountLoginFailureByID(loginID string) error {
 	const query = `
 		UPDATE user_account

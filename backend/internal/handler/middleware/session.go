@@ -30,7 +30,7 @@ func SessionMiddleware(sessionValidator SessionValidator) func(http.Handler) htt
 			sessionInfo, err := sessionValidator.ValidateSession(r)
 			if err != nil || !sessionInfo.IsValid {
 				log.Printf("세션 검증 실패: %v", err)
-				util.RespondError(w, http.StatusUnauthorized, "세션 검증 실패", "")
+				util.RespondError(w, http.StatusUnauthorized, "세션 검증 실패")
 				return
 			}
 

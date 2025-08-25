@@ -1,6 +1,6 @@
 import { USER_ROUTE } from "@/constants";
 import { axiosClient, createApiUrl } from "@/utils/api";
-import { UserRegistration } from "../types/user";
+import { UserRegistration, UserUpdate } from "../types/user";
 
 // API Functions
 /**
@@ -13,4 +13,8 @@ export const UserRegistrationApi = async (
     createApiUrl(USER_ROUTE, "/user-registration"),
     registrationData
   );
+};
+
+export const UserUpdateApi = async (updateData: UserUpdate): Promise<void> => {
+  await axiosClient.post(createApiUrl(USER_ROUTE, "/user-update"), updateData);
 };

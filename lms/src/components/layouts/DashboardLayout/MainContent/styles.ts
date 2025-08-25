@@ -6,7 +6,9 @@ export const ContentWrapper = styled(AppBox)({
   overflow: "hidden",
   display: "flex",
   flexDirection: "column",
-  width: "100%",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "90%",
   minHeight: 0,
   padding: 4,
 });

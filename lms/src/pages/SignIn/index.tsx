@@ -8,17 +8,20 @@ import { useNavigate } from "react-router-dom";
 import { LoginCredentials } from "@/api/types";
 import { AppButton, AppTextField } from "@/components/common";
 import { AppBox } from "@/components/common/Box";
+import AppSnackbar from "@/components/common/Snackbar";
+import { useSnackbar } from "@/components/common/Snackbar/hooks";
 import { AppPasswordField } from "@/components/common/TextField";
 import AppTypography from "@/components/common/Typography";
 import CoverLayout from "@/components/layouts/CoverLayout";
-import UserRegistrationDialog from "@/components/UserRegistrationDialog";
 import { useAuth } from "@/context";
 import { LogoBox, StyledPaper } from "./styles";
+import PasswordUpdateDialog from "./UpdatePasswdDialog";
 
 const SignInPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const theme = useTheme();
+  const snackbar = useSnackbar();
 
   const [formData, setFormData] = useState<LoginCredentials>({
     loginID: "",
@@ -71,17 +74,6 @@ const SignInPage: React.FC = () => {
 
   const handleOpenDialog = () => {
     setDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setDialogOpen(false);
-  };
-
-  const handleRegistrationSuccess = () => {
-    // 등록 성공 후 실행할 로직
-    // 예: 사용자 목록 새로고침, 토스트 메시지 표시 등
-    console.log("사용자 등록이 성공했습니다!");
-    // 필요시 추가 작업 수행
   };
 
   return (
@@ -165,7 +157,12 @@ const SignInPage: React.FC = () => {
               alignItems="center"
               mb={3}
             >
-              <AppButton onClick={handleOpenDialog}>
+              <AppButton
+                onClick={() => {
+                  snackbar.error("관리자에게 문의하세요.");
+                  setDialogOpen(true);
+                }}
+              >
                 <Typography variant="body2">비밀번호 찾기</Typography>
               </AppButton>
             </AppBox>
@@ -190,13 +187,14 @@ const SignInPage: React.FC = () => {
               {loading ? "로그인 중..." : "로그인"}
             </AppButton>
           </AppBox>
-          <UserRegistrationDialog
-            open={dialogOpen}
-            onClose={handleCloseDialog}
-            onSuccess={handleRegistrationSuccess}
-          />
         </AppBox>
       </StyledPaper>
+      <PasswordUpdateDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+      />
+
+      <AppSnackbar {...snackbar.snackbarProps} />
     </CoverLayout>
   );
 };
