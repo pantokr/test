@@ -141,10 +141,28 @@ export const createAppTheme = (
       MuiButton: {
         styleOverrides: {
           root: {
+            "&:focus": {
+              outline: "none",
+            },
+            "&:focus-visible": {
+              outline: "none",
+            },
             borderRadius: compactMode ? 6 : 8,
             textTransform: "none",
             fontWeight: 600,
             padding: compactMode ? "6px 12px" : "8px 16px",
+          },
+        },
+      },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            "&:focus": {
+              outline: "none",
+            },
+            "&:focus-visible": {
+              outline: "none",
+            },
           },
         },
       },

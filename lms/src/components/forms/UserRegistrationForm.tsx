@@ -11,9 +11,13 @@ import {
 import { AppBox } from "@/components/common/Box";
 import AppTypography from "@/components/common/Typography";
 import { useAuth } from "@/context";
+import {
+  validateDepartment,
+  validateLoginID,
+  validateName,
+} from "@/utils/form";
 import { AutocompleteRenderInputParams } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { validateUserRegistrationForm } from "./utils";
 
 interface UserRegistrationFormProps {
   onSuccess?: (message: string) => void;
@@ -54,6 +58,23 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
       }));
     }
   }, [user, initialData]);
+
+  const validateUserRegistrationForm = (
+    formData: UserRegistration
+  ): { valid: boolean; error?: string } => {
+    let error: string | null = null;
+
+    error = validateLoginID(formData.loginID);
+    if (error) return { valid: false, error };
+
+    error = validateName(formData.empName);
+    if (error) return { valid: false, error };
+
+    error = validateDepartment(formData.dptName);
+    if (error) return { valid: false, error };
+
+    return { valid: true };
+  };
 
   const handleChange =
     (field: keyof UserRegistration) =>
@@ -132,7 +153,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
   };
 
   return (
-    <AppBox component="form" sx={{ width: "60%" }} onSubmit={handleSubmit}>
+    <AppBox component="form" onSubmit={handleSubmit}>
       <Column>
         <Row mainAxisAlignment="start">
           <AppTextField

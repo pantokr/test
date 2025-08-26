@@ -1,8 +1,7 @@
 // AgGrid.tsx
-import { AppPaper } from "@/components/common";
+import { AppBox } from "@/components/common/Box";
 import { useThemeSettings } from "@/context";
 import { ThemeSettings } from "@/context/types";
-import { Box } from "@mui/material";
 import {
   AllCommunityModule,
   ColDef,
@@ -96,16 +95,14 @@ const AgGrid: React.FC<AgGridProps> = ({
   }, [themeSettings.darkMode, themeSettings.fontSize]);
 
   return (
-    <AppPaper>
-      <Box width={"100%"} height={"100%"}>
-        <AgGridReact
-          key={gridKey}
-          columnDefs={columnDefs}
-          rowData={rowData}
-          gridOptions={defaultGridOptions}
-        />
-      </Box>
-    </AppPaper>
+    <AppBox width={"100%"} height={"100%"}>
+      <AgGridReact
+        key={gridKey}
+        columnDefs={columnDefs}
+        rowData={rowData}
+        gridOptions={defaultGridOptions}
+      />
+    </AppBox>
   );
 };
 

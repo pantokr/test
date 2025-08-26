@@ -20,9 +20,10 @@ import type { RouteItem } from "./types";
 // 실제 로그인 페이지 import
 import DashboardPage from "@/pages/Dashboard";
 import LoginHistoryPage from "@/pages/LogManagement/LoginHistory";
-import SignIn from "@/pages/SignIn";
+import SignInPage from "@/pages/SignIn";
 import UserListPage from "@/pages/UserManagement/UserList";
 import UserRegistrationPage from "@/pages/UserManagement/UserRegistration";
+import PasswordSettingsPage from "@/pages/UserMenu/PasswordSettings";
 import ProfileSettingsPage from "@/pages/UserMenu/ProfileSettings";
 import LoginFailureHistoryPage from "../pages/LogManagement/LoginFailureHistory";
 import LoginResetHistoryPage from "../pages/LogManagement/LoginResetHistory";
@@ -55,8 +56,8 @@ const SignUp = () => (
   </div>
 );
 
-// 라우트 설정
-const sidenavRoutes: RouteItem[] = [
+// 라우트 설정 - 계정 섹션부터 사이드네비에서 숨김
+export const sidenavRoutes: RouteItem[] = [
   {
     key: "dashboard",
     name: "대시보드",
@@ -120,7 +121,6 @@ const sidenavRoutes: RouteItem[] = [
       },
     ],
   },
-
   {
     key: "reports",
     name: "리포트",
@@ -128,45 +128,32 @@ const sidenavRoutes: RouteItem[] = [
     route: "/reports",
     component: <Reports />,
   },
-  {
-    key: "divider-1",
-    divider: true,
-  },
-  {
-    key: "account-pages",
-    title: "계정",
-  },
+  // 계정 섹션부터 제거됨 (divider-1, account-pages, profile-settings, password-settings, sign-in)
+];
+
+// 숨겨진 라우트들 (사이드네비에는 표시되지 않지만 직접 접근 가능)
+export const hiddenRoutes: RouteItem[] = [
   {
     key: "profile-settings",
     name: "프로필",
     icon: <PersonIcon />,
-    route: "/profile-settings",
+    route: "/user-data-settings",
     component: <ProfileSettingsPage />,
   },
   {
-    key: "settings",
+    key: "password-settings",
     name: "설정",
     icon: <SettingsIcon />,
-    route: "/settings",
-    component: <Settings />,
+    route: "/password-settings",
+    component: <PasswordSettingsPage />,
   },
-  // 인증 관련 라우트
   {
     key: "sign-in",
     name: "로그인",
     icon: <LoginIcon />,
     route: "/auth/sign-in",
-    component: <SignIn />,
-  },
-  {
-    key: "sign-up",
-    name: "회원가입",
-    icon: <PersonIcon />,
-    route: "/auth/sign-up",
-    component: <SignUp />,
+    component: <SignInPage />,
   },
 ];
-
-export default sidenavRoutes;
 
 export { default as ProtectedRoute } from "./ProtectedRoute";

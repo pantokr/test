@@ -2,11 +2,10 @@
 
 import React from "react";
 
-import sidenavRoute from "@/routes";
-
 import Sidenav from "@/components/layouts/Sidenav";
 import { SIDENAV_WIDTH } from "@/constants";
 import { useDevice, useSidenav } from "@/context";
+import { sidenavRoutes } from "@/routes";
 import MainContent from "./MainContent";
 import Navbar from "./Navbar";
 import PreferenceToggle from "./PreferenceToggle/PreferenceToggle";
@@ -26,7 +25,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <SidenavArea width={!isMobile && isSidenavPinned ? SIDENAV_WIDTH : 0}>
         <Sidenav
           brandName="LMS"
-          routes={sidenavRoute}
+          routes={sidenavRoutes}
           isOpen={isSidenavOpen}
           onClose={closeSidenav}
         />

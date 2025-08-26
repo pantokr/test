@@ -1,13 +1,14 @@
 // src/pages/auth/SignIn/index.tsx
 
 import { Person } from "@mui/icons-material";
-import { Alert, InputAdornment, Typography, useTheme } from "@mui/material";
+import { Alert, InputAdornment, useTheme } from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { LoginCredentials } from "@/api/types";
+import { ApiError, LoginCredentials } from "@/api/types";
 import { AppButton, AppTextField } from "@/components/common";
 import { AppBox } from "@/components/common/Box";
+import AppTextButton from "@/components/common/Button/AppTextButton";
 import AppSnackbar from "@/components/common/Snackbar";
 import { useSnackbar } from "@/components/common/Snackbar/hooks";
 import { AppPasswordField } from "@/components/common/TextField";
@@ -31,6 +32,7 @@ const SignInPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [warningMessage, setWarningMessage] = useState<string | null>(null); // 추가
 
   // 폼 데이터 변경 핸들러
   const handleChange =
@@ -51,20 +53,29 @@ const SignInPage: React.FC = () => {
 
     try {
       setLoading(true);
-      // 여기에 실제 로그인 API 호출 로직 구현
-      // 임시 로그인 처리
+      setError(null);
+
       if (formData.loginID && formData.passwd) {
         await login({
           loginID: formData.loginID,
           passwd: formData.passwd,
         });
 
-        navigate("/dashboard");
+        // 임시 로직: 아이디와 비밀번호가 같으면 비밀번호 재설정 필요
+        if (formData.loginID === formData.passwd) {
+          setWarningMessage("보안상의 이유로 비밀번호 변경이 필요합니다.");
+          setDialogOpen(true);
+        } else {
+          navigate("/dashboard");
+        }
       }
     } catch (err: any) {
-      if (err.response?.data?.detail == "NO_INFO") {
-        handleOpenDialog();
+      if (err instanceof ApiError && err.code === "PASSWORD_RESET_REQUIRED") {
+        console.log("비밀번호 초기화 필요");
+        setWarningMessage(err.message);
+        setDialogOpen(true);
       } else {
+        console.log(err.code);
         setError(err.message || "알 수 없는 오류");
       }
     } finally {
@@ -73,7 +84,21 @@ const SignInPage: React.FC = () => {
   };
 
   const handleOpenDialog = () => {
+    setWarningMessage(null); // 일반 비밀번호 찾기
     setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setWarningMessage(null);
+  };
+
+  const handlePasswordUpdateSuccess = (message: string) => {
+    snackbar.success(message);
+    setDialogOpen(false);
+    setWarningMessage(null);
+    // 비밀번호 변경 후 대시보드로 이동
+    navigate("/dashboard");
   };
 
   return (
@@ -125,7 +150,7 @@ const SignInPage: React.FC = () => {
             <AppTextField
               fullWidth
               label="아이디"
-              type="text" // 아이디는 text가 맞음
+              type="text"
               value={formData.loginID}
               onChange={handleChange("loginID")}
               slotProps={{
@@ -157,14 +182,13 @@ const SignInPage: React.FC = () => {
               alignItems="center"
               mb={3}
             >
-              <AppButton
+              <AppTextButton
                 onClick={() => {
-                  snackbar.error("관리자에게 문의하세요.");
-                  setDialogOpen(true);
+                  snackbar.error("비밀번호 변경은 관리자에게 문의하세요");
                 }}
               >
-                <Typography variant="body2">비밀번호 찾기</Typography>
-              </AppButton>
+                비밀번호 찾기
+              </AppTextButton>
             </AppBox>
 
             {/* 로그인 버튼 */}
@@ -189,9 +213,14 @@ const SignInPage: React.FC = () => {
           </AppBox>
         </AppBox>
       </StyledPaper>
+
+      {/* 비밀번호 업데이트 다이얼로그 */}
       <PasswordUpdateDialog
+        loginCredentials={formData}
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={handleDialogClose}
+        onSuccess={handlePasswordUpdateSuccess}
+        warningMessage={warningMessage}
       />
 
       <AppSnackbar {...snackbar.snackbarProps} />

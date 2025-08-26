@@ -9,12 +9,15 @@ import {
   Row,
 } from "@/components/common";
 import { AppBox } from "@/components/common/Box";
-import { AppPasswordField } from "@/components/common/TextField";
 import AppTypography from "@/components/common/Typography";
 import { useAuth } from "@/context";
 import { AutocompleteRenderInputParams } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { validateUserUpdateForm } from "./utils";
+import {
+  validateDepartment,
+  validateLoginID,
+  validateName,
+} from "../../utils/form";
 
 interface UserUpdateFormProps {
   onSuccess?: (message: string) => void;
@@ -30,8 +33,6 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<UserUpdate>({
     loginID: "",
-    oldPasswd: "",
-    newPasswd: "",
     empName: "",
     dptName: "",
     officeTel: "",
@@ -56,8 +57,6 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
       // 기본값으로 현재 사용자 정보 사용
       setFormData({
         loginID: user.loginID || "",
-        oldPasswd: "",
-        newPasswd: "",
         empName: user.empName || "",
         dptName: user.dptName || "",
         officeTel: user.officeTel || "",
@@ -66,6 +65,24 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
       });
     }
   }, [user, initialData]);
+
+  const validateUserUpdateForm = (
+    formData: UserUpdate,
+    confirmPwd: string
+  ): { valid: boolean; error?: string } => {
+    let error: string | null = null;
+
+    error = validateLoginID(formData.loginID);
+    if (error) return { valid: false, error };
+
+    error = validateName(formData.empName);
+    if (error) return { valid: false, error };
+
+    error = validateDepartment(formData.dptName);
+    if (error) return { valid: false, error };
+
+    return { valid: true };
+  };
 
   const handleChange =
     (field: keyof UserUpdate) =>
@@ -174,48 +191,6 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
         </Row>
 
         {/* 현재 비밀번호 */}
-        <Row>
-          <AppPasswordField
-            label="현재 비밀번호"
-            name="currentPassword"
-            id="currentPassword"
-            autoComplete="current-password"
-            value={formData.oldPasswd}
-            required={true}
-            sx={{ flex: 1 }}
-            onChange={handleChange("oldPasswd")}
-          />
-        </Row>
-
-        {/* 새 비밀번호 */}
-        <Row>
-          <AppPasswordField
-            label="새 비밀번호"
-            name="newPassword"
-            id="newPassword"
-            autoComplete="new-password"
-            value={formData.newPasswd}
-            sx={{ flex: 1 }}
-            required={false}
-            onChange={handleChange("newPasswd")}
-          />
-          <AppPasswordField
-            label="새 비밀번호 확인"
-            name="confirmNewPassword"
-            id="confirmNewPassword"
-            autoComplete="new-password"
-            value={confirmNewPassword}
-            onChange={(event) => setConfirmNewPassword(event.target.value)}
-            required={false}
-            sx={{ flex: 1 }}
-          />
-        </Row>
-
-        <Row>
-          <AppTypography variant="body2" color="text.secondary">
-            비밀번호를 변경하지 않으려면 비워두세요.
-          </AppTypography>
-        </Row>
 
         <Row>
           <AppTextField

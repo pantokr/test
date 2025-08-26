@@ -8,7 +8,7 @@ export const AppBox: React.FC<AppBoxProps> = ({
   ...props
 }) => {
   return (
-    <Box p={padding} {...props}>
+    <Box p={padding} sx={{ backgroundColor: "transparent" }} {...props}>
       {children}
     </Box>
   );

@@ -1,34 +1,24 @@
 // api/types/user.ts
 
-/**
- * 사용자 기본 정보 (공통 필드)
- */
-export interface UserBaseInfo {
-  loginID: string;
-  empName: string;
-  dptName: string;
-  officeTel: string;
-  mobileTel: string;
-}
+import { LoginCredentials, UserData } from "./auth";
 
 /**
- * 사용자 수정 데이터
+ * 비밀번호 수정 데이터
  */
-export interface PasswdUpdate extends UserBaseInfo {
-  oldPasswd: string;
+export interface PasswdUpdate extends LoginCredentials {
   newPasswd: string;
 }
 
 /**
  * 사용자 수정 데이터
  */
-export interface UserUpdate extends PasswdUpdate {
+export interface UserUpdate extends UserData {
   updateEmpID: string;
 }
 
 /**
  * 사용자 등록 데이터
  */
-export interface UserRegistration extends UserBaseInfo {
+export interface UserRegistration extends UserData {
   regEmpID: string;
 }

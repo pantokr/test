@@ -1,4 +1,5 @@
 // pages/UserManagement/UserRegistration/index.tsx
+import { AppPaper } from "@/components/common";
 import UserRegistrationForm from "@/components/forms/UserRegistrationForm";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import React from "react";
@@ -17,7 +18,9 @@ const UserRegistrationPage: React.FC = () => {
 
   return (
     <DashboardLayout title="사용자 등록">
-      <UserRegistrationForm onSuccess={handleSuccess} />
+      <AppPaper title="사용자 등록">
+        <UserRegistrationForm onSuccess={handleSuccess} />
+      </AppPaper>
     </DashboardLayout>
   );
 };

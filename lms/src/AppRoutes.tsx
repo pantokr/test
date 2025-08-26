@@ -3,13 +3,11 @@
 import { useEffect, useMemo, type ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
 
-// Layout
-
 // Components
 import ProtectedRoute from "@/routes/ProtectedRoute";
 
 // Routes and contexts
-import routes from "@/routes";
+import { hiddenRoutes, sidenavRoutes } from "@/routes";
 import NotFoundPage from "./pages/common/NotFound";
 import SignInPage from "./pages/SignIn";
 import { RouteItem } from "./routes/types";
@@ -44,7 +42,10 @@ const AppRoutes: React.FC = () => {
       }
     };
 
-    routes.forEach(processRoute);
+    sidenavRoutes.forEach(processRoute);
+
+    hiddenRoutes.forEach(processRoute);
+
     return elements;
   }, []);
 

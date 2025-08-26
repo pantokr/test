@@ -88,11 +88,12 @@ func (s *AuthService) validateLogin(loginReq request.LoginRequest) *types.LoginR
 	}
 
 	// IP 주소 검증
+
 	if userAccount.ClientIP != "" && userAccount.ClientIP != loginReq.ClientIP {
 		return &types.LoginResult{
 			Success: false,
 			Code:    "4",
-			Message: "IP 주소가 일치하지 않습니다",
+			Message: fmt.Sprintf("IP 주소가 일치하지 않습니다 ip: %s", loginReq.ClientIP),
 			User:    userAccount,
 		}
 	}

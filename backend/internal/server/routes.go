@@ -53,11 +53,17 @@ func (r *Routes) setupAuditRoutes(router *mux.Router) {
 
 // 3. 사용자 관리 라우트
 func (r *Routes) setupUserRoutes(router *mux.Router) {
-	user := router.PathPrefix("/api/user").Subrouter()
-
 	sessionMiddleware := middleware.SessionMiddleware(r.sessionService)
-	user.Use(sessionMiddleware)
 
-	user.HandleFunc("/user-registration", r.handlers.User.UserRegistrationHandler).Methods("POST", "OPTIONS")
-	user.HandleFunc("/user-update", r.handlers.User.UserUpdateHandler).Methods("POST", "OPTIONS")
+	// 세션 검증이 필요 없는 라우트 (개별 등록)
+	userWithNoMiddleware := router.PathPrefix("/api/user").Subrouter()
+	userWithNoMiddleware.HandleFunc("/password-verification", r.handlers.User.PasswordVerificationHandler).Methods("POST", "OPTIONS")
+	userWithNoMiddleware.HandleFunc("/password-update", r.handlers.User.PasswordUpdateHandler).Methods("POST", "OPTIONS")
+
+	// 세션 검증이 필요한 라우트
+	userWithMiddleware := router.PathPrefix("/api/user").Subrouter()
+	userWithMiddleware.Use(sessionMiddleware)
+	userWithMiddleware.HandleFunc("/user-registration", r.handlers.User.UserRegistrationHandler).Methods("POST", "OPTIONS")
+	userWithMiddleware.HandleFunc("/user-update", r.handlers.User.UserUpdateHandler).Methods("POST", "OPTIONS")
+	userWithMiddleware.HandleFunc("/user-account-list", r.handlers.User.GetAllUsersHandler).Methods("GET", "OPTIONS")
 }

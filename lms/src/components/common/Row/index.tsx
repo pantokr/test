@@ -77,7 +77,7 @@ export const Row: React.FC<RowProps> = ({
       direction="row"
       spacing={2}
       sx={{
-        backgroundColor: "background.default",
+        backgroundColor: "transparent",
         justifyContent: mapMainAxisAlignment(mainAxisAlignment),
         alignItems: mapCrossAxisAlignment(crossAxisAlignment),
         width: mainAxisSize === "min" ? "auto" : "100%",

@@ -8,21 +8,21 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { useLocation } from "react-router-dom";
 
-// 타입 정의
 export interface AuthContextType {
   user: UserData | null;
   isAuthenticated: boolean;
-  isInitialized: boolean; // 초기화 완료 상태 추가
+  isInitialized: boolean;
   login: (credentials: { loginID: string; passwd: string }) => Promise<void>;
   logout: () => Promise<void>;
   checkSession: () => Promise<boolean>;
 }
 
-// Provider 컴포넌트
 interface AuthProviderProps {
   children: React.ReactNode;
 }
+
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );
@@ -30,47 +30,52 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<UserData | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const location = useLocation();
 
-  // 인증 상태 계산
   const isAuthenticated = useMemo(() => !!user, [user]);
 
-  // 세션 정리 함수
   const clearSession = useCallback(() => {
-    setUser(null);
-    sessionStorage.removeItem("user");
+    try {
+      setUser(null);
+      sessionStorage.removeItem("user");
+    } catch (error) {
+      // sessionStorage 접근 실패시 무시
+    }
   }, []);
 
-  // 서버에서 세션 검증
   const checkSession = useCallback(async (): Promise<boolean> => {
-    const savedUser = sessionStorage.getItem("user");
-    if (!savedUser) {
-      return false;
-    }
-
     try {
-      // 세션 검증 API 호출
+      const savedUser = sessionStorage.getItem("user");
+      if (!savedUser) return false;
+
       const response = await sessionApi();
       sessionStorage.setItem("user", JSON.stringify(response));
+      setUser(response);
       return true;
     } catch (error) {
-      throw error;
+      clearSession();
+      return false;
     }
-  }, []);
+  }, [clearSession]);
 
-  // sessionStorage에서 사용자 정보 복원 및 세션 검증 (초기화)
+  const logout = useCallback(async (): Promise<void> => {
+    try {
+      await logoutApi();
+    } catch (error) {
+      // 서버 로그아웃 실패해도 로컬은 정리
+    } finally {
+      clearSession();
+    }
+  }, [clearSession]);
+
+  // 초기화
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         const savedUser = sessionStorage.getItem("user");
         if (savedUser) {
-          const parsedUser = JSON.parse(savedUser);
-
-          // 서버에서 세션 유효성 검증
-          const isValidSession = await checkSession();
-
-          if (isValidSession) {
-            setUser(parsedUser);
-          }
+          JSON.parse(savedUser); // 유효성 검사
+          await checkSession();
         }
       } catch (error) {
         clearSession();
@@ -80,35 +85,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     initializeAuth();
-  }, []);
+  }, [checkSession, clearSession]);
 
-  // 로그인 함수
+  // 페이지 이동시 세션 체크
+  useEffect(() => {
+    if (isInitialized && user) {
+      const publicPaths = ["/login", "/register", "/"];
+      if (!publicPaths.includes(location.pathname)) {
+        checkSession();
+      }
+    }
+  }, [location.pathname]);
+
   const login = useCallback(
     async (credentials: { loginID: string; passwd: string }): Promise<void> => {
       try {
         const response = await loginApi(credentials);
-
         setUser(response);
         sessionStorage.setItem("user", JSON.stringify(response));
       } catch (error) {
+        clearSession();
         throw error;
       }
     },
-    []
+    [clearSession]
   );
 
-  // 로그아웃 함수
-  const logout = useCallback(async (): Promise<void> => {
-    try {
-      await logoutApi();
-    } catch (error) {
-    } finally {
-      // API 성공/실패 관계없이 항상 로컬 세션 정리
-      clearSession();
-    }
-  }, [clearSession]);
-
-  // Context 값 메모이제이션
   const contextValue: AuthContextType = useMemo(
     () => ({
       user,

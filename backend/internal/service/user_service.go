@@ -55,7 +55,52 @@ func (s *UserService) UpdateUser(updateReq request.UserUpdateRequest) error {
 		return err
 	}
 
-	if !util.CheckPassword(updateReq.OldPasswd, userAccount.PwRef, userAccount.Passwd) {
+	// if !util.CheckPassword(updateReq.OldPasswd, userAccount.PwRef, userAccount.Passwd) {
+	// 	return fmt.Errorf("기존 비밀번호가 일치하지 않습니다")
+	// }
+
+	// newPasswd := userAccount.Passwd
+	// newSalt := userAccount.PwRef
+
+	// if updateReq.NewPasswd != "" {
+	// 	newSalt, err = util.GenerateSalt(4)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	newPasswd = util.HashPassword(updateReq.NewPasswd, newSalt)
+	// }
+
+	if err := s.userRepo.UpdateUserAccount(&model.UserAccount{
+		LoginID:          updateReq.LoginID,
+		Passwd:           userAccount.Passwd, // 비밀번호는 변경하지 않음
+		EmpName:          updateReq.EmpName,
+		DptName:          updateReq.DptName,
+		OfficeTel:        updateReq.OfficeTel,
+		MobileTel:        updateReq.MobileTel,
+		RecentConnDate:   userAccount.RecentConnDate, // 최근 접속일은 변경하지 않음
+		DeleteDate:       userAccount.DeleteDate,     // 삭제일은 변경하지 않음
+		PasswdUpdateDate: util.NowPtr(),
+		PwFailCount:      userAccount.PwFailCount, // 비밀번호 실패 횟수는 변경하지 않음
+		ClientIP:         userAccount.ClientIP,    // 클라이언트 IP는 변경하지 않음
+		PwRef:            userAccount.PwRef,       // 비밀번호 참조는 변경하지 않음
+		RegEmpID:         userAccount.RegEmpID,    // 등록자 ID는 변경하지 않음
+		RegDate:          userAccount.RegDate,     // 등록일은 변경하지 않음
+		UpdEmpID:         updateReq.UpdateEmpID,
+		UpdDate:          util.NowPtr(),
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *UserService) UpdatePassword(updateReq request.PasswordUpdateRequest) error {
+	userAccount, err := s.userRepo.SelectUserAccountByID(updateReq.LoginID)
+	if err != nil {
+		return err
+	}
+
+	if !util.CheckPassword(updateReq.Passwd, userAccount.PwRef, userAccount.Passwd) {
 		return fmt.Errorf("기존 비밀번호가 일치하지 않습니다")
 	}
 
@@ -73,23 +118,40 @@ func (s *UserService) UpdateUser(updateReq request.UserUpdateRequest) error {
 	if err := s.userRepo.UpdateUserAccount(&model.UserAccount{
 		LoginID:          updateReq.LoginID,
 		Passwd:           newPasswd,
-		EmpName:          updateReq.EmpName,
-		DptName:          updateReq.DptName,
-		OfficeTel:        updateReq.OfficeTel,
-		MobileTel:        updateReq.MobileTel,
-		RecentConnDate:   nil,
-		DeleteDate:       nil,
+		EmpName:          userAccount.EmpName,
+		DptName:          userAccount.DptName,
+		OfficeTel:        userAccount.OfficeTel,
+		MobileTel:        userAccount.MobileTel,
+		RecentConnDate:   userAccount.RecentConnDate,
+		DeleteDate:       userAccount.DeleteDate,
 		PasswdUpdateDate: util.NowPtr(),
-		PwFailCount:      0,
-		ClientIP:         "",
+		PwFailCount:      userAccount.PwFailCount,
+		ClientIP:         userAccount.ClientIP,
 		PwRef:            newSalt,
-		RegEmpID:         "",
-		RegDate:          nil,
-		UpdEmpID:         updateReq.UpdateEmpID,
+		RegEmpID:         userAccount.RegEmpID,
+		RegDate:          userAccount.RegDate,
+		UpdEmpID:         userAccount.UpdEmpID,
 		UpdDate:          util.NowPtr(),
 	}); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (s *UserService) VerifyPassword(verifyReq request.Credentials) error {
+	userAccount, err := s.userRepo.SelectUserAccountByID(verifyReq.LoginID)
+	if err != nil {
+		return err
+	}
+
+	if !util.CheckPassword(verifyReq.Passwd, userAccount.PwRef, userAccount.Passwd) {
+		return fmt.Errorf("비밀번호가 일치하지 않습니다")
+	}
+
+	return nil
+}
+
+func (s *UserService) GetAllUsers() ([]*model.UserAccount, error) {
+	return s.userRepo.SelectUserAccountAll()
 }

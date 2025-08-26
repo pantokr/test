@@ -2,7 +2,7 @@
 
 import { loginFailureHistoryApi } from "@/api/audit";
 import { LoginFailureHistoryItem } from "@/api/types";
-import { AppBox } from "@/components/common/Box";
+import { AppPaper } from "@/components/common";
 import AgGrid from "@/components/dataGrid/AgGrid/AgGrid";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import React, { useEffect, useState } from "react";
@@ -28,9 +28,9 @@ const LoginFailureHistoryPage: React.FC = () => {
 
   return (
     <DashboardLayout title="로그인 실패 기록">
-      <AppBox sx={{ flex: 1, minHeight: 0 }}>
+      <AppPaper width="100%" height="100%" title="로그인 실패 기록">
         <AgGrid columnDefs={ColumnDefs} rowData={loginFailureHistory} />
-      </AppBox>
+      </AppPaper>
     </DashboardLayout>
   );
 };

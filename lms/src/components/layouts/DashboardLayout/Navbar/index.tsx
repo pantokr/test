@@ -6,6 +6,7 @@ import {
   Logout,
   Menu as MenuIcon,
   Notifications,
+  Password,
   Podcasts,
   Settings,
   ShoppingCart,
@@ -68,13 +69,13 @@ const Navbar: React.FC<NavbarProps> = ({
   // 프로필 페이지로 이동
   const handleProfileClick = () => {
     handleUserMenuClose();
-    navigate("/profile-settings");
+    navigate("/user-data-settings");
   };
 
   // 설정 페이지로 이동
   const handleSettingsClick = () => {
     handleUserMenuClose();
-    navigate("/settings");
+    navigate("/password-settings");
   };
 
   // 로그아웃 처리
@@ -194,13 +195,13 @@ const Navbar: React.FC<NavbarProps> = ({
             {/* 프로필 메뉴 - routes.ts의 /profile 경로와 매칭 */}
             <MenuItem onClick={handleProfileClick}>
               <AccountCircle sx={{ mr: 1.5 }} fontSize="small" />
-              <Typography variant="body2">프로필 설정</Typography>
+              <Typography variant="body2">사용자 정보 설정</Typography>
             </MenuItem>
 
             {/* 설정 메뉴 - routes.ts의 /settings 경로와 매칭 */}
             <MenuItem onClick={handleSettingsClick}>
-              <Settings sx={{ mr: 1.5 }} fontSize="small" />
-              <Typography variant="body2">설정</Typography>
+              <Password sx={{ mr: 1.5 }} fontSize="small" />
+              <Typography variant="body2">비밀번호 설정</Typography>
             </MenuItem>
 
             {/* 로그아웃 */}

@@ -34,6 +34,40 @@ func (r *UserRepository) InsertUserAccount(user *model.UserAccount) error {
 	return nil
 }
 
+func (r *UserRepository) SelectUserAccountAll() ([]*model.UserAccount, error) {
+	const query = `
+		SELECT login_id, passwd, emp_name, dpt_name, office_tel, mobile_tel,
+			   recent_conn_date, delete_date, passwd_update_date, pw_fail_count, 
+			   client_ip, pw_ref, reg_emp_id, reg_date, upd_emp_id, upd_date
+		FROM user_account
+	`
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("사용자 목록 조회 실패: %w", err)
+	}
+	defer rows.Close()
+
+	var users []*model.UserAccount
+	for rows.Next() {
+		var user model.UserAccount
+		if err := rows.Scan(
+			&user.LoginID, &user.Passwd, &user.EmpName, &user.DptName, &user.OfficeTel, &user.MobileTel,
+			&user.RecentConnDate, &user.DeleteDate, &user.PasswdUpdateDate, &user.PwFailCount,
+			&user.ClientIP, &user.PwRef, &user.RegEmpID, &user.RegDate, &user.UpdEmpID, &user.UpdDate,
+		); err != nil {
+			return nil, fmt.Errorf("사용자 데이터 스캔 실패: %w", err)
+		}
+		users = append(users, &user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("사용자 목록 조회 중 오류 발생: %w", err)
+	}
+
+	return users, nil
+}
+
 func (r *UserRepository) SelectUserAccountByID(id string) (*model.UserAccount, error) {
 	var user model.UserAccount
 
@@ -62,11 +96,12 @@ func (r *UserRepository) UpdateUserAccount(user *model.UserAccount) error {
 	const query = `
 		UPDATE user_account
 		SET passwd = ?, emp_name = ?, dpt_name = ?, office_tel = ?, mobile_tel = ?, 
-		passwd_update_date = ?, pw_fail_count = ?,	pw_ref = ?, upd_emp_id = ?, upd_date = ?
+		recent_conn_date = ?, delete_date = ?, passwd_update_date = ?, pw_fail_count = ?,
+		client_ip = ?, pw_ref = ?, reg_emp_id = ?, reg_date = ?, upd_emp_id = ?, upd_date = ?
 		WHERE login_id = ?
 	`
 
-	_, err := r.db.Exec(query, user.Passwd, user.EmpName, user.DptName, user.OfficeTel, user.MobileTel, user.PasswdUpdateDate, user.PwFailCount, user.PwRef, user.UpdEmpID, user.UpdDate, user.LoginID)
+	_, err := r.db.Exec(query, user.Passwd, user.EmpName, user.DptName, user.OfficeTel, user.MobileTel, user.RecentConnDate, user.DeleteDate, user.PasswdUpdateDate, user.PwFailCount, user.ClientIP, user.PwRef, user.RegEmpID, user.RegDate, user.UpdEmpID, user.UpdDate, user.LoginID)
 
 	if err != nil {
 		return fmt.Errorf("사용자 수정 실패: %w", err)

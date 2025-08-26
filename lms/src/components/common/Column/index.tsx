@@ -77,7 +77,7 @@ export const Column: React.FC<ColumnProps> = ({
       direction="column"
       spacing={1}
       sx={{
-        backgroundColor: "background.default",
+        backgroundColor: "transparent",
         justifyContent: mapMainAxisAlignment(mainAxisAlignment),
         alignItems: mapCrossAxisAlignment(crossAxisAlignment),
         height: mainAxisSize === "min" ? "auto" : "100%",

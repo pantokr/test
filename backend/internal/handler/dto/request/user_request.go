@@ -10,8 +10,7 @@ type UserBaseInfo struct {
 }
 
 type PasswordUpdateRequest struct {
-	UserBaseInfo
-	OldPasswd string `json:"oldPasswd"`
+	Credentials
 	NewPasswd string `json:"newPasswd"`
 }
 
@@ -20,8 +19,7 @@ type UserRegistrationRequest struct {
 	RegEmpID     string `json:"regEmpID"`
 }
 
-// 사용자 수정 요청 (multiple embedding)
 type UserUpdateRequest struct {
-	PasswordUpdateRequest        // 비밀번호 정보 임베딩
-	UpdateEmpID           string `json:"updateEmpID"`
+	UserBaseInfo        // 비밀번호 정보 임베딩
+	UpdateEmpID  string `json:"updateEmpID"`
 }

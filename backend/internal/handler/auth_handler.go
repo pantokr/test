@@ -43,13 +43,14 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	loginResp := h.authService.Login(loginReq)
 
 	if loginResp == nil || !loginResp.Success {
+		// 비밀번호 재설정 리다이렉트 시
+		if loginResp.Code == "3" {
+			util.RespondErrorWithCode(w, http.StatusUnauthorized, "비밀번호 재설정 필요", "PASSWORD_RESET_REQUIRED")
+			return
+		}
 		log.Printf("로그인 실패: %v", loginResp.Message)
 		util.RespondError(w, http.StatusUnauthorized, "로그인 실패: "+loginResp.Message)
 		return
-	}
-
-	if loginResp.Code == "3" {
-
 	}
 
 	// SessionService를 통한 세션 생성
@@ -70,17 +71,19 @@ func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	// SessionService를 통한 세션 검증
 	sessionInfo, err := h.sessionService.ValidateSession(r)
 	if err != nil {
-		log.Printf("세션 검증 실패: %v", err)
+		log.Printf("로그아웃 세션 검증 실패: %v", err)
 	}
 
 	// 로그아웃 처리
-	if err := h.authService.Logout(sessionInfo.SessionID); err != nil {
+	if sessionInfo == nil {
+		log.Printf("로그아웃 세션 정보 없음")
+	} else if err := h.authService.Logout(sessionInfo.SessionID); err != nil {
 		log.Printf("로그아웃 처리 실패: %v", err)
 	}
 
 	// SessionService를 통한 세션 삭제
 	if err := h.sessionService.DestroySession(w, r); err != nil {
-		log.Printf("세션 삭제 실패: %v", err)
+		log.Printf("로그아웃 세션 삭제 실패: %v", err)
 	}
 
 	util.RespondSuccess(w, nil)
