@@ -15,10 +15,7 @@ export type CrossAxisAlignment = "start" | "end" | "center" | "stretch";
 export type MainAxisSize = "min" | "max";
 
 interface RowProps
-  extends Omit<
-    StackProps,
-    "direction" | "spacing" | "justifyContent" | "alignItems"
-  > {
+  extends Omit<StackProps, "direction" | "justifyContent" | "alignItems"> {
   children?: React.ReactNode;
   mainAxisAlignment?: MainAxisAlignment;
   crossAxisAlignment?: CrossAxisAlignment;
@@ -75,20 +72,19 @@ export const Row: React.FC<RowProps> = ({
   return (
     <Stack
       direction="row"
-      spacing={2}
       sx={{
         backgroundColor: "transparent",
         justifyContent: mapMainAxisAlignment(mainAxisAlignment),
         alignItems: mapCrossAxisAlignment(crossAxisAlignment),
-        width: mainAxisSize === "min" ? "auto" : "100%",
+        // width: mainAxisSize === "min" ? "auto" : "100%",
+        width: "auto",
         height: "auto",
-        py: 1,
         // 자식 요소들에 전체 높이 적용
-        ...(fullHeight && {
-          "& > *": {
-            height: "100% !important",
-          },
-        }),
+        // ...(fullHeight && {
+        //   "& > *": {
+        //     height: "100% !important",
+        //   },
+        // }),
         ...sx,
       }}
       {...props}

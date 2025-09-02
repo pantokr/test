@@ -1,12 +1,13 @@
-import { ReactNode } from "react";
+import { ComponentType, ReactNode } from "react";
 
 export interface RouteItem {
   key: string;
   name?: string;
   icon?: ReactNode | string;
   route?: string;
-  component?: ReactNode;
+  component?: ComponentType; // JSX가 아닌 컴포넌트 타입
   collapse?: RouteItem[];
-  divider?: boolean; // 구분선
-  title?: string; // 섹션 제목
+  divider?: boolean;
+  title?: string;
+  protected?: boolean; // 인증 필요 여부
 }

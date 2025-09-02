@@ -25,13 +25,13 @@ func (s *AuditService) GetLoginHistoryAll() ([]response.LoginHistoryItem, error)
 	items := make([]response.LoginHistoryItem, 0, len(histories))
 	for _, h := range histories {
 		item := response.LoginHistoryItem{
-			LoginID:    h.LoginID,
+			LoginId:    h.LoginId,
 			EmpName:    h.EmpName,
 			LoginTime:  util.FormatDateTime(h.LoginTime),
 			LogoutTime: util.FormatDateTime(h.LogoutTime),
 			IsExternal: h.IsExternal,
-			ClientIP:   h.ClientIP,
-			ServerIP:   h.ServerIP,
+			ClientIp:   h.ClientIp,
+			ServerIp:   h.ServerIp,
 		}
 		items = append(items, item)
 	}
@@ -50,7 +50,7 @@ func (s *AuditService) GetLoginFailureHistoryAll() ([]response.LoginFailureHisto
 		"1": "비밀번호 오류",
 		"2": "오류 5회 초과",
 		"3": "비밀번호 만료",
-		"4": "IP 오류",
+		"4": "Ip 오류",
 		"5": "장기 미사용",
 		"6": "접속 권한 없음",
 		"7": "기타",
@@ -60,7 +60,7 @@ func (s *AuditService) GetLoginFailureHistoryAll() ([]response.LoginFailureHisto
 	for _, fail := range failures {
 		var response response.LoginFailureHistoryResponse
 		{
-			response.LoginID = fail.LoginID
+			response.LoginId = fail.LoginId
 			response.LoginTime = util.FormatDateTime(fail.LoginTime)
 
 			// 실패 코드를 설명으로 변환
@@ -70,8 +70,8 @@ func (s *AuditService) GetLoginFailureHistoryAll() ([]response.LoginFailureHisto
 				response.FailCode = fail.FailCode // 알 수 없는 코드는 원본 반환
 			}
 
-			response.ClientIP = fail.ClientIP
-			response.ServerIP = fail.ServerIP
+			response.ClientIp = fail.ClientIp
+			response.ServerIp = fail.ServerIp
 		}
 		items = append(items, response)
 	}
@@ -91,10 +91,10 @@ func (s *AuditService) GetLoginResetHistoryAll() ([]response.LoginResetResponse,
 		{
 			response.ResetTime = util.FormatDateTime(reset.ResetTime)
 			response.ResetCode = reset.ResetCode
-			response.LoginID = reset.LoginID
-			response.ResetID = reset.ResetID
+			response.LoginId = reset.LoginId
+			response.ResetId = reset.ResetId
 			response.ResetReason = reset.ResetReason
-			response.PrevLoginIP = reset.PrevLoginIP
+			response.PrevLoginIp = reset.PrevLoginIp
 		}
 		items = append(items, response)
 	}

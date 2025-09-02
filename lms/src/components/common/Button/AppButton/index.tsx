@@ -1,39 +1,16 @@
 // AppButton.tsx
 import { Button } from "@mui/material";
-import { alpha, styled, useTheme } from "@mui/material/styles";
+import { alpha, useTheme } from "@mui/material/styles";
 import React from "react";
 import { AppButtonProps } from "../types";
 
-const StyledAppButton = styled(Button)<AppButtonProps>(
-  ({ size = "medium" }) => ({
-    // 기본 스타일
-    textTransform: "none",
-    fontWeight: 500,
-    borderRadius: 8,
-    border: "none",
-    color: "#fff", // ✅ 기본 글자색 흰색
+interface AppButtonPropsExtended extends AppButtonProps {
+  variantType?: "outline" | "filled" | "transparent";
+}
 
-    // 크기별 스타일
-    ...(size === "small" && {
-      padding: "4px 8px",
-      fontSize: "0.875rem",
-      minHeight: 32,
-    }),
-    ...(size === "medium" && {
-      padding: "6px 16px",
-      fontSize: "1rem",
-      minHeight: 36,
-    }),
-    ...(size === "large" && {
-      padding: "8px 22px",
-      fontSize: "1.125rem",
-      minHeight: 42,
-    }),
-  })
-);
-
-export const AppButton: React.FC<AppButtonProps> = ({
+export const AppButton: React.FC<AppButtonPropsExtended> = ({
   size = "medium",
+  variantType = "outline",
   children,
   onClick,
   sx,
@@ -41,22 +18,56 @@ export const AppButton: React.FC<AppButtonProps> = ({
 }) => {
   const theme = useTheme();
   const baseColor = theme.palette.primary.main;
+  const textColor =
+    variantType === "filled"
+      ? theme.palette.primary.contrastText
+      : theme.palette.text.primary;
+
+  // 크기별 스타일
+  const sizeStyles = {
+    small: { padding: "2px 4px", fontSize: "0.6rem", minHeight: 24 },
+    medium: { padding: "4px 8px", fontSize: "1rem", minHeight: 32 },
+    large: { padding: "8px 16px", fontSize: "1.6rem", minHeight: 40 },
+  };
+
+  // variant별 스타일
+  const variantStyles = {
+    outline: {
+      backgroundColor: "transparent",
+      color: textColor,
+      border: `1px solid ${baseColor}`,
+      boxShadow: "none",
+      "&:hover": { backgroundColor: alpha(textColor, 0.05) },
+    },
+    filled: {
+      backgroundColor: baseColor,
+      color: textColor,
+      boxShadow: theme.shadows[4],
+      "&:hover": { backgroundColor: alpha(baseColor, 0.85) },
+    },
+    transparent: {
+      backgroundColor: "transparent",
+      color: textColor,
+      boxShadow: "none",
+      "&:hover": { backgroundColor: alpha(textColor, 0.05) },
+    },
+  };
 
   return (
-    <StyledAppButton
-      size={size}
+    <Button
       onClick={onClick}
+      size={size}
       sx={{
-        boxShadow: theme.shadows[4],
-        backgroundColor: baseColor,
-        "&:hover": {
-          backgroundColor: alpha(baseColor, 0.75),
-        },
+        textTransform: "none",
+        fontWeight: 500,
+        borderRadius: 8,
+        ...sizeStyles[size],
+        ...variantStyles[variantType],
         ...sx,
       }}
       {...props}
     >
       {children}
-    </StyledAppButton>
+    </Button>
   );
 };

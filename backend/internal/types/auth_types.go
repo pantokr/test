@@ -6,7 +6,7 @@ import "lms/internal/model"
 type LoginResult struct {
 	Success   bool
 	User      *model.UserAccount
-	SessionID int64
+	SessionId int64
 	Code      string
 	Message   string
 }

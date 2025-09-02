@@ -2,6 +2,6 @@ package request
 
 type LoginRequest struct {
 	Credentials
-	ClientIP string
-	ServerIP string
+	ClientIp string `json:"clientIp"`
+	ServerIp string `json:"serverIp"`
 }

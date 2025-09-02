@@ -9,4 +9,4 @@ export * from "./theme";
 
 export * from "./sidenav";
 
-export * from "./hooks";
+export * from "../hooks/context";

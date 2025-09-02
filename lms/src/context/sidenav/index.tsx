@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useDevice } from "../hooks";
+import { useDevice } from "../../hooks/context";
 
 export interface SidenavContextType {
   isSidenavOpen: boolean;

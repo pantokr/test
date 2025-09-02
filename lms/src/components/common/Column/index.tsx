@@ -15,10 +15,7 @@ export type CrossAxisAlignment = "start" | "end" | "center" | "stretch";
 export type MainAxisSize = "min" | "max";
 
 interface ColumnProps
-  extends Omit<
-    StackProps,
-    "direction" | "spacing" | "justifyContent" | "alignItems"
-  > {
+  extends Omit<StackProps, "direction" | "justifyContent" | "alignItems"> {
   children?: React.ReactNode;
   mainAxisAlignment?: MainAxisAlignment;
   crossAxisAlignment?: CrossAxisAlignment;
@@ -75,7 +72,6 @@ export const Column: React.FC<ColumnProps> = ({
   return (
     <Stack
       direction="column"
-      spacing={1}
       sx={{
         backgroundColor: "transparent",
         justifyContent: mapMainAxisAlignment(mainAxisAlignment),

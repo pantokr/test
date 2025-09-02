@@ -22,11 +22,11 @@ func InitSessionService() *SessionService {
 }
 
 // 세션 생성
-func (s *SessionService) CreateSession(w http.ResponseWriter, r *http.Request, userID string, username string, sessionID int64) error {
+func (s *SessionService) CreateSession(w http.ResponseWriter, r *http.Request, userId string, username string, sessionId int64) error {
 	session, _ := s.store.Get(r, "lms-session")
 
-	session.Values["id"] = userID
-	session.Values["session_id"] = sessionID
+	session.Values["id"] = userId
+	session.Values["session_id"] = sessionId
 
 	session.Options = &sessions.Options{
 		Path:     "/",
@@ -66,46 +66,43 @@ func (s *SessionService) ValidateSession(r *http.Request) (*middleware.SessionIn
 		return nil, errors.New("유효하지 않은 세션입니다")
 	}
 
-	// 사용자 ID 추출
-	userIDRaw, exists := session.Values["id"]
+	// 사용자 Id 추출
+	userIdRaw, exists := session.Values["id"]
 	if !exists {
-		return nil, errors.New("세션에 사용자 ID가 없습니다")
+		return nil, errors.New("세션에 사용자 Id가 없습니다")
 	}
 
-	userID, ok := userIDRaw.(string)
-	if !ok || userID == "" {
-		return nil, errors.New("유효하지 않은 사용자 ID입니다")
+	userId, ok := userIdRaw.(string)
+	if !ok || userId == "" {
+		return nil, errors.New("유효하지 않은 사용자 Id입니다")
 	}
 
-	// 세션 ID 추출
-	sessionIDRaw, exists := session.Values["session_id"]
+	// 세션 Id 추출
+	sessionIdRaw, exists := session.Values["session_id"]
 	if !exists {
-		return nil, errors.New("세션에 세션 ID가 없습니다")
+		return nil, errors.New("세션에 세션 Id가 없습니다")
 	}
 
-	sessionID, ok := sessionIDRaw.(int64)
+	sessionId, ok := sessionIdRaw.(int64)
 	if !ok {
-		if sessionIDStr, isString := sessionIDRaw.(string); isString {
-			if parsedID, parseErr := strconv.ParseInt(sessionIDStr, 10, 64); parseErr == nil {
-				sessionID = parsedID
+		if sessionIdStr, isString := sessionIdRaw.(string); isString {
+			if parsedId, parseErr := strconv.ParseInt(sessionIdStr, 10, 64); parseErr == nil {
+				sessionId = parsedId
 			} else {
-				return nil, errors.New("세션 ID 변환 실패")
+				return nil, errors.New("세션 Id 변환 실패")
 			}
 		} else {
-			return nil, errors.New("유효하지 않은 세션 ID 타입")
+			return nil, errors.New("유효하지 않은 세션 Id 타입")
 		}
 	}
 
-	if sessionID <= 0 {
-		return nil, errors.New("유효하지 않은 세션 ID 값")
+	if sessionId <= 0 {
+		return nil, errors.New("유효하지 않은 세션 Id 값")
 	}
 
-	username, _ := session.Values["username"].(string)
-
 	return &middleware.SessionInfo{
-		UserID:    userID,
-		SessionID: sessionID,
-		Username:  username,
+		UserId:    userId,
+		SessionId: sessionId,
 		IsValid:   true,
 	}, nil
 }

@@ -59,6 +59,18 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     []
   );
 
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener("contextmenu", handleContextMenu);
+
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, []);
+
   const resetThemeSettings = useCallback(() => {
     setThemeSettings(defaultThemeSettings);
   }, []);

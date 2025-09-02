@@ -13,7 +13,7 @@ import AppTypography from "@/components/common/Typography";
 import { useAuth } from "@/context";
 import {
   validateDepartment,
-  validateLoginID,
+  validateLoginId,
   validateName,
 } from "@/utils/form";
 import { AutocompleteRenderInputParams } from "@mui/material";
@@ -30,12 +30,12 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<UserRegistration>({
-    loginID: "",
+    loginId: "",
     empName: "",
     dptName: "",
     officeTel: "",
     mobileTel: "",
-    regEmpID: "",
+    regEmpId: "",
   });
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -48,13 +48,13 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
       setFormData((prev) => ({
         ...prev,
         ...initialData,
-        regEmpID: user?.loginID || "",
+        regEmpId: user?.loginId || "",
       }));
     } else {
       // 기본값 설정
       setFormData((prev) => ({
         ...prev,
-        regEmpID: user?.loginID || "",
+        regEmpId: user?.loginId || "",
       }));
     }
   }, [user, initialData]);
@@ -64,7 +64,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
   ): { valid: boolean; error?: string } => {
     let error: string | null = null;
 
-    error = validateLoginID(formData.loginID);
+    error = validateLoginId(formData.loginId);
     if (error) return { valid: false, error };
 
     error = validateName(formData.empName);
@@ -124,7 +124,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
       // API 호출용 데이터 구성
       const registrationData: UserRegistration = {
         ...formData,
-        regEmpID: user.loginID,
+        regEmpId: user.loginId,
       };
 
       await UserRegistrationApi(registrationData);
@@ -138,12 +138,12 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
 
       // 폼 초기화
       setFormData({
-        loginID: "",
+        loginId: "",
         empName: "",
         dptName: "",
         officeTel: "",
         mobileTel: "",
-        regEmpID: user.loginID,
+        regEmpId: user.loginId,
       });
     } catch (error: any) {
       setErrorMsg(error.message || "알 수 없는 오류가 발생했습니다");
@@ -154,17 +154,17 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
 
   return (
     <AppBox component="form" onSubmit={handleSubmit}>
-      <Column>
-        <Row mainAxisAlignment="start">
+      <Column spacing={2}>
+        <Row spacing={2} mainAxisAlignment="start">
           <AppTextField
-            label="ID"
+            label="Id"
             name="username"
             id="username"
             autoComplete="username"
-            value={formData.loginID}
+            value={formData.loginId}
             required={true}
             sx={{ flex: 1 }}
-            onChange={handleChange("loginID")}
+            onChange={handleChange("loginId")}
           />
           <AppTextField
             label="이름"
@@ -178,7 +178,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
           />
         </Row>
 
-        <Row>
+        <Row spacing={2}>
           <AppTextField
             label="전화번호"
             name="officeTel"
@@ -225,7 +225,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
 
         <Row>
           <AppTypography variant="body2" color="warning">
-            * 비밀번호는 초기값으로 ID와 동일하게 설정됩니다.
+            * 비밀번호는 초기값으로 Id와 동일하게 설정됩니다.
           </AppTypography>
         </Row>
 

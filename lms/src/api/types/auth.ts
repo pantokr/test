@@ -8,7 +8,7 @@
  * 로그인 자격증명
  */
 export interface LoginCredentials {
-  loginID: string;
+  loginId: string;
   passwd: string;
 }
 
@@ -26,7 +26,7 @@ export interface LoginResponse {
  * 사용자 기본 정보
  */
 export interface UserData {
-  loginID: string;
+  loginId: string;
   empName: string;
   dptName: string;
   officeTel: string;

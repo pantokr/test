@@ -10,11 +10,11 @@ import { AppButton, AppTextField } from "@/components/common";
 import { AppBox } from "@/components/common/Box";
 import AppTextButton from "@/components/common/Button/AppTextButton";
 import AppSnackbar from "@/components/common/Snackbar";
-import { useSnackbar } from "@/components/common/Snackbar/hooks";
 import { AppPasswordField } from "@/components/common/TextField";
 import AppTypography from "@/components/common/Typography";
 import CoverLayout from "@/components/layouts/CoverLayout";
 import { useAuth } from "@/context";
+import { useSnackbar } from "@/hooks/snackbar";
 import { LogoBox, StyledPaper } from "./styles";
 import PasswordUpdateDialog from "./UpdatePasswdDialog";
 
@@ -25,7 +25,7 @@ const SignInPage: React.FC = () => {
   const snackbar = useSnackbar();
 
   const [formData, setFormData] = useState<LoginCredentials>({
-    loginID: "",
+    loginId: "",
     passwd: "",
   });
 
@@ -55,14 +55,14 @@ const SignInPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      if (formData.loginID && formData.passwd) {
+      if (formData.loginId && formData.passwd) {
         await login({
-          loginID: formData.loginID,
+          loginId: formData.loginId,
           passwd: formData.passwd,
         });
 
         // 임시 로직: 아이디와 비밀번호가 같으면 비밀번호 재설정 필요
-        if (formData.loginID === formData.passwd) {
+        if (formData.loginId === formData.passwd) {
           setWarningMessage("보안상의 이유로 비밀번호 변경이 필요합니다.");
           setDialogOpen(true);
         } else {
@@ -71,21 +71,14 @@ const SignInPage: React.FC = () => {
       }
     } catch (err: any) {
       if (err instanceof ApiError && err.code === "PASSWORD_RESET_REQUIRED") {
-        console.log("비밀번호 초기화 필요");
         setWarningMessage(err.message);
         setDialogOpen(true);
       } else {
-        console.log(err.code);
         setError(err.message || "알 수 없는 오류");
       }
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleOpenDialog = () => {
-    setWarningMessage(null); // 일반 비밀번호 찾기
-    setDialogOpen(true);
   };
 
   const handleDialogClose = () => {
@@ -149,10 +142,10 @@ const SignInPage: React.FC = () => {
             {/* 아이디 입력 */}
             <AppTextField
               fullWidth
-              label="아이디"
+              label="ID"
               type="text"
-              value={formData.loginID}
-              onChange={handleChange("loginID")}
+              value={formData.loginId}
+              onChange={handleChange("loginId")}
               slotProps={{
                 input: {
                   startAdornment: (
@@ -195,7 +188,7 @@ const SignInPage: React.FC = () => {
             <AppButton
               type="submit"
               fullWidth
-              variant="contained"
+              variantType="filled"
               size="large"
               loading={loading}
               disabled={loading}

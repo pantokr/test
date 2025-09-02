@@ -69,8 +69,8 @@ export const apiRequest = {
     return response.data;
   },
 
-  delete: async <T>(url: string): Promise<T> => {
-    const response = await axiosClient.delete<T>(url);
+  delete: async <T>(url: string, data?: any): Promise<T> => {
+    const response = await axiosClient.delete<T>(url, { data });
     return response.data;
   },
 };

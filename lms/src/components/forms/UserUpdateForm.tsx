@@ -15,7 +15,7 @@ import { AutocompleteRenderInputParams } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import {
   validateDepartment,
-  validateLoginID,
+  validateLoginId,
   validateName,
 } from "../../utils/form";
 
@@ -32,14 +32,13 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<UserUpdate>({
-    loginID: "",
+    loginId: "",
     empName: "",
     dptName: "",
     officeTel: "",
     mobileTel: "",
-    updateEmpID: "",
+    updateEmpId: "",
   });
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -51,28 +50,27 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
       setFormData((prev) => ({
         ...prev,
         ...initialData,
-        updateEmpID: user?.loginID || "",
+        updateEmpId: user?.loginId || "",
       }));
     } else if (user) {
       // 기본값으로 현재 사용자 정보 사용
       setFormData({
-        loginID: user.loginID || "",
+        loginId: user.loginId || "",
         empName: user.empName || "",
         dptName: user.dptName || "",
         officeTel: user.officeTel || "",
         mobileTel: user.mobileTel || "",
-        updateEmpID: user.loginID || "",
+        updateEmpId: user.loginId || "",
       });
     }
   }, [user, initialData]);
 
   const validateUserUpdateForm = (
-    formData: UserUpdate,
-    confirmPwd: string
+    formData: UserUpdate
   ): { valid: boolean; error?: string } => {
     let error: string | null = null;
 
-    error = validateLoginID(formData.loginID);
+    error = validateLoginId(formData.loginId);
     if (error) return { valid: false, error };
 
     error = validateName(formData.empName);
@@ -104,10 +102,7 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
     event.preventDefault();
 
     // 전체 폼 검증
-    const { valid, error } = validateUserUpdateForm(
-      formData,
-      confirmNewPassword
-    );
+    const { valid, error } = validateUserUpdateForm(formData);
     if (!valid && error !== undefined) {
       setErrorMsg(error);
       setLoading(false);
@@ -133,7 +128,7 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
       // API 호출용 데이터 구성
       const updateData: UserUpdate = {
         ...formData,
-        updateEmpID: user.loginID,
+        updateEmpId: user.loginId,
       };
 
       await UserUpdateApi(updateData);
@@ -144,14 +139,6 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
 
       // 성공 콜백 호출
       onSuccess?.(successMessage);
-
-      // 비밀번호 필드 초기화
-      setFormData((prev) => ({
-        ...prev,
-        oldPasswd: "",
-        newPasswd: "",
-      }));
-      setConfirmNewPassword("");
     } catch (error: any) {
       setErrorMsg(error.message || "알 수 없는 오류가 발생했습니다");
     } finally {
@@ -161,23 +148,27 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
 
   return (
     <AppBox component="form" onSubmit={handleSubmit}>
-      <Column>
-        <Row mainAxisAlignment="start">
+      <Column spacing={2}>
+        <Row spacing={1}>
           <AppTextField
             label="ID"
             name="username"
             id="username"
             autoComplete="username"
-            value={formData.loginID}
+            value={formData.loginId}
             required={true}
-            sx={{ flex: 1 }}
+            sx={{
+              flex: 1,
+              "& input": { color: "red" }, // 🔹 텍스트 색상 붉게
+            }}
             slotProps={{
               input: {
                 readOnly: readOnlyId,
               },
             }}
-            onChange={readOnlyId ? undefined : handleChange("loginID")}
+            onChange={readOnlyId ? undefined : handleChange("loginId")}
           />
+
           <AppTextField
             label="이름"
             name="name"
@@ -192,7 +183,7 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
 
         {/* 현재 비밀번호 */}
 
-        <Row>
+        <Row spacing={1}>
           <AppTextField
             label="전화번호"
             name="officeTel"
@@ -252,7 +243,7 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
 
         {/* 제출 버튼 */}
         <Row mainAxisAlignment="end">
-          <AppButton type="submit" disabled={loading}>
+          <AppButton variantType="filled" type="submit" disabled={loading}>
             {loading ? "수정 중..." : "수정"}
           </AppButton>
         </Row>

@@ -24,7 +24,7 @@ type Config struct {
 	Server      ServerConfig
 	Database    DatabaseConfig
 	TCP         TCPConfig
-	LocalIP     string `json:"local_ip"`
+	LocalIp     string `json:"local_ip"`
 }
 
 type ServerConfig struct {
@@ -42,7 +42,7 @@ type TCPConfig struct {
 }
 
 type SuperUserConfig struct {
-	ID       string `json:"id"`
+	Id       string `json:"id"`
 	Password string `json:"password"`
 }
 
@@ -54,22 +54,22 @@ func Load() (*Config, error) {
 		return globalConfig, nil
 	}
 
-	// 로컬 IP 주소 가져오기
-	localIP, err := getLocalIP()
+	// 로컬 Ip 주소 가져오기
+	localIp, err := getLocalIp()
 	if err != nil {
-		return nil, fmt.Errorf("IP 주소 가져오기 실패: %w", err)
+		return nil, fmt.Errorf("Ip 주소 가져오기 실패: %w", err)
 	}
-	log.Printf("로컬 IPv4 주소: %s", localIP)
+	log.Printf("로컬 Ipv4 주소: %s", localIp)
 
 	// .env 파일 로드 시도
-	if err := loadEnvFile(localIP); err != nil {
+	if err := loadEnvFile(localIp); err != nil {
 		log.Printf("환경 변수 로드 중 경고: %v", err)
 	}
 
 	// 환경 결정
-	env := determineEnvironment(localIP)
+	env := determineEnvironment(localIp)
 	if env == Unknown {
-		return nil, fmt.Errorf("지원하지 않는 IP 주소: %s", localIP)
+		return nil, fmt.Errorf("지원하지 않는 Ip 주소: %s", localIp)
 	}
 
 	log.Printf("환경: %s", env)
@@ -77,7 +77,7 @@ func Load() (*Config, error) {
 	// 설정 생성
 	config := &Config{
 		Environment: env,
-		LocalIP:     localIP,
+		LocalIp:     localIp,
 		Server:      loadServerConfig(env),
 		Database:    loadDatabaseConfig(env),
 		TCP:         loadTCPConfig(env),
@@ -101,10 +101,10 @@ func GetConfig() *Config {
 }
 
 // loadEnvFile은 .env 파일을 로드합니다
-func loadEnvFile(localIP string) error {
+func loadEnvFile(localIp string) error {
 	if err := godotenv.Load(); err != nil {
 		// 프로덕션 환경에서는 .env 파일이 없을 수 있음
-		if strings.HasPrefix(localIP, os.Getenv("PROD_IP")) {
+		if strings.HasPrefix(localIp, os.Getenv("PROD_Ip")) {
 			log.Println(".env 파일 로드 생략 (프로덕션 환경)")
 			return nil
 		}
@@ -114,15 +114,15 @@ func loadEnvFile(localIP string) error {
 	return nil
 }
 
-// determineEnvironment는 IP 주소를 기반으로 환경을 결정합니다
-func determineEnvironment(localIP string) Environment {
-	devIP := os.Getenv("DEV_IP")
-	prodIP := os.Getenv("PROD_IP")
+// determineEnvironment는 Ip 주소를 기반으로 환경을 결정합니다
+func determineEnvironment(localIp string) Environment {
+	devIp := os.Getenv("DEV_Ip")
+	prodIp := os.Getenv("PROD_Ip")
 
 	switch {
-	case devIP != "" && strings.HasPrefix(localIP, devIP):
+	case devIp != "" && strings.HasPrefix(localIp, devIp):
 		return Development
-	case prodIP != "" && strings.HasPrefix(localIP, prodIP):
+	case prodIp != "" && strings.HasPrefix(localIp, prodIp):
 		return Production
 	default:
 		return Unknown
@@ -205,8 +205,8 @@ func getEnvWithDefault(key, defaultValue string) string {
 	return defaultValue
 }
 
-// getLocalIP는 로컬 IPv4 주소를 가져옵니다
-func getLocalIP() (string, error) {
+// getLocalIp는 로컬 Ipv4 주소를 가져옵니다
+func getLocalIp() (string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return "", fmt.Errorf("네트워크 인터페이스 조회 실패: %w", err)
@@ -228,7 +228,7 @@ func getLocalIP() (string, error) {
 			return ip, nil
 		}
 
-		// 다른 사설 IP 대역들 수집
+		// 다른 사설 Ip 대역들 수집
 		if strings.HasPrefix(ip, "172.") || strings.HasPrefix(ip, "10.") {
 			candidates = append(candidates, ip)
 		}
@@ -238,5 +238,5 @@ func getLocalIP() (string, error) {
 		return candidates[0], nil
 	}
 
-	return "", fmt.Errorf("적절한 IPv4 주소를 찾을 수 없습니다")
+	return "", fmt.Errorf("적절한 Ipv4 주소를 찾을 수 없습니다")
 }

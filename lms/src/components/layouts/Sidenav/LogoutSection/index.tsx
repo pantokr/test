@@ -1,10 +1,12 @@
 // src/components/Sidenav/LogoutSection.tsx
 
-import { Box } from "@mui/material";
 import React from "react";
 
+import { AppBox } from "@/components/common/Box";
 import { AppButton } from "@/components/common/Button/AppButton";
+import AppTypography from "@/components/common/Typography";
 import { useAuth, useSidenav } from "@/context";
+import { format } from "date-fns";
 import { LogoutButton, LogoutContainer } from "./styles";
 
 interface LogoutSectionProps {
@@ -14,18 +16,21 @@ interface LogoutSectionProps {
 }
 
 const LogoutSection: React.FC<LogoutSectionProps> = () => {
-  const { logout } = useAuth();
+  const { logout, remainingSessionTime } = useAuth();
   const { resetSidenav } = useSidenav();
+  const formatTime = (seconds: number) =>
+    format(new Date(seconds * 1000), "mm:ss");
 
   return (
-    <Box sx={LogoutContainer()}>
+    <AppBox sx={LogoutContainer()}>
       {/* 사용자 정보 표시 */}
 
-      {/* {user && (
-        <Box sx={{ color: "#ffffff", marginBottom: 1 }}>
-          {getCookie("lms-session")}
-        </Box>
-      )} */}
+      <AppBox sx={{ color: "#ffffff", marginBottom: 1, textAlign: "right" }}>
+        <AppTypography>
+          남은 시간 : {formatTime(remainingSessionTime)}
+        </AppTypography>
+      </AppBox>
+
       {/* 로그아웃 버튼 */}
 
       <AppButton
@@ -39,7 +44,7 @@ const LogoutSection: React.FC<LogoutSectionProps> = () => {
       >
         로그아웃
       </AppButton>
-    </Box>
+    </AppBox>
   );
 };
 

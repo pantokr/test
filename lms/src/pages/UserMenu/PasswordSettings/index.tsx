@@ -8,7 +8,7 @@ import { useAuth } from "@/context";
 import { useEffect, useState } from "react";
 import VerificationDialog from "./VerificationDialog";
 
-const PasswordSettingsPage = () => {
+const PasswordSettingsPage: React.FC = () => {
   const { logout, user } = useAuth();
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [loginCredentials, setLoginCredentials] = useState<
@@ -27,13 +27,13 @@ const PasswordSettingsPage = () => {
 
     try {
       await PasswdVerificationApi({
-        loginID: user?.loginID || "",
+        loginId: user?.loginId || "",
         passwd: currentPassword,
       });
 
       // 검증 성공 시 loginCredentials 설정
       setLoginCredentials({
-        loginID: user?.loginID || "",
+        loginId: user?.loginId || "",
         passwd: currentPassword,
       });
 

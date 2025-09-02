@@ -14,9 +14,8 @@ type SessionValidator interface {
 }
 
 type SessionInfo struct {
-	UserID    string
-	Username  string
-	SessionID int64
+	UserId    string
+	SessionId int64
 	IsValid   bool
 }
 

@@ -31,13 +31,13 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clientIP := util.GetClientIP(r)
-	serverIP := config.GetConfig().LocalIP
+	clientIp := util.GetClientIp(r)
+	serverIp := config.GetConfig().LocalIp
 
 	loginReq := request.LoginRequest{
 		Credentials: creds,
-		ClientIP:    clientIP,
-		ServerIP:    serverIP,
+		ClientIp:    clientIp,
+		ServerIp:    serverIp,
 	}
 
 	loginResp := h.authService.Login(loginReq)
@@ -54,10 +54,10 @@ func (h *AuthHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// SessionService를 통한 세션 생성
-	if err := h.sessionService.CreateSession(w, r, loginResp.User.LoginID, loginResp.User.EmpName, loginResp.SessionID); err != nil {
+	if err := h.sessionService.CreateSession(w, r, loginResp.User.LoginId, loginResp.User.EmpName, loginResp.SessionId); err != nil {
 		log.Printf("세션 저장 실패: %v", err)
-		if loginResp.SessionID > 0 {
-			h.authService.Logout(loginResp.SessionID)
+		if loginResp.SessionId > 0 {
+			h.authService.Logout(loginResp.SessionId)
 		}
 		util.RespondError(w, http.StatusInternalServerError, "세션 저장 실패")
 		return
@@ -77,7 +77,7 @@ func (h *AuthHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	// 로그아웃 처리
 	if sessionInfo == nil {
 		log.Printf("로그아웃 세션 정보 없음")
-	} else if err := h.authService.Logout(sessionInfo.SessionID); err != nil {
+	} else if err := h.authService.Logout(sessionInfo.SessionId); err != nil {
 		log.Printf("로그아웃 처리 실패: %v", err)
 	}
 
@@ -98,7 +98,7 @@ func (h *AuthHandler) SessionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 상세 사용자 정보 조회
-	userAccount, err := h.authService.GetUserInfo(sessionInfo.UserID)
+	userAccount, err := h.authService.GetUserInfo(sessionInfo.UserId)
 	if userAccount == nil || err != nil {
 		util.RespondError(w, http.StatusNotFound, "사용자 정보 없음")
 		return

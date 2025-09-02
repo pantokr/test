@@ -4,7 +4,7 @@ import UserUpdateForm from "@/components/forms/UserUpdateForm";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useAuth } from "@/context";
 
-const ProfileSettingsPage = () => {
+const ProfileSettingsPage: React.FC = () => {
   const { logout } = useAuth();
 
   return (

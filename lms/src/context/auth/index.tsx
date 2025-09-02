@@ -14,7 +14,8 @@ export interface AuthContextType {
   user: UserData | null;
   isAuthenticated: boolean;
   isInitialized: boolean;
-  login: (credentials: { loginID: string; passwd: string }) => Promise<void>;
+  remainingSessionTime: number; // 초 단위 남은 세션 시간
+  login: (credentials: { loginId: string; passwd: string }) => Promise<void>;
   logout: () => Promise<void>;
   checkSession: () => Promise<boolean>;
 }
@@ -30,6 +31,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<UserData | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [remainingSessionTime, setRemainingSessionTime] = useState(0);
   const location = useLocation();
 
   const isAuthenticated = useMemo(() => !!user, [user]);
@@ -37,6 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const clearSession = useCallback(() => {
     try {
       setUser(null);
+      setRemainingSessionTime(0);
       sessionStorage.removeItem("user");
     } catch (error) {
       // sessionStorage 접근 실패시 무시
@@ -49,14 +52,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (!savedUser) return false;
 
       const response = await sessionApi();
-      sessionStorage.setItem("user", JSON.stringify(response));
+
+      // 세션 만료 시간 계산: 서버 시간 기준 현재 시간 + 세션 유지 시간(20분)
+      const sessionDuration = 20 * 60 * 1000; // 20분 -> 밀리초
+      const expireAt = Date.now() + sessionDuration;
+
+      sessionStorage.setItem("user", JSON.stringify({ ...response, expireAt }));
       setUser(response);
+      setRemainingSessionTime(sessionDuration / 1000); // 초 단위
+
       return true;
     } catch (error) {
       clearSession();
       return false;
     }
   }, [clearSession]);
+
+  // 남은 세션 시간 감소
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const interval = setInterval(() => {
+      setRemainingSessionTime((prev) => {
+        if (prev <= 1) {
+          clearSession();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, clearSession]);
 
   const logout = useCallback(async (): Promise<void> => {
     try {
@@ -74,8 +100,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const savedUser = sessionStorage.getItem("user");
         if (savedUser) {
-          JSON.parse(savedUser); // 유효성 검사
-          await checkSession();
+          const parsed = JSON.parse(savedUser);
+          const now = Date.now();
+          if (parsed.expireAt && parsed.expireAt > now) {
+            setUser(parsed);
+            setRemainingSessionTime(Math.floor((parsed.expireAt - now) / 1000));
+            await checkSession();
+          } else {
+            clearSession();
+          }
         }
       } catch (error) {
         clearSession();
@@ -98,11 +131,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [location.pathname]);
 
   const login = useCallback(
-    async (credentials: { loginID: string; passwd: string }): Promise<void> => {
+    async (credentials: { loginId: string; passwd: string }): Promise<void> => {
       try {
         const response = await loginApi(credentials);
+        const sessionDuration = 20 * 60 * 1000;
+        const expireAt = Date.now() + sessionDuration;
+
         setUser(response);
-        sessionStorage.setItem("user", JSON.stringify(response));
+        setRemainingSessionTime(sessionDuration / 1000);
+
+        sessionStorage.setItem(
+          "user",
+          JSON.stringify({ ...response, expireAt })
+        );
       } catch (error) {
         clearSession();
         throw error;
@@ -116,11 +157,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       user,
       isAuthenticated,
       isInitialized,
+      remainingSessionTime,
       login,
       logout,
       checkSession,
     }),
-    [user, isAuthenticated, isInitialized, login, logout, checkSession]
+    [
+      user,
+      isAuthenticated,
+      isInitialized,
+      remainingSessionTime,
+      login,
+      logout,
+      checkSession,
+    ]
   );
 
   return (

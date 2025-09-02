@@ -2,11 +2,11 @@
  * 실시간 Validation 함수
  */
 
-export const validateLoginID = (value: string): string | null => {
-  if (!value.trim()) return "ID는 필수입니다";
-  if (value.length < 4) return "ID는 최소 4자 이상이어야 합니다";
+export const validateLoginId = (value: string): string | null => {
+  if (!value.trim()) return "Id는 필수입니다";
+  if (value.length < 4) return "Id는 최소 4자 이상이어야 합니다";
   if (!/^[a-zA-Z0-9]+$/.test(value))
-    return "ID는 영문자와 숫자만 사용할 수 있습니다";
+    return "Id는 영문자와 숫자만 사용할 수 있습니다";
   return null;
 };
 

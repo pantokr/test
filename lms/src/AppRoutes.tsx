@@ -1,31 +1,26 @@
-// src/AppRoutes.tsx - Protected Route 분리 후
-
-import { useEffect, useMemo, type ReactNode } from "react";
+import React, { useEffect, useMemo, type ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
 
 // Components
 import ProtectedRoute from "@/routes/ProtectedRoute";
 
-// Routes and contexts
+// Routes
+import NotFoundPage from "@/pages/common/NotFound";
 import { hiddenRoutes, sidenavRoutes } from "@/routes";
-import NotFoundPage from "./pages/common/NotFound";
+import { RouteItem } from "@/routes/types";
 import SignInPage from "./pages/SignIn";
-import { RouteItem } from "./routes/types";
 
 const AppRoutes: React.FC = () => {
-  // 우클릭 방지 (프로덕션 환경에서만)
+  // 우클릭 방지 (프로덕션)
   useEffect(() => {
     if (!import.meta.env.PROD) return;
 
-    const handleContextMenu = (e: MouseEvent): void => {
-      e.preventDefault();
-    };
-
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
     document.addEventListener("contextmenu", handleContextMenu);
     return () => document.removeEventListener("contextmenu", handleContextMenu);
   }, []);
 
-  // 라우트 생성 함수 (메모화)
+  // Route 요소 생성
   const routeElements = useMemo(() => {
     const elements: ReactNode[] = [];
 
@@ -36,28 +31,34 @@ const AppRoutes: React.FC = () => {
       }
 
       if (route.route && route.component) {
+        const element = route.protected ? (
+          <ProtectedRoute>
+            <route.component />
+          </ProtectedRoute>
+        ) : (
+          <route.component />
+        );
+
         elements.push(
-          <Route key={route.key} path={route.route} element={route.component} />
+          <Route key={route.key} path={route.route} element={element} />
         );
       }
     };
 
     sidenavRoutes.forEach(processRoute);
-
     hiddenRoutes.forEach(processRoute);
 
     return elements;
   }, []);
 
   return (
-    <ProtectedRoute>
-      <Routes>
-        {routeElements}
-        {/* 404 페이지 - 전체 화면을 덮는 컴포넌트 */}
-        <Route path="*" element={<NotFoundPage />} />
-        <Route path="/" element={<SignInPage />} />
-      </Routes>
-    </ProtectedRoute>
+    <Routes>
+      {routeElements}
+
+      <Route path="/" element={<SignInPage />} />
+
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   );
 };
 

@@ -35,7 +35,7 @@ func (h *UserHandler) UserRegistrationHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	log.Printf("사용자 등록 성공: %s", userRegReq.LoginID)
+	log.Printf("사용자 등록 성공: %s", userRegReq.LoginId)
 	util.RespondSuccess(w, nil)
 }
 
@@ -53,7 +53,25 @@ func (h *UserHandler) UserUpdateHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	log.Printf("사용자 수정 성공: %s", userUpdReq.LoginID)
+	log.Printf("사용자 수정 성공: %s", userUpdReq.LoginId)
+	util.RespondSuccess(w, nil)
+}
+
+func (h *UserHandler) UserDeletionHandler(w http.ResponseWriter, r *http.Request) {
+	var userDelReq request.UserDeleteRequest
+	if err := json.NewDecoder(r.Body).Decode(&userDelReq); err != nil {
+		util.RespondError(w, http.StatusBadRequest, "잘못된 요청입니다.")
+		return
+	}
+
+	log.Printf("UserDeletionHandler: %+v", userDelReq)
+	err := h.userService.DeleteUser(userDelReq)
+	if err != nil {
+		log.Printf("사용자 삭제 실패: %v", err)
+		util.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	util.RespondSuccess(w, nil)
 }
 
@@ -71,7 +89,7 @@ func (h *UserHandler) PasswordUpdateHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	log.Printf("비밀번호 수정 성공: %s", pwdUpdReq.LoginID)
+	log.Printf("비밀번호 수정 성공: %s", pwdUpdReq.LoginId)
 	util.RespondSuccess(w, nil)
 }
 
@@ -89,7 +107,7 @@ func (h *UserHandler) PasswordVerificationHandler(w http.ResponseWriter, r *http
 		return
 	}
 
-	log.Printf("비밀번호 검증 성공: %s", verifyReq.LoginID)
+	log.Printf("비밀번호 검증 성공: %s", verifyReq.LoginId)
 	util.RespondSuccess(w, nil)
 }
 

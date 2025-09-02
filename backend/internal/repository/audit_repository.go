@@ -23,20 +23,21 @@ func (r *AuditRepository) InsertLoginHistory(history *model.LoginHistory) (int64
 		(login_id, emp_name, login_time, is_external, client_ip, server_ip)
 		VALUES (?, ?, NOW(), ?, ?, ?)
 	`
-	result, err := r.db.Exec(query, history.LoginID, history.EmpName, "N", history.ClientIP, history.ServerIP)
+	result, err := r.db.Exec(query, history.LoginId, history.EmpName, "N", history.ClientIp, history.ServerIp)
 	if err != nil {
 		return 0, fmt.Errorf("로그인 기록 삽입 실패: %w", err)
 	}
 
-	insertedID, err := result.LastInsertId()
+	insertedId, err := result.LastInsertId()
 	if err != nil {
-		return 0, fmt.Errorf("삽입된 ID 조회 실패: %w", err)
+		return 0, fmt.Errorf("삽입된 Id 조회 실패: %w", err)
 	}
 
-	return insertedID, nil
+	return insertedId, nil
 }
 
 func (r *AuditRepository) SelectLoginHistoryAll() ([]model.LoginHistory, error) {
+
 	const query = `
 		SELECT 
 			IFNULL(login_id, '') AS login_id,
@@ -58,7 +59,7 @@ func (r *AuditRepository) SelectLoginHistoryAll() ([]model.LoginHistory, error) 
 	var loginHistory []model.LoginHistory
 	for rows.Next() {
 		var lh model.LoginHistory
-		if err := rows.Scan(&lh.LoginID, &lh.EmpName, &lh.LoginTime, &lh.LogoutTime, &lh.IsExternal, &lh.ClientIP, &lh.ServerIP); err != nil {
+		if err := rows.Scan(&lh.LoginId, &lh.EmpName, &lh.LoginTime, &lh.LogoutTime, &lh.IsExternal, &lh.ClientIp, &lh.ServerIp); err != nil {
 			return nil, err
 		}
 		loginHistory = append(loginHistory, lh)
@@ -71,13 +72,13 @@ func (r *AuditRepository) SelectLoginHistoryAll() ([]model.LoginHistory, error) 
 	return loginHistory, nil
 }
 
-func (r *AuditRepository) UpdateLoginHistoryLogoutTime(sessionID int64) error {
+func (r *AuditRepository) UpdateLoginHistoryLogoutTime(sessionId int64) error {
 	const query = `
 		UPDATE login_history 
 		SET logout_time = NOW()
 		WHERE id = ? AND logout_time IS NULL
 	`
-	result, err := r.db.Exec(query, sessionID)
+	result, err := r.db.Exec(query, sessionId)
 	if err != nil {
 		return fmt.Errorf("로그아웃 시간 업데이트 실패: %w", err)
 	}
@@ -100,7 +101,7 @@ func (r *AuditRepository) InsertLoginFailureHistory(failure *model.LoginFailureH
 		(login_time, fail_code, login_id, client_ip, server_ip)
 		VALUES (NOW(), ?, ?, ?, ?)
 	`
-	_, err := r.db.Exec(query, failure.FailCode, failure.LoginID, failure.ClientIP, failure.ServerIP)
+	_, err := r.db.Exec(query, failure.FailCode, failure.LoginId, failure.ClientIp, failure.ServerIp)
 	if err != nil {
 		return fmt.Errorf("로그인 실패 기록 삽입 실패: %w", err)
 	}
@@ -129,7 +130,7 @@ func (r *AuditRepository) SelectLoginFailureHistoryAll() ([]model.LoginFailureHi
 
 	for rows.Next() {
 		var lf model.LoginFailureHistory
-		if err := rows.Scan(&lf.LoginID, &lf.LoginTime, &lf.FailCode, &lf.ClientIP, &lf.ServerIP); err != nil {
+		if err := rows.Scan(&lf.LoginId, &lf.LoginTime, &lf.FailCode, &lf.ClientIp, &lf.ServerIp); err != nil {
 			return nil, err
 		}
 		loginFailures = append(loginFailures, lf)
@@ -148,7 +149,7 @@ func (r *AuditRepository) InsertLoginResetHistory(reset *model.LoginResetHistory
 		(reset_time, reset_code, login_id, reset_id, reset_reason, prev_login_ip)
 		VALUES (?, ?, ?, ?, ?, ?)
 	`
-	_, err := r.db.Exec(query, reset.ResetTime, reset.ResetCode, reset.LoginID, reset.ResetID, reset.ResetReason, reset.PrevLoginIP)
+	_, err := r.db.Exec(query, reset.ResetTime, reset.ResetCode, reset.LoginId, reset.ResetId, reset.ResetReason, reset.PrevLoginIp)
 	if err != nil {
 		return fmt.Errorf("로그인 리셋 기록 삽입 실패: %w", err)
 	}
@@ -177,7 +178,7 @@ func (r *AuditRepository) SelectLoginResetHistoryAll() ([]model.LoginResetHistor
 	var loginResets []model.LoginResetHistory
 	for rows.Next() {
 		var lr model.LoginResetHistory
-		if err := rows.Scan(&lr.ResetTime, &lr.ResetCode, &lr.LoginID, &lr.ResetID, &lr.ResetReason, &lr.PrevLoginIP); err != nil {
+		if err := rows.Scan(&lr.ResetTime, &lr.ResetCode, &lr.LoginId, &lr.ResetId, &lr.ResetReason, &lr.PrevLoginIp); err != nil {
 			return nil, err
 		}
 		loginResets = append(loginResets, lr)

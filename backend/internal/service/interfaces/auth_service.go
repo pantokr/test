@@ -10,6 +10,6 @@ import (
 // AuthServiceInterface 인증 서비스 인터페이스
 type AuthServiceInterface interface {
 	Login(loginReq request.LoginRequest) *types.LoginResult
-	Logout(sessionID int64) error
-	GetUserInfo(loginID string) (*model.UserAccount, error)
+	Logout(sessionId int64) error
+	GetUserInfo(loginId string) (*model.UserAccount, error)
 }

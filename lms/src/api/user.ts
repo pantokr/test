@@ -3,6 +3,8 @@ import { apiRequest, createApiUrl } from "@/utils/api";
 import {
   LoginCredentials,
   PasswdUpdate,
+  UserDeletion,
+  UserListItem,
   UserRegistration,
   UserUpdate,
 } from "./types";
@@ -31,6 +33,18 @@ export const UserUpdateApi = async (updateData: UserUpdate): Promise<void> => {
 };
 
 /**
+ * 사용자 삭제
+ */
+export const UserDeletionApi = async (
+  deletionData: UserDeletion
+): Promise<void> => {
+  await apiRequest.delete<void>(
+    createApiUrl(USER_ROUTE, `/user-deletion`),
+    deletionData
+  );
+};
+
+/**
  * 사용자 비밀번호 업데이트
  */
 export const PasswdUpdateApi = async (
@@ -42,6 +56,9 @@ export const PasswdUpdateApi = async (
   );
 };
 
+/**
+ * 사용자 비밀번호 확인
+ */
 export const PasswdVerificationApi = async (
   verificationData: LoginCredentials
 ): Promise<void> => {
@@ -49,4 +66,11 @@ export const PasswdVerificationApi = async (
     createApiUrl(USER_ROUTE, "/password-verification"),
     verificationData
   );
+};
+
+export const UserAccountListApi = async (): Promise<UserListItem[]> => {
+  const response = await apiRequest.get<UserListItem[]>(
+    createApiUrl(USER_ROUTE, "/user-account-list")
+  );
+  return response;
 };

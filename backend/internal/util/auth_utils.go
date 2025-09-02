@@ -9,12 +9,12 @@ import (
 	"strings"
 )
 
-func GetClientIP(r *http.Request) string {
+func GetClientIp(r *http.Request) string {
 	if ip := r.Header.Get("X-Forwarded-For"); ip != "" {
 		ips := strings.Split(ip, ",")
 		return strings.TrimSpace(ips[0])
 	}
-	if ip := r.Header.Get("X-Real-IP"); ip != "" {
+	if ip := r.Header.Get("X-Real-Ip"); ip != "" {
 		return ip
 	}
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -24,7 +24,7 @@ func GetClientIP(r *http.Request) string {
 	return ip
 }
 
-func GetServerIP() (string, error) {
+func GetServerIp() (string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return "", err

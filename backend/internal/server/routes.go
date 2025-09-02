@@ -63,6 +63,7 @@ func (r *Routes) setupUserRoutes(router *mux.Router) {
 	// 세션 검증이 필요한 라우트
 	userWithMiddleware := router.PathPrefix("/api/user").Subrouter()
 	userWithMiddleware.Use(sessionMiddleware)
+	userWithMiddleware.HandleFunc("/user-deletion", r.handlers.User.UserDeletionHandler).Methods("DELETE", "OPTIONS")
 	userWithMiddleware.HandleFunc("/user-registration", r.handlers.User.UserRegistrationHandler).Methods("POST", "OPTIONS")
 	userWithMiddleware.HandleFunc("/user-update", r.handlers.User.UserUpdateHandler).Methods("POST", "OPTIONS")
 	userWithMiddleware.HandleFunc("/user-account-list", r.handlers.User.GetAllUsersHandler).Methods("GET", "OPTIONS")

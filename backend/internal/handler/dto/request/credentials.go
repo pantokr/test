@@ -1,6 +1,6 @@
 package request
 
 type Credentials struct {
-	LoginID string `json:"loginID"`
+	LoginId string `json:"loginId"`
 	Passwd  string `json:"passwd"`
 }

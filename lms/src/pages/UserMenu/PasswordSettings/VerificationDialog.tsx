@@ -132,16 +132,17 @@ const VerificationDialog: React.FC<VerificationDialogProps> = ({
 
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <AppButton
+            type="button"
+            variantType="transparent"
             onClick={handleCancel}
             disabled={loading}
             color="inherit"
-            type="button"
           >
             취소
           </AppButton>
           <AppButton
             type="submit"
-            variant="contained"
+            variantType="filled"
             disabled={loading || !currentPassword.trim()}
           >
             {loading ? "확인 중..." : "확인"}

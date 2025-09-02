@@ -3,7 +3,7 @@ package model
 import "time"
 
 type UserAccount struct {
-	LoginID          string
+	LoginId          string
 	Passwd           string
 	EmpName          string
 	DptName          string
@@ -13,10 +13,10 @@ type UserAccount struct {
 	DeleteDate       *time.Time
 	PasswdUpdateDate *time.Time
 	PwFailCount      int
-	ClientIP         string
+	ClientIp         string
 	PwRef            string
-	RegEmpID         string
+	RegEmpId         string
 	RegDate          *time.Time
-	UpdEmpID         string
+	UpdEmpId         string
 	UpdDate          *time.Time
 }

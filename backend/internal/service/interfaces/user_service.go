@@ -2,7 +2,7 @@ package interfaces
 
 import (
 	"lms/internal/handler/dto/request"
-	"lms/internal/model"
+	"lms/internal/handler/dto/response"
 )
 
 type UserServiceInterface interface {
@@ -12,6 +12,9 @@ type UserServiceInterface interface {
 	// 사용자 수정
 	UpdateUser(updateReq request.UserUpdateRequest) error
 
+	// 사용자 삭제
+	DeleteUser(deleteReq request.UserDeleteRequest) error
+
 	// 비밀번호 수정
 	UpdatePassword(updateReq request.PasswordUpdateRequest) error
 
@@ -19,5 +22,5 @@ type UserServiceInterface interface {
 	VerifyPassword(verifyReq request.Credentials) error
 
 	// 모든 사용자 조회
-	GetAllUsers() ([]*model.UserAccount, error)
+	GetAllUsers() ([]*response.UserListResponse, error)
 }

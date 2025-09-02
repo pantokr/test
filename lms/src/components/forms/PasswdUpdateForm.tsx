@@ -3,9 +3,8 @@ import { LoginCredentials, PasswdUpdate } from "@/api/types";
 import { PasswdUpdateApi } from "@/api/user";
 import { AppButton, AppPaper, Column, Row } from "@/components/common";
 import { AppBox } from "@/components/common/Box";
-import { AppPasswordField } from "@/components/common/TextField";
+import { AppPasswordField, AppTextField } from "@/components/common/TextField";
 import AppTypography from "@/components/common/Typography";
-import { TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { validateConfirmPassword, validatePassword } from "../../utils/form";
 
@@ -20,7 +19,7 @@ const PasswordUpdateForm: React.FC<PasswordChangeFormProps> = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<PasswdUpdate>({
-    loginID: "",
+    loginId: "",
     passwd: "",
     newPasswd: "",
   });
@@ -31,7 +30,7 @@ const PasswordUpdateForm: React.FC<PasswordChangeFormProps> = ({
   // 초기 데이터 설정
   useEffect(() => {
     setFormData({
-      loginID: loginCredentials.loginID,
+      loginId: loginCredentials.loginId,
       passwd: loginCredentials.passwd,
       newPasswd: "",
     });
@@ -113,18 +112,16 @@ const PasswordUpdateForm: React.FC<PasswordChangeFormProps> = ({
   return (
     <AppPaper elevation={0}>
       <AppBox component="form" onSubmit={handleSubmit}>
-        <Column>
+        <Column spacing={2}>
           {/* 접근성을 위한 username 필드 */}
           <Row>
-            <TextField
+            <AppTextField
               type="text"
               name="username"
               autoComplete="username"
               label="사용자 ID"
-              value={formData.loginID}
-              InputProps={{
-                readOnly: true,
-              }}
+              value={formData.loginId}
+              slotProps={{ input: { readOnly: true } }}
               fullWidth
               margin="normal"
               tabIndex={-1}
@@ -186,6 +183,7 @@ const PasswordUpdateForm: React.FC<PasswordChangeFormProps> = ({
           <Row mainAxisAlignment="end">
             <AppButton
               type="submit"
+              variantType="filled"
               disabled={loading || !formData.newPasswd || !confirmNewPassword}
             >
               {loading ? "변경 중..." : "비밀번호 변경"}
