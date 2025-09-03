@@ -1,9 +1,10 @@
 // components/common/AppDialog.tsx
-import CloseIcon from "@mui/icons-material/Close";
+import { Close } from "@mui/icons-material";
 import { Dialog, DialogProps, DialogTitle } from "@mui/material";
 import React from "react";
-import { AppBox } from "../Box";
 import { AppIconButton } from "../Button";
+import { Column } from "../Column";
+import { Row } from "../Row";
 
 export interface AppDialogProps extends DialogProps {
   /** 다이얼로그 제목 */
@@ -21,33 +22,33 @@ const AppDialog: React.FC<AppDialogProps> = ({
   showCloseButton = true,
   onClose,
   children,
-  padding = 4,
+  padding = 2,
   ...props
 }) => {
   return (
     <Dialog {...props} onClose={onClose}>
-      {title && (
-        <DialogTitle sx={{ m: 0, p: 2 }}>
-          {title}
-          {showCloseButton && onClose && (
-            <AppIconButton
-              aria-label="close"
-              onClick={(event) => onClose(event, "backdropClick")}
-              sx={{
-                position: "absolute",
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </AppIconButton>
-          )}
-        </DialogTitle>
-      )}
+      <Column sx={{ p: padding }} spacing={padding}>
+        {title && (
+          <DialogTitle sx={{ m: 0, p: 0 }}>
+            {" "}
+            {/* padding 제거 */}
+            <Row mainAxisAlignment="spaceBetween">
+              {title}
+              {showCloseButton && (
+                <AppIconButton
+                  aria-label="close"
+                  onClick={(event) => onClose?.(event, "backdropClick")}
+                  sx={{ color: (theme) => theme.palette.grey[500] }}
+                >
+                  <Close />
+                </AppIconButton>
+              )}
+            </Row>
+          </DialogTitle>
+        )}
 
-      {/* 기본 padding 적용 */}
-      <AppBox sx={{ p: padding }}>{children}</AppBox>
+        {children}
+      </Column>
     </Dialog>
   );
 };

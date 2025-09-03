@@ -12,11 +12,12 @@ import (
 )
 
 type UserService struct {
-	userRepo repositoryInterfaces.UserRepositoryInterface
+	userRepo  repositoryInterfaces.UserRepositoryInterface
+	auditRepo repositoryInterfaces.AuditRepositoryInterface
 }
 
-func InitUserService(userRepo repositoryInterfaces.UserRepositoryInterface) serviceInterfaces.UserServiceInterface {
-	return &UserService{userRepo: userRepo}
+func InitUserService(userRepo repositoryInterfaces.UserRepositoryInterface, auditRepo repositoryInterfaces.AuditRepositoryInterface) serviceInterfaces.UserServiceInterface {
+	return &UserService{userRepo: userRepo, auditRepo: auditRepo}
 }
 
 func (s *UserService) RegisterUser(registerReq request.UserRegistrationRequest) error {
@@ -36,14 +37,15 @@ func (s *UserService) RegisterUser(registerReq request.UserRegistrationRequest) 
 		MobileTel:        registerReq.MobileTel,
 		RecentConnDate:   nil,
 		DeleteDate:       nil,
-		PasswdUpdateDate: nil,
+		PasswdUpdateDate: util.NowPtr(),
 		PwFailCount:      0,
 		ClientIp:         "",
 		PwRef:            salt,
 		RegEmpId:         registerReq.RegEmpId,
 		RegDate:          util.NowPtr(),
-		UpdEmpId:         "",
-		UpdDate:          nil,
+		UpdEmpId:         registerReq.RegEmpId,
+		UpdDate:          util.NowPtr(),
+		Permission:       registerReq.Permission,
 	}); err != nil {
 		return err
 	}
@@ -74,6 +76,7 @@ func (s *UserService) UpdateUser(updateReq request.UserUpdateRequest) error {
 		RegDate:          userAccount.RegDate,     // 등록일은 변경하지 않음
 		UpdEmpId:         updateReq.UpdateEmpId,
 		UpdDate:          util.NowPtr(),
+		Permission:       updateReq.Permission,
 	}); err != nil {
 		return err
 	}
@@ -82,9 +85,14 @@ func (s *UserService) UpdateUser(updateReq request.UserUpdateRequest) error {
 }
 
 func (s *UserService) DeleteUser(deleteReq request.UserDeleteRequest) error {
-	log.Printf("DeleteUser: %v", deleteReq.DeleteEmpId)
 	for _, id := range deleteReq.DeleteEmpId {
-		if err := s.userRepo.DeleteUserAccountById(id); err != nil {
+		userAccount, err := s.userRepo.SelectUserAccountById(id)
+		if err != nil {
+			return err
+		}
+		userAccount.DeleteDate = util.NowPtr()
+
+		if err := s.userRepo.UpdateUserAccount(userAccount); err != nil {
 			return err
 		}
 		log.Printf("사용자 삭제 성공: %s", id)
@@ -102,34 +110,54 @@ func (s *UserService) UpdatePassword(updateReq request.PasswordUpdateRequest) er
 		return fmt.Errorf("기존 비밀번호가 일치하지 않습니다")
 	}
 
-	newPasswd := userAccount.Passwd
-	newSalt := userAccount.PwRef
-
-	if updateReq.NewPasswd != "" {
-		newSalt, err = util.GenerateSalt(4)
-		if err != nil {
-			return err
-		}
-		newPasswd = util.HashPassword(updateReq.NewPasswd, newSalt)
+	if util.CheckPassword(updateReq.NewPasswd, userAccount.PwRef, userAccount.Passwd) {
+		return fmt.Errorf("새 비밀번호가 기존 비밀번호와 일치합니다")
 	}
 
-	if err := s.userRepo.UpdateUserAccount(&model.UserAccount{
-		LoginId:          updateReq.LoginId,
-		Passwd:           newPasswd,
-		EmpName:          userAccount.EmpName,
-		DptName:          userAccount.DptName,
-		OfficeTel:        userAccount.OfficeTel,
-		MobileTel:        userAccount.MobileTel,
-		RecentConnDate:   userAccount.RecentConnDate,
-		DeleteDate:       userAccount.DeleteDate,
-		PasswdUpdateDate: util.NowPtr(),
-		PwFailCount:      userAccount.PwFailCount,
-		ClientIp:         userAccount.ClientIp,
-		PwRef:            newSalt,
-		RegEmpId:         userAccount.RegEmpId,
-		RegDate:          userAccount.RegDate,
-		UpdEmpId:         userAccount.UpdEmpId,
-		UpdDate:          util.NowPtr(),
+	newSalt, err := util.GenerateSalt(4)
+	if err != nil {
+		return err
+	}
+	newPasswd := util.HashPassword(updateReq.NewPasswd, newSalt)
+
+	userAccount.Passwd = newPasswd
+	userAccount.PwRef = newSalt
+	userAccount.PasswdUpdateDate = util.NowPtr()
+
+	if err := s.userRepo.UpdateUserAccount(userAccount); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *UserService) ResetPassword(resetReq request.PasswordResetRequest) error {
+
+	userAccount, err := s.userRepo.SelectUserAccountById(resetReq.LoginId)
+	if err != nil {
+		return err
+	}
+
+	newSalt, err := util.GenerateSalt(4)
+	if err != nil {
+		return err
+	}
+	newPasswd := util.HashPassword(resetReq.LoginId, newSalt)
+
+	userAccount.Passwd = newPasswd
+	userAccount.PwRef = newSalt
+
+	if err := s.userRepo.UpdateUserAccount(userAccount); err != nil {
+		return err
+	}
+
+	if err := s.auditRepo.InsertLoginResetHistory(&model.LoginResetHistory{
+		LoginId:     resetReq.LoginId,
+		ResetTime:   util.NowPtr(),
+		ResetCode:   resetReq.ResetCode,
+		ResetId:     resetReq.ResetEmpId,
+		ResetReason: resetReq.ResetReason,
+		PrevLoginIp: userAccount.ClientIp,
 	}); err != nil {
 		return err
 	}
@@ -138,7 +166,6 @@ func (s *UserService) UpdatePassword(updateReq request.PasswordUpdateRequest) er
 }
 
 func (s *UserService) VerifyPassword(verifyReq request.Credentials) error {
-	log.Printf("VerifyPassword: %s, %s", verifyReq.LoginId, verifyReq.Passwd)
 	userAccount, err := s.userRepo.SelectUserAccountById(verifyReq.LoginId)
 	if err != nil {
 		return err

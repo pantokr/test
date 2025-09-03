@@ -13,7 +13,6 @@ const UserRegistrationPage: React.FC = () => {
 
     // 예: 페이지 새로고침 (현재 구현과 동일)
     alert(message);
-    window.location.reload();
   };
 
   return (

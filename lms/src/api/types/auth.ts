@@ -1,5 +1,7 @@
 // src/types/auth.ts - 기존 타입에 추가
 
+import { UserData } from "./user";
+
 // ... 기존 타입들
 
 // src/types/auth.ts
@@ -20,15 +22,4 @@ export interface LoginResponse {
   code: string;
   message: string;
   userData: UserData;
-}
-
-/**
- * 사용자 기본 정보
- */
-export interface UserData {
-  loginId: string;
-  empName: string;
-  dptName: string;
-  officeTel: string;
-  mobileTel: string;
 }

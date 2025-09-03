@@ -18,6 +18,9 @@ type UserServiceInterface interface {
 	// 비밀번호 수정
 	UpdatePassword(updateReq request.PasswordUpdateRequest) error
 
+	// 비밀번호 초기화
+	ResetPassword(resetReq request.PasswordResetRequest) error
+
 	// 비밀번호 검증
 	VerifyPassword(verifyReq request.Credentials) error
 

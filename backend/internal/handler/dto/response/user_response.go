@@ -18,6 +18,7 @@ type UserListResponse struct {
 	RegDate          string `json:"regDate"`
 	UpdEmpId         string `json:"updEmpId"`
 	UpdDate          string `json:"updDate"`
+	Permission       string `json:"permission"`
 }
 
 // NewUserData model.UserAccount에서 안전한 데이터만 추출
@@ -39,6 +40,7 @@ func NewUserList(userAccount *model.UserAccount) *UserListResponse {
 		RegDate:          util.FormatDate(userAccount.RegDate),
 		UpdEmpId:         userAccount.UpdEmpId,
 		UpdDate:          util.FormatDate(userAccount.UpdDate),
+		Permission:       userAccount.Permission,
 	}
 }
 

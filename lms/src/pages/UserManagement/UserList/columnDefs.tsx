@@ -35,6 +35,13 @@ const ColumnDefs: ColDef[] = [
     filter: "agTextColumnFilter",
   },
   {
+    field: "permission",
+    headerName: "권한",
+    flex: 1,
+    sortable: true,
+    filter: "agTextColumnFilter",
+  },
+  {
     field: "officeTel",
     headerName: "사무실 전화번호",
     flex: 1.5,

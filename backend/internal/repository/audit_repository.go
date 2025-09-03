@@ -159,7 +159,7 @@ func (r *AuditRepository) InsertLoginResetHistory(reset *model.LoginResetHistory
 func (r *AuditRepository) SelectLoginResetHistoryAll() ([]model.LoginResetHistory, error) {
 	const query = `
 		SELECT 
-			IFNULL(DATE_FORMAT(reset_time, '%Y-%m-%d %H:%i:%s'), '') AS reset_time, 
+			reset_time AS reset_time, 
 			IFNULL(reset_code, '') AS reset_code, 
 			IFNULL(login_id, '') AS login_id, 
 			IFNULL(reset_id, '') AS reset_id, 

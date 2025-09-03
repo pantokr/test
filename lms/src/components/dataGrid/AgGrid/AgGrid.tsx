@@ -123,9 +123,9 @@ const AgGrid: React.FC<AgGridProps> = ({
         flex: 1,
       },
       rowSelection: {
-        mode: "multiRow",
-        checkboxes: true,
-        enableClickSelection: false,
+        mode: "singleRow",
+        checkboxes: false,
+        enableClickSelection: true,
       },
       pagination: true,
       paginationPageSize: 50,

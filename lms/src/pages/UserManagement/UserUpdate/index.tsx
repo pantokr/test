@@ -18,8 +18,8 @@ const UserUpdatePage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout title="사용자 정보 설정">
-      <AppPaper title="사용자 정보 설정">
+    <DashboardLayout title="사용자 정보 수정">
+      <AppPaper title="사용자 정보 수정">
         <UserUpdateForm
           initialData={initialData} // 🔹 전달받은 데이터 사용
           onSuccess={async () => {

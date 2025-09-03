@@ -166,6 +166,39 @@ export const createAppTheme = (
           },
         },
       },
+      MuiToggleButton: {
+        styleOverrides: {
+          root: {
+            border: "none", // 기본 테두리 제거
+            "&.Mui-selected": {
+              border: "none",
+              outline: "none",
+            },
+            "&.Mui-selected:hover": {
+              border: "none",
+            },
+            "&:focus": {
+              outline: "none",
+              border: "none",
+            },
+            "&.Mui-focusVisible": {
+              outline: "none",
+              border: "none",
+            },
+          },
+        },
+      },
+      // ✅ ToggleButtonGroup 테두리 제거
+      MuiToggleButtonGroup: {
+        styleOverrides: {
+          grouped: {
+            border: "none !important", // 그룹 내부 버튼 경계 제거
+            "&.Mui-selected": {
+              border: "none !important",
+            },
+          },
+        },
+      },
       MuiCard: {
         styleOverrides: {
           root: {

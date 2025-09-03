@@ -64,7 +64,6 @@ func (h *UserHandler) UserDeletionHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	log.Printf("UserDeletionHandler: %+v", userDelReq)
 	err := h.userService.DeleteUser(userDelReq)
 	if err != nil {
 		log.Printf("사용자 삭제 실패: %v", err)
@@ -90,6 +89,23 @@ func (h *UserHandler) PasswordUpdateHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	log.Printf("비밀번호 수정 성공: %s", pwdUpdReq.LoginId)
+	util.RespondSuccess(w, nil)
+}
+
+func (h *UserHandler) PasswordResetHandler(w http.ResponseWriter, r *http.Request) {
+	var pwdResetReq request.PasswordResetRequest
+	if err := json.NewDecoder(r.Body).Decode(&pwdResetReq); err != nil {
+		util.RespondError(w, http.StatusBadRequest, "잘못된 요청입니다.")
+		return
+	}
+
+	err := h.userService.ResetPassword(pwdResetReq)
+	if err != nil {
+		log.Printf("비밀번호 초기화 실패: %v", err)
+		util.RespondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	util.RespondSuccess(w, nil)
 }
 

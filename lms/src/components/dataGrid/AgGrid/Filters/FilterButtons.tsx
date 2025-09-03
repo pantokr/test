@@ -31,9 +31,9 @@ const FilterButtons: React.FC<FilterButtonsProps> = ({
         <AppButton
           key={colId}
           onClick={() => onClearColumnFilter(colId)}
-          variantType="transparent"
+          variantType="filled"
           size="small"
-          sx={{ mr: 1, mb: 1 }}
+          sx={{ mr: 1, mb: 1, opacity: 0.5 }}
         >
           {fieldToHeader[colId] || colId} <Close fontSize="small" />
         </AppButton>

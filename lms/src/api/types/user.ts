@@ -1,12 +1,34 @@
 // api/types/user.ts
 
-import { LoginCredentials, UserData } from "./auth";
+import { LoginCredentials } from "./auth";
+
+/**
+ * 사용자 기본 정보
+ */
+export interface UserData {
+  loginId: string;
+  empName: string;
+  officeTel: string;
+  mobileTel: string;
+  dptName: string;
+  permission: string;
+}
 
 /**
  * 비밀번호 수정 데이터
  */
 export interface PasswdUpdate extends LoginCredentials {
   newPasswd: string;
+}
+
+/**
+ * 비밀번호 초기화 데이터
+ */
+export interface PasswdReset {
+  loginId: string;
+  resetEmpId: string;
+  resetCode: string;
+  resetReason: string;
 }
 
 /**
@@ -27,7 +49,7 @@ export interface UserUpdate extends UserData {
  * 사용자 삭제 데이터
  */
 export interface UserDeletion {
-  deleteEmpId: string[];
+  deleteEmpId: string;
 }
 
 export interface UserListItem {

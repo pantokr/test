@@ -37,6 +37,11 @@ export const validateDepartment = (value: string): string | null => {
   return null;
 };
 
+export const validatePermission = (value: string): string | null => {
+  if (!value) return "권한은 필수입니다";
+  return null;
+};
+
 /**
  * 전화번호 포맷 함수
  */

@@ -19,4 +19,5 @@ type UserAccount struct {
 	RegDate          *time.Time
 	UpdEmpId         string
 	UpdDate          *time.Time
+	Permission       string
 }

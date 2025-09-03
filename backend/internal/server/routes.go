@@ -59,6 +59,7 @@ func (r *Routes) setupUserRoutes(router *mux.Router) {
 	userWithNoMiddleware := router.PathPrefix("/api/user").Subrouter()
 	userWithNoMiddleware.HandleFunc("/password-verification", r.handlers.User.PasswordVerificationHandler).Methods("POST", "OPTIONS")
 	userWithNoMiddleware.HandleFunc("/password-update", r.handlers.User.PasswordUpdateHandler).Methods("POST", "OPTIONS")
+	userWithNoMiddleware.HandleFunc("/password-reset", r.handlers.User.PasswordResetHandler).Methods("POST", "OPTIONS")
 
 	// 세션 검증이 필요한 라우트
 	userWithMiddleware := router.PathPrefix("/api/user").Subrouter()

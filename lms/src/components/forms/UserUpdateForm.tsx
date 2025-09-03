@@ -10,14 +10,11 @@ import {
 } from "@/components/common";
 import { AppBox } from "@/components/common/Box";
 import AppTypography from "@/components/common/Typography";
+import { DEPARTMENT_OPTIONS, PERMISSION_OPTIONS } from "@/constants";
 import { useAuth } from "@/context";
 import { AutocompleteRenderInputParams } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import {
-  validateDepartment,
-  validateLoginId,
-  validateName,
-} from "../../utils/form";
+import { validateLoginId, validateName } from "../../utils/form";
 
 interface UserUpdateFormProps {
   onSuccess?: (message: string) => void;
@@ -38,6 +35,7 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
     officeTel: "",
     mobileTel: "",
     updateEmpId: "",
+    permission: "",
   });
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -61,6 +59,7 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
         officeTel: user.officeTel || "",
         mobileTel: user.mobileTel || "",
         updateEmpId: user.loginId || "",
+        permission: user.permission || "",
       });
     }
   }, [user, initialData]);
@@ -74,9 +73,6 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
     if (error) return { valid: false, error };
 
     error = validateName(formData.empName);
-    if (error) return { valid: false, error };
-
-    error = validateDepartment(formData.dptName);
     if (error) return { valid: false, error };
 
     return { valid: true };
@@ -206,10 +202,27 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
           />
         </Row>
 
-        <Row mainAxisAlignment="end">
+        <Row mainAxisAlignment="spaceBetween" spacing={2}>
+          <AppAutocomplete
+            label="권한"
+            options={PERMISSION_OPTIONS}
+            value={formData.permission}
+            onChange={(event, newValue) =>
+              setFormData((prev) => ({
+                ...prev,
+                permission: newValue || "",
+              }))
+            }
+            renderInput={function (
+              params: AutocompleteRenderInputParams
+            ): React.ReactNode {
+              return <AppTextField {...params} label="권한" />;
+            }}
+            sx={{ flex: 1 }}
+          />
           <AppAutocomplete
             label="부서"
-            options={["재무", "인사", "총무", "기타"]}
+            options={DEPARTMENT_OPTIONS}
             value={formData.dptName}
             onChange={(event, newValue) =>
               setFormData((prev) => ({
@@ -222,7 +235,7 @@ const UserUpdateForm: React.FC<UserUpdateFormProps> = ({
             ): React.ReactNode {
               return <AppTextField {...params} label="부서" />;
             }}
-            sx={{ flex: 1, maxWidth: "25%", minWidth: "160px" }}
+            sx={{ flex: 1 }}
           />
         </Row>
 

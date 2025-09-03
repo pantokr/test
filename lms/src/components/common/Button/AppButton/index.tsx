@@ -10,7 +10,7 @@ interface AppButtonPropsExtended extends AppButtonProps {
 
 export const AppButton: React.FC<AppButtonPropsExtended> = ({
   size = "medium",
-  variantType = "outline",
+  variantType = "filled",
   children,
   onClick,
   sx,
@@ -25,9 +25,9 @@ export const AppButton: React.FC<AppButtonPropsExtended> = ({
 
   // 크기별 스타일
   const sizeStyles = {
-    small: { padding: "2px 4px", fontSize: "0.6rem", minHeight: 24 },
-    medium: { padding: "4px 8px", fontSize: "1rem", minHeight: 32 },
-    large: { padding: "8px 16px", fontSize: "1.6rem", minHeight: 40 },
+    small: { padding: "2px 8px", fontSize: "0.6rem", minHeight: 24 },
+    medium: { padding: "3px 12px", fontSize: "1rem", minHeight: 32 },
+    large: { padding: "4px 16px", fontSize: "1.6rem", minHeight: 40 },
   };
 
   // variant별 스타일

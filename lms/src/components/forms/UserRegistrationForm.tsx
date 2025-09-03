@@ -10,6 +10,7 @@ import {
 } from "@/components/common";
 import { AppBox } from "@/components/common/Box";
 import AppTypography from "@/components/common/Typography";
+import { DEPARTMENT_OPTIONS, PERMISSION_OPTIONS } from "@/constants";
 import { useAuth } from "@/context";
 import {
   validateDepartment,
@@ -36,9 +37,9 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
     officeTel: "",
     mobileTel: "",
     regEmpId: "",
+    permission: "",
   });
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const { user } = useAuth();
 
@@ -109,7 +110,6 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
 
     setLoading(true);
     setErrorMsg(null);
-    setSuccessMsg(null);
 
     // 전체 폼 검증
 
@@ -131,7 +131,7 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
 
       // 성공 처리
       const successMessage = "사용자 등록이 완료되었습니다.";
-      setSuccessMsg(successMessage);
+      // setSuccessMsg(successMessage);
 
       // 성공 콜백 호출
       onSuccess?.(successMessage);
@@ -140,10 +140,11 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
       setFormData({
         loginId: "",
         empName: "",
-        dptName: "",
         officeTel: "",
         mobileTel: "",
         regEmpId: user.loginId,
+        dptName: "",
+        permission: "",
       });
     } catch (error: any) {
       setErrorMsg(error.message || "알 수 없는 오류가 발생했습니다");
@@ -203,10 +204,27 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
           />
         </Row>
 
-        <Row mainAxisAlignment="end">
+        <Row mainAxisAlignment="spaceBetween" spacing={2}>
+          <AppAutocomplete
+            label="권한"
+            options={PERMISSION_OPTIONS}
+            value={formData.permission}
+            onChange={(event, newValue) =>
+              setFormData((prev) => ({
+                ...prev,
+                permission: newValue || "",
+              }))
+            }
+            renderInput={function (
+              params: AutocompleteRenderInputParams
+            ): React.ReactNode {
+              return <AppTextField {...params} label="권한" />;
+            }}
+            sx={{ flex: 1 }}
+          />
           <AppAutocomplete
             label="부서"
-            options={["재무", "인사", "총무", "기타"]}
+            options={DEPARTMENT_OPTIONS}
             value={formData.dptName}
             onChange={(event, newValue) =>
               setFormData((prev) => ({
@@ -219,13 +237,13 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
             ): React.ReactNode {
               return <AppTextField {...params} label="부서" />;
             }}
-            sx={{ flex: 1, maxWidth: "25%", minWidth: "160px" }}
+            sx={{ flex: 1 }}
           />
         </Row>
 
         <Row>
           <AppTypography variant="body2" color="warning">
-            * 비밀번호는 초기값으로 Id와 동일하게 설정됩니다.
+            * 비밀번호는 초기값으로 ID와 동일하게 설정됩니다.
           </AppTypography>
         </Row>
 
@@ -233,14 +251,6 @@ const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
         {errorMsg && (
           <Row>
             <AppTypography style={{ color: "red" }}>{errorMsg}</AppTypography>
-          </Row>
-        )}
-
-        {successMsg && (
-          <Row>
-            <AppTypography style={{ color: "green" }}>
-              {successMsg}
-            </AppTypography>
           </Row>
         )}
 

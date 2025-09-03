@@ -21,10 +21,10 @@ func (r *UserRepository) InsertUserAccount(user *model.UserAccount) error {
 		INSERT INTO user_account (
 			login_id, passwd, emp_name, dpt_name, office_tel, mobile_tel,
 			recent_conn_date, delete_date, passwd_update_date, pw_fail_count,
-			client_ip, pw_ref, reg_emp_id, reg_date, upd_emp_id, upd_date)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			client_ip, pw_ref, reg_emp_id, reg_date, upd_emp_id, upd_date, permission)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
-	_, err := r.db.Exec(query, user.LoginId, user.Passwd, user.EmpName, user.DptName, user.OfficeTel, user.MobileTel, user.RecentConnDate, user.DeleteDate, user.PasswdUpdateDate, user.PwFailCount, user.ClientIp, user.PwRef, user.RegEmpId, user.RegDate, user.UpdEmpId, user.UpdDate)
+	_, err := r.db.Exec(query, user.LoginId, user.Passwd, user.EmpName, user.DptName, user.OfficeTel, user.MobileTel, user.RecentConnDate, user.DeleteDate, user.PasswdUpdateDate, user.PwFailCount, user.ClientIp, user.PwRef, user.RegEmpId, user.RegDate, user.UpdEmpId, user.UpdDate, user.Permission)
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {
 			return fmt.Errorf("이미 존재하는 사용자 Id입니다")
@@ -51,7 +51,8 @@ func (r *UserRepository) SelectUserAccountAll() ([]*model.UserAccount, error) {
 		       IFNULL(reg_emp_id, '') as reg_emp_id, 
 		       reg_date, 
 		       IFNULL(upd_emp_id, '') as upd_emp_id, 
-		       upd_date
+		       upd_date,
+			   permission
 		FROM user_account
 	`
 
@@ -82,6 +83,7 @@ func (r *UserRepository) SelectUserAccountAll() ([]*model.UserAccount, error) {
 			&user.RegDate,
 			&user.UpdEmpId,
 			&user.UpdDate,
+			&user.Permission,
 		); err != nil {
 			return nil, fmt.Errorf("사용자 데이터 스캔 실패: %w", err)
 		}
@@ -115,7 +117,8 @@ func (r *UserRepository) SelectUserAccountById(id string) (*model.UserAccount, e
 		       IFNULL(reg_emp_id, '') as reg_emp_id, 
 		       reg_date, 
 		       IFNULL(upd_emp_id, '') as upd_emp_id, 
-		       upd_date
+		       upd_date,
+			   permission
 		FROM user_account
 		WHERE login_id = ?
 	`
@@ -123,7 +126,7 @@ func (r *UserRepository) SelectUserAccountById(id string) (*model.UserAccount, e
 	err := r.db.QueryRow(query, id).Scan(
 		&user.LoginId, &user.Passwd, &user.EmpName, &user.DptName, &user.OfficeTel, &user.MobileTel,
 		&user.RecentConnDate, &user.DeleteDate, &user.PasswdUpdateDate, &user.PwFailCount,
-		&user.ClientIp, &user.PwRef, &user.RegEmpId, &user.RegDate, &user.UpdEmpId, &user.UpdDate,
+		&user.ClientIp, &user.PwRef, &user.RegEmpId, &user.RegDate, &user.UpdEmpId, &user.UpdDate, &user.Permission,
 	)
 
 	if err != nil {
@@ -138,11 +141,11 @@ func (r *UserRepository) UpdateUserAccount(user *model.UserAccount) error {
 		UPDATE user_account
 		SET passwd = ?, emp_name = ?, dpt_name = ?, office_tel = ?, mobile_tel = ?, 
 		recent_conn_date = ?, delete_date = ?, passwd_update_date = ?, pw_fail_count = ?,
-		client_ip = ?, pw_ref = ?, reg_emp_id = ?, reg_date = ?, upd_emp_id = ?, upd_date = ?
+		client_ip = ?, pw_ref = ?, reg_emp_id = ?, reg_date = ?, upd_emp_id = ?, upd_date = ?, permission = ?
 		WHERE login_id = ?
 	`
 
-	_, err := r.db.Exec(query, user.Passwd, user.EmpName, user.DptName, user.OfficeTel, user.MobileTel, user.RecentConnDate, user.DeleteDate, user.PasswdUpdateDate, user.PwFailCount, user.ClientIp, user.PwRef, user.RegEmpId, user.RegDate, user.UpdEmpId, user.UpdDate, user.LoginId)
+	_, err := r.db.Exec(query, user.Passwd, user.EmpName, user.DptName, user.OfficeTel, user.MobileTel, user.RecentConnDate, user.DeleteDate, user.PasswdUpdateDate, user.PwFailCount, user.ClientIp, user.PwRef, user.RegEmpId, user.RegDate, user.UpdEmpId, user.UpdDate, user.Permission, user.LoginId)
 
 	if err != nil {
 		return fmt.Errorf("사용자 수정 실패: %w", err)
