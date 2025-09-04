@@ -53,7 +53,7 @@ func (r *UserRepository) SelectUserAccountAll() ([]*model.UserAccount, error) {
 		       IFNULL(upd_emp_id, '') as upd_emp_id, 
 		       upd_date,
 			   permission
-		FROM user_account
+		FROM user_account WHERE delete_date IS NULL
 	`
 
 	rows, err := r.db.Query(query)
@@ -120,7 +120,7 @@ func (r *UserRepository) SelectUserAccountById(id string) (*model.UserAccount, e
 		       upd_date,
 			   permission
 		FROM user_account
-		WHERE login_id = ?
+		WHERE login_id = ? AND delete_date IS NULL
 	`
 
 	err := r.db.QueryRow(query, id).Scan(

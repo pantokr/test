@@ -93,7 +93,7 @@ func (s *AuthService) validateLogin(loginReq request.LoginRequest) *types.LoginR
 		return &types.LoginResult{
 			Success: false,
 			Code:    "4",
-			Message: fmt.Sprintf("Ip 주소가 일치하지 않습니다 ip: %s", loginReq.ClientIp),
+			Message: fmt.Sprintf("IP(%s) 주소가 일치하지 않습니다 ", loginReq.ClientIp),
 			User:    userAccount,
 		}
 	}

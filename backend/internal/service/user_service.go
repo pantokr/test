@@ -85,18 +85,17 @@ func (s *UserService) UpdateUser(updateReq request.UserUpdateRequest) error {
 }
 
 func (s *UserService) DeleteUser(deleteReq request.UserDeleteRequest) error {
-	for _, id := range deleteReq.DeleteEmpId {
-		userAccount, err := s.userRepo.SelectUserAccountById(id)
-		if err != nil {
-			return err
-		}
-		userAccount.DeleteDate = util.NowPtr()
-
-		if err := s.userRepo.UpdateUserAccount(userAccount); err != nil {
-			return err
-		}
-		log.Printf("사용자 삭제 성공: %s", id)
+	userAccount, err := s.userRepo.SelectUserAccountById(deleteReq.DeleteEmpId)
+	if err != nil {
+		return err
 	}
+	userAccount.DeleteDate = util.NowPtr()
+
+	if err := s.userRepo.UpdateUserAccount(userAccount); err != nil {
+		return err
+	}
+	log.Printf("사용자 삭제 성공: %s", deleteReq.DeleteEmpId)
+
 	return nil
 }
 

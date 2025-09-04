@@ -4,7 +4,8 @@ import (
 	"log"
 
 	"lms/internal/config"
-	"lms/internal/server"
+	"lms/internal/httpserver"
+	"lms/internal/tcpserver"
 	"lms/pkg/database"
 )
 
@@ -25,10 +26,16 @@ func main() {
 	}
 	defer db.Close()
 
-	// 서버 초기화 및 실행
-	srv := server.New(cfg, db)
+	// TCP 서버 실행 (고루틴)
+	go func() {
+		tcpSrv := tcpserver.New(":9000")
+		tcpSrv.Run()
+	}()
+
+	// HTTP 서버 실행 (블로킹)
+	srv := httpserver.New(cfg, db)
 	if err := srv.Run(); err != nil {
-		log.Fatalf("서버 실행 실패: %v", err)
+		log.Fatalf("HTTP 서버 실행 실패: %v", err)
 	}
 }
 

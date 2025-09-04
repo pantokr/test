@@ -10,7 +10,7 @@ type LoginUserDataResponse struct {
 	DptName    string `json:"dptName"`
 	OfficeTel  string `json:"officeTel"`
 	MobileTel  string `json:"mobileTel"`
-	Permission string `json:"permission`
+	Permission string `json:"permission"`
 }
 
 // NewLoginUserData model.UserAccount에서 안전한 데이터만 추출

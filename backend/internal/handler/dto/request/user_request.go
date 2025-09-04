@@ -33,5 +33,5 @@ type UserUpdateRequest struct {
 }
 
 type UserDeleteRequest struct {
-	DeleteEmpId []string `json:"deleteEmpId"`
+	DeleteEmpId string `json:"deleteEmpId"`
 }
