@@ -2,7 +2,7 @@
 import { LoginCredentials } from "@/api/types";
 import AppDialog from "@/components/common/Dialog";
 import AppTypography from "@/components/common/Typography";
-import PasswordUpdateForm from "@/components/forms/PasswordUpdateForm";
+import PasswordUpdateForm from "@/components/complex/forms/PasswordUpdateForm";
 import React from "react";
 
 interface PasswordUpdateDialogProps {

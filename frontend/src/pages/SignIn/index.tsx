@@ -1,12 +1,12 @@
 // src/pages/auth/SignIn/index.tsx
 
-import { Person } from "@mui/icons-material";
+import { Lock, Person } from "@mui/icons-material";
 import { Alert, InputAdornment, useTheme } from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ApiError, LoginCredentials } from "@/api/types";
-import { AppButton, AppTextField } from "@/components/common";
+import { AppButton, AppTextField, Column } from "@/components/common";
 import { AppBox } from "@/components/common/Box";
 import AppTextButton from "@/components/common/Button/AppTextButton";
 import AppSnackbar from "@/components/common/Snackbar";
@@ -101,7 +101,7 @@ const SignInPage: React.FC = () => {
       overlayOpacity={0.4}
     >
       <StyledPaper>
-        <AppBox sx={{ p: 4 }}>
+        <Column spacing={4} sx={{ p: 4 }}>
           {/* 로고 */}
           <LogoBox>
             <AppTypography
@@ -110,7 +110,8 @@ const SignInPage: React.FC = () => {
               fontWeight="bold"
               color="primary"
               sx={{
-                background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                // background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                background: "white",
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -125,7 +126,7 @@ const SignInPage: React.FC = () => {
             <AppTypography variant="h5" fontWeight="medium" gutterBottom>
               대출관리시스템
             </AppTypography>
-            <AppTypography variant="body2" color="textSecondary">
+            <AppTypography variant="body2" sx={{ color: "grey.500" }}>
               계정으로 로그인하세요
             </AppTypography>
           </AppBox>
@@ -150,13 +151,22 @@ const SignInPage: React.FC = () => {
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Person color="action" />
+                      <Person color="action" sx={{ color: "white" }} />
                     </InputAdornment>
                   ),
                 },
               }}
               autoComplete="username"
-              sx={{ mb: 2 }}
+              sx={{
+                mb: 2,
+                "& .MuiInputLabel-root": { color: "white" }, // 라벨
+                "& .MuiInputBase-input": { color: "white" }, // 입력 텍스트
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: "white" }, // 아웃라인
+                "& .MuiInputBase-input::placeholder": {
+                  color: "white",
+                  opacity: 1,
+                }, // placeholder
+              }}
               required
               placeholder="아이디를 입력하세요"
             />
@@ -165,6 +175,24 @@ const SignInPage: React.FC = () => {
             <AppPasswordField
               value={formData.passwd}
               onChange={handleChange("passwd")}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Lock color="action" sx={{ color: "white" }} />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+              sx={{
+                "& .MuiInputLabel-root": { color: "white" }, // 라벨
+                "& .MuiInputBase-input": { color: "white" }, // 입력 텍스트
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: "white" }, // 아웃라인
+                "& .MuiInputBase-input::placeholder": {
+                  color: "white",
+                  opacity: 1,
+                }, // placeholder
+              }}
               required
             />
 
@@ -173,9 +201,11 @@ const SignInPage: React.FC = () => {
               display="flex"
               justifyContent="flex-end"
               alignItems="center"
-              mb={3}
+              mt={2}
+              mb={6}
             >
               <AppTextButton
+                sx={{ color: "white" }}
                 onClick={() => {
                   snackbar.error("비밀번호 변경은 관리자에게 문의하세요");
                 }}
@@ -188,14 +218,16 @@ const SignInPage: React.FC = () => {
             <AppButton
               type="submit"
               fullWidth
-              variantType="filled"
+              variantType="outline"
               size="large"
               loading={loading}
               disabled={loading}
               sx={{
                 mb: 3,
                 py: 1.5,
+                borderColor: "white",
                 borderRadius: 2,
+                color: "white",
                 textTransform: "none",
                 fontSize: "1rem",
                 fontWeight: "medium",
@@ -204,7 +236,7 @@ const SignInPage: React.FC = () => {
               {loading ? "로그인 중..." : "로그인"}
             </AppButton>
           </AppBox>
-        </AppBox>
+        </Column>
       </StyledPaper>
 
       {/* 비밀번호 업데이트 다이얼로그 */}

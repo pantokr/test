@@ -1,17 +1,13 @@
 // src/types/layout.ts
 
-import type { ReactNode } from "react";
-
 /**
  * 대시보드 레이아웃 Props
  */
 export interface DashboardLayoutProps {
-  children?: ReactNode; // 선택적으로 변경
   title?: string;
-  showSidenav?: boolean;
-  showNavbar?: boolean;
-  showFooter?: boolean;
-  showPreferenceToggle?: boolean; // 테마 토글 버튼 표시 옵션 추가
+  showPreferenceToggle?: boolean;
+  mode?: "full" | "scroll"; // ✅ 레이아웃 모드
+  children: React.ReactNode;
 }
 
 /**

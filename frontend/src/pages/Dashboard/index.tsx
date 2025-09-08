@@ -74,12 +74,8 @@ const DashboardPage: React.FC = () => {
   const theme = useTheme();
 
   return (
-    <DashboardLayout title="대시보드">
+    <DashboardLayout title="대시보드" mode="scroll">
       <Box sx={{ padding: 3 }}>
-        <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-          대시보드
-        </Typography>
-
         {/* 메인 컨테이너 - Column 방향 */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
           {/* 첫 번째 행 - 라인 차트와 바 차트 */}

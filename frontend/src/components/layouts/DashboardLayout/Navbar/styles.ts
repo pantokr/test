@@ -1,6 +1,7 @@
 // src/layouts/DashboardLayout/Navbar/styles.ts
 
 import { AppBox } from "@/components/common/Box";
+import AppTypography from "@/components/common/Typography";
 import { Box, Toolbar } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -14,9 +15,9 @@ export const StyledAppBar = styled(AppBox, {
   top: 0,
   width: "100%",
   color: "inherit",
-  backgroundColor: "transparent", // 완전 투명
+  backgroundColor: theme.palette.background.default,
   backdropFilter: "none",
-  boxShadow: "none",
+  boxShadow: theme.shadows[2], // ✅ 그림자 추가
   border: "none",
   zIndex: theme.zIndex.drawer - 1,
   transition: theme.transitions.create(["background-color", "box-shadow"], {
@@ -119,7 +120,7 @@ export const UserSection = styled(Box)(({ theme }) => ({
 /**
  * 사용자 이름
  */
-export const UserName = styled("span")(({ theme }) => ({
+export const UserName = styled(AppTypography)(({ theme }) => ({
   color: theme.palette.text.primary, // 테마 기본 텍스트 색상
   fontSize: "0.875rem",
   marginRight: theme.spacing(1),

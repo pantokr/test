@@ -16,6 +16,7 @@ import { DashboardLayoutProps } from "./types";
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   title = "",
   showPreferenceToggle = true, // 테마 토글 버튼 표시 옵션
+  mode = "full",
   children,
 }) => {
   const { isMobile } = useDevice();
@@ -31,7 +32,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           onClose={closeSidenav}
         />
       </SidenavArea>
-      <MainArea>
+      <MainArea mode={mode}>
         <Navbar
           title={title}
           onSidenavToggle={() => {

@@ -90,21 +90,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   // 글로벌 스타일
   const globalStyles = useMemo(
     () => ({
-      "*::-webkit-scrollbar": {
-        width: 8,
-        height: 8,
-      },
-      "*::-webkit-scrollbar-track": {
-        backgroundColor: themeSettings.darkMode ? "#2e2e2e" : "#f1f1f1",
-        borderRadius: 4,
-      },
-      "*::-webkit-scrollbar-thumb": {
-        backgroundColor: themeSettings.darkMode ? "#555" : "#c1c1c1",
-        borderRadius: 4,
-        "&:hover": {
-          backgroundColor: themeSettings.darkMode ? "#777" : "#a8a8a8",
-        },
-      },
       "::selection": {
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.primary.contrastText,

@@ -1,6 +1,6 @@
 // pages/UserManagement/ProfileEdit/index.tsx
 import { AppCard } from "@/components/common/Card";
-import UserUpdateForm from "@/components/forms/UserUpdateForm";
+import UserUpdateForm from "@/components/complex/forms/UserUpdateForm";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useAuth } from "@/context";
 

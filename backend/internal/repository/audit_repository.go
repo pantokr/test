@@ -47,8 +47,9 @@ func (r *AuditRepository) SelectLoginHistoryAll() ([]model.LoginHistory, error) 
 			IFNULL(is_external, '') AS is_external,
 			IFNULL(client_ip, '') AS client_ip,
 			IFNULL(server_ip, '') AS server_ip
-		FROM login_history
-		ORDER BY login_time DESC
+			FROM login_history
+			WHERE login_time >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
+			ORDER BY login_time DESC;
 	`
 	rows, err := r.db.Query(query)
 	if err != nil {

@@ -2,8 +2,8 @@
 import { LoginCredentials } from "@/api/types";
 import { AppCard } from "@/components/common/Card";
 import AppDialog from "@/components/common/Dialog";
-import PasswordUpdateForm from "@/components/forms/PasswordUpdateForm";
-import PasswordVerificationForm from "@/components/forms/PasswordVerificationForm";
+import PasswordUpdateForm from "@/components/complex/forms/PasswordUpdateForm";
+import PasswordVerificationForm from "@/components/complex/forms/PasswordVerificationForm";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useAuth } from "@/context";
 import { useEffect, useState } from "react";

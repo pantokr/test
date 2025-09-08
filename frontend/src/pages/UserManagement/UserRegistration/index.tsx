@@ -1,6 +1,6 @@
 // pages/UserManagement/UserRegistration/index.tsx
 import { AppCard } from "@/components/common/Card";
-import UserRegistrationForm from "@/components/forms/UserRegistrationForm";
+import UserRegistrationForm from "@/components/complex/forms/UserRegistrationForm";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import React from "react";
 

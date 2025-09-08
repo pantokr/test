@@ -3,11 +3,16 @@ import { AppBox } from "@/components/common/Box";
 import { alpha, styled } from "@mui/material";
 
 export const StyledPaper = styled(AppPaper)(({ theme }) => ({
-  backdropFilter: "blur(20px)",
-  backgroundColor: alpha(theme.palette.background.paper, 0.9),
-  border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
-  borderRadius: theme.spacing(2),
+  backdropFilter: "blur(40px)",
+
+  // ⚡ 보라색 투명 그라디언트 배경
+  background: "rgba(54, 0, 0, 0.25)",
+  // "linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 1))",
+  // backgroundColor: "transparent",
+  color: "white",
   boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.1)}`,
+  borderRadius: 0, // ⚡ 둥근 모서리 제거
+
   maxWidth: 400,
   width: "100%",
 

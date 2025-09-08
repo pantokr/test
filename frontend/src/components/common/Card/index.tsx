@@ -10,8 +10,8 @@ import React from "react";
 
 // Props 정의
 export interface AppCardHeaderProps extends CardProps {
-  width: string | number;
-  height: string | number;
+  width?: string | number;
+  height?: string | number;
   padding?: number | string;
   title?: string;
   children?: React.ReactNode;
@@ -28,8 +28,8 @@ const GradientTitle = styled("h3")<{}>(({ theme }) => ({
 
 export const AppCard: React.FC<AppCardHeaderProps> = ({
   title,
-  width,
-  height,
+  width = "auto",
+  height = "auto",
   padding = 2,
   children,
   elevation = 4,

@@ -4,46 +4,37 @@ import { AppBox } from "@/components/common/Box";
 import { styled } from "@mui/material/styles";
 
 /**
- * 메인 레이아웃 컨테이너 - 좌우 분할만 담당
+ * 메인 레이아웃 컨테이너
  */
 export const LayoutContainer = styled(AppBox)({
   display: "flex",
-  height: "100vh",
   width: "100vw",
-  // ✅ 전체 패딩 제거
+  height: "100vh",
+  overflow: "hidden", // 전체 레이아웃에서 스크롤 없음
 });
 
+/**
+ * 사이드바 영역
+ */
 export const SidenavArea = styled(AppBox)(({ width }: { width: number }) => ({
   width: width,
+  flexShrink: 0,
   transition: "width 0.3s ease",
   overflow: "hidden",
-  flexShrink: 0, // 사이드바가 줄어들지 않게 고정
-  // ✅ SidenavArea는 패딩 없음 (sidenav가 화면 끝까지)
 }));
 
-export const MainArea = styled(AppBox)(({ theme }) => ({
-  // Flex 관련 속성들
-  flexGrow: 1, // 남은 공간을 모두 차지
-  flexShrink: 1, // 공간이 부족하면 축소 가능
-  flexBasis: 0, // 초기 크기를 0으로 설정
-
-  // 레이아웃 설정
-  display: "flex",
-  flexDirection: "column", // 세로 방향으로 자식 요소 배치
-
-  // ✅ MainArea에만 패딩 적용
-  // padding: theme.spacing(2), // 16px 패딩
-
-  // 스크롤 및 크기 제한
-  overflow: "hidden",
-
-  // 정렬 설정
-  alignItems: "center", // 가로축 중앙 정렬 (자식 요소들)
-  justifyContent: "flex-start", // 세로축 상단 정렬 (자식 요소들)
-
-  // 마진 설정
-  margin: "0 auto", // 좌우 중앙 정렬 (자기 자신)
-
-  // ✅ 박스 사이징으로 패딩이 width에 포함되도록
-  boxSizing: "border-box",
-}));
+/**
+ * 메인 콘텐츠 영역
+ */
+export const MainArea = styled(AppBox)<{ mode: "full" | "scroll" }>(
+  ({ mode }) => ({
+    flex: 1, // ⚡ Sidenav를 제외한 나머지 영역 차지
+    display: "flex",
+    flexDirection: "column",
+    minHeight: 0,
+    width: "100%", // flex:1과 함께 안전하게 전체 폭 차지
+    ...(mode === "scroll" && {
+      overflowY: "auto", // 내부 스크롤
+    }),
+  })
+);

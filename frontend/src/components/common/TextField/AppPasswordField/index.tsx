@@ -1,5 +1,5 @@
 // src/components/common/TextField/AppPasswordField.tsx
-import { Lock, Visibility, VisibilityOff } from "@mui/icons-material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { InputAdornment, TextFieldProps } from "@mui/material";
 import React, { useState } from "react";
 import { AppIconButton } from "../../Button";
@@ -39,11 +39,6 @@ export const AppPasswordField: React.FC<AppPasswordFieldProps> = ({
       sx={sx}
       slotProps={{
         input: {
-          startAdornment: showLockIcon ? (
-            <InputAdornment position="start">
-              <Lock color="action" />
-            </InputAdornment>
-          ) : undefined,
           endAdornment: showPasswordIcon ? (
             <InputAdornment position="end">
               <AppIconButton

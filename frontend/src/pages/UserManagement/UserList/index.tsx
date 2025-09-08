@@ -8,8 +8,8 @@ import { AppCard } from "@/components/common/Card";
 import AppDialog from "@/components/common/Dialog";
 import AppToggleButton from "@/components/common/ToggleButton/AppToggleButton";
 import AppTypography from "@/components/common/Typography";
-import AgGrid from "@/components/dataGrid/AgGrid/AgGrid";
-import UserUpdateForm from "@/components/forms/UserUpdateForm";
+import AgGrid from "@/components/complex/dataGrid/AgGrid/AgGrid";
+import UserUpdateForm from "@/components/complex/forms/UserUpdateForm";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useAuth } from "@/context";
 import { useGridData } from "@/hooks/api";
@@ -87,7 +87,7 @@ const UserListPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout title="사용자 목록">
+    <DashboardLayout title="사용자 목록" mode="full">
       <AppCard width="100%" height="100%" title="사용자 목록">
         <Column>
           <Row mainAxisAlignment="end" spacing={2}>

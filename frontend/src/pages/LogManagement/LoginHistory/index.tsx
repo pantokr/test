@@ -2,7 +2,7 @@ import { loginHistoryApi } from "@/api/audit";
 import { LoginHistoryItem } from "@/api/types";
 import { Column } from "@/components/common";
 import { AppCard } from "@/components/common/Card";
-import AgGrid from "@/components/dataGrid/AgGrid/AgGrid";
+import AgGrid from "@/components/complex/dataGrid/AgGrid/AgGrid";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useGridData } from "@/hooks/api";
 import dayjs from "dayjs";
@@ -13,7 +13,7 @@ const LoginHistoryPage: React.FC = () => {
   const [{ data, loading }] = useGridData<LoginHistoryItem>(loginHistoryApi);
 
   return (
-    <DashboardLayout title="로그인 기록">
+    <DashboardLayout title="로그인 기록 " mode="full">
       <AppCard width="100%" height="100%" title="로그인 기록">
         <Column>
           <AgGrid

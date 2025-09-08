@@ -1,5 +1,5 @@
 import { AppCard } from "@/components/common/Card";
-import UserUpdateForm from "@/components/forms/UserUpdateForm";
+import UserUpdateForm from "@/components/complex/forms/UserUpdateForm";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { useLocation } from "react-router-dom";
 
@@ -17,7 +17,7 @@ const UserUpdatePage: React.FC = () => {
 
   return (
     <DashboardLayout title="사용자 정보 수정">
-      <AppCard title="사용자 정보 수정">
+      <AppCard title="사용자 정보 수정" width={"100%"} height={"100%"}>
         <UserUpdateForm
           initialData={initialData} // 🔹 전달받은 데이터 사용
           onSuccess={async () => {
